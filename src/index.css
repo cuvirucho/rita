@@ -1,0 +1,701 @@
+*{
+  margin: 0;
+  padding: 0;
+  text-decoration: none;
+  box-sizing: border-box;
+  list-style: none;
+}
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #f4f4f4;
+}
+
+.hero {
+  position: relative;
+  width: 100%;
+  height: "auto";
+  background-color: #0197b3;
+  
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: white;
+  background-color: aqua;
+}
+
+.video-bg {
+
+  width: 100%;
+  height: 100%;
+  object-fit: scale-down;
+  z-index: 1;
+}
+
+.COMO {
+  background: rgb(255, 255, 255);
+  padding: 0px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+gap: 10px;
+
+}
+.titulocomo {
+  background:#ffbb00;
+  padding: 1px;
+  color: white;
+  text-align: center;
+  border-radius: 0px 0px 20px 20px;
+  font-size: clamp(18px, 5vw, 68px);
+}
+.steps {
+  background:#ffffff;
+  padding: 0px;
+  color: white;
+  text-align: center;
+  width: 100%;
+color:#003b5c;
+  font-size: clamp(18px, 2vw, 64px);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+
+}
+.itemsecmo1 {
+background-color: rgb(255, 255, 255);
+  width: 100%;
+  height: 100%;
+margin-top: 20px;
+padding: 5px;
+border-radius: 20px 20px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  border-bottom: 2px solid #0197b3;
+  z-index: 1;
+  max-width:  250px;;
+  min-height: 390px;
+}
+
+
+.tiylcdofunciona {
+  background-color: rgb(255, 255, 255);
+  width: 100%;
+  height: 100%;
+font-size: clamp(22px, 2vw, 14rem);
+border-radius: 20px 20px 20px 20px;
+text-align: center;
+}
+.tiylcdofunciona2 {
+  background-color: rgb(255, 255, 255);
+  width: 100%;
+  height: 100%;
+font-size: clamp(30px, 3vw, 124rem);
+border-radius: 20px 20px 20px 20px;
+text-align: center;
+}
+
+.gif{
+background-color: #ffffff;
+width: 75%;
+height: 50%;
+}
+.contelistadepaso{
+background-color: #ffffff;
+width: 100%;
+height: 100%;
+display: flex;
+flex-wrap: wrap;
+justify-content: space-around;
+gap: 20px;
+}
+.gotest{
+background-color: #ffffff;
+width: 100%;
+height: 100%;
+display: flex;
+flex-wrap: wrap;
+flex-direction: column;
+justify-content: center;
+align-content: center;
+padding: 25PX;
+}
+.btnlocomo11{
+
+width: 100%;
+height: 100px;
+display: flex;
+flex-wrap: wrap;
+flex-direction: column;
+justify-content: center;
+align-content: center;
+margin-top: 25px;
+font-size: clamp(32px, 3vw, 124rem);
+border-radius: 20px;
+color: white;
+background:#ffbb00;
+border: 2px solid #0197b3;
+cursor: pointer;
+}
+.empisatitulo{
+text-align: center;
+margin-top: 25px;
+font-size: clamp(35px, 3vw, 124rem);
+border-radius: 20px;
+color:#003b5c;
+background:#ffffff;
+}
+.btnlocomo11:hover{
+background-color: #0197b3;
+cursor: pointer;
+}
+.txbtngoformu{
+color: #ffffff;
+cursor: pointer;
+}
+
+
+
+
+
+
+
+
+
+/* fin de home        */
+/*  comineso de formulario      */
+
+.titulopricopafomu{
+  background-color: #ffffff;
+  width: 100%;
+text-align: center;
+color:#003b5c;
+font-size: clamp(20px, 1.5vw, 104rem);
+}
+.confullseccionformu{
+  background-color: #ffffff;
+  width: 100%;
+  height: 100vh;
+  font-size: clamp(17px, 1.5vw, 125rem);
+  text-align: center;
+  color:#003b5c;
+}
+
+.conteform{
+  background-color: #ffffff;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  font-size: clamp(20px, 2.1vw, 104rem);
+}
+
+.video{
+  width: 100%;
+  height: 80%;
+  max-height: 658px;
+  object-fit: cover;
+  z-index: 1;
+  background-color: yellowgreen;
+}
+
+.itmeformo{
+background-color: #ffffff;
+display: flex;
+flex-direction: column;
+width: 80%;
+margin-left: 10%;
+padding: 0.5rem;
+justify-content: center;
+align-items: center;
+}
+.impuformo{
+background-color: #ffffff;
+display: flex;
+flex-direction: column;
+width: 100%;
+max-width: 750px;
+min-height: 30px;
+border: solid 2px  #0197b3;
+padding: 10px;
+border-radius: 20px;
+font-size: clamp(15px, 1.1vw, 104rem);
+color:#003b5c;
+}
+.logingfomi{
+background-color: #ff0000;
+object-fit: cover;
+width: 100%;
+max-width: 270px;
+max-height: 80px;
+
+}
+.btnecuat{
+background-color:#0197b3;
+object-fit: cover;
+width: 80%;
+margin-left: 10%;
+margin-right: 10%;
+border-radius: 25px;
+margin-top: 2%;
+color: aliceblue;
+padding: 20px;
+font-size: clamp(25px, 1.1vw, 104rem);
+}
+/*findel fomularo*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*menu ia*/
+/* Estilos Generales */
+.calendar-container {
+  max-width: 900px;
+  margin: 0 auto;
+  text-align: center;
+  font-family: 'Roboto', sans-serif; /* Fuente general */
+}
+
+.days {
+  
+  background-color: #ffffff;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+
+#btfia {
+  padding: 10px 15px;
+  border-radius: 5px;
+  background-color: #fffafa;
+  cursor: pointer;
+  border: none;
+  color: #003b5c;
+}
+
+#btfia:hover {
+  background-color: #ddd;
+}
+
+#btfia.active {
+  background-color: #ffbb00;
+  color: white;
+}
+
+/* Estilos para las tarjetas de comida */
+
+
+.contefullmnusalu {
+  
+width: 100%;
+height: 100%;
+display: flex;
+justify-content: center;
+flex-direction: column;
+  background-color: #ffffff;
+
+  padding: 5px;
+}
+
+
+.calendarcontainer {
+  padding: 0;
+width: 100%;
+height:50% ;
+display: flex;
+flex-direction: column;
+  background-color: #ffffff;
+  align-items: center;
+  gap: 10px;
+}
+.usiaro{
+width: 70%;
+margin-top: 5px;
+text-align: center;
+  background-color: #1bcde0;
+  color: #ffffff;
+  border-radius: 11px;
+  font-size: clamp(29px, 30px, 104rem)
+}
+   
+
+.tiuloscidas{
+width: 95%;
+font-size: clamp(20px, 30px, 104rem);
+text-align: center;  
+color: #003b5c;
+}
+.frese{
+width: 95%;
+font-size: clamp(17px,25px, 104rem);
+text-align: center;
+  background-color: #ffffff;
+  color: #ffffff;
+  border-radius: 11px;
+  color: #1bcde0
+}
+.frese2{
+width: 95%;
+font-size: clamp(15px, 20px, 104px);
+text-align: center;
+  background-color: #ffffff;
+  color: #ffffff;
+  border-radius: 11px;
+  color: #003b5c;
+}
+
+
+
+
+.meals {
+  display: flex;
+  flex-wrap: wrap;
+  background-color: #ffffff;
+  width: 100%;
+  justify-content: space-around;
+  align-items: start;
+  align-content: flex-start;
+  height: auto
+}
+
+
+
+
+
+
+
+.meal-card {
+  width: 100%;
+  max-width: 340px;
+  min-width: 250px;
+  min-height: 350px;
+  margin: 15px;
+  padding: 20px;
+  border-radius: 15px;
+  background-color: rgba(255, 255, 255, 0.9);
+  box-shadow: 10px 4px 10px rgba(0, 0, 0, 0.1);
+  background-size: cover;
+  background-position: center;
+  text-align: center;
+  color: white;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: solid  #1bcde0 0.5px;
+}
+
+
+
+/* Estilos para cada tipo de comida */
+.meal-card.desayuno {
+  background:
+   linear-gradient(to bottom
+   , #003a5c18,
+   #1bcce021 ,
+   #1bcce027 , 
+   #1bcce027, 
+   #1bcce06c
+   );
+  text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
+  color: #003b5c;
+  font-family: Arial, sans-serif;
+}
+
+.meal-card.almuerzo {
+  background:
+  linear-gradient(to bottom
+  ,
+  #ffbb009c,
+  #ffbb0098,
+  #ffbb0073,
+  #003a5c46
+  );
+  color: #003b5c;
+}
+
+.meal-card.cena {
+  background:
+  linear-gradient(to bottom
+  , #003a5c5e,
+  #003a5c5e,
+  #003a5c62,
+  #003a5c73,
+  #1bcce05b 
+  );
+  color: #003b5c;
+}
+
+.meal-card.snack1 {
+  background:
+  linear-gradient(to bottom
+
+  , #1bcce027, 
+    #1bcce060 ,
+  #ffbb0059,
+  #ffbb0057
+  );
+  text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
+  color: #003b5c;
+  font-family: Arial, sans-serif;
+}
+.meal-card.snack2 {
+  background:
+  linear-gradient(to bottom
+  , #003a5c83,
+  #003a5c69,
+  #ffbb0060,
+  #ffbb0049
+  );
+  color: #003b5c;
+}
+
+
+.meal-card:hover {
+  transform: scale(1.05);
+  box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+.meal-card h3 {
+  font-size: 2em;
+  margin-bottom: 10px;
+  font-family: 'Poppins', sans-serif; /* Tipografía para el título */
+}
+
+.meal-card p {
+  font-size: 1.5rem;
+  margin: 5px 0;
+}
+
+.meal-card strong {
+  font-weight: bold;
+  font-size: 1.1em;
+}
+
+
+
+
+
+
+
+
+/*pagps y benficops*/
+
+
+.contefullpagos{
+  background-color: rgb(255, 255, 255);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.contebenficos{
+  background-color: rgb(255, 255, 255);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+
+  max-width:100%; /* Para que no se salga de la pantalla */
+}
+
+.contSCROBENFICOS{
+  display: flex;
+  overflow-x: auto;  /* Scroll solo en el eje X */
+  overflow-y: hidden; /* Evita que haya scroll vertical */
+  white-space: nowrap; /* Evita que los elementos bajen */
+ 
+  background-color: rgb(250, 206, 10);
+  max-width:100%; /* Para que no se salga de la pantalla */
+}
+.contelistabenefi{
+  display: flex;
+  overflow-x: auto;  /* Scroll solo en el eje X */
+  overflow-y: hidden; /* Evita que haya scroll vertical */
+  white-space: nowrap; /* Evita que los elementos bajen */
+  gap: 22px; /* Espaciado entre cupones */
+  padding: 0px;
+  height: 100%;
+  background-color: rgb(255, 255, 255);
+  max-width:100%; /* Para que no se salga de la pantalla */
+}
+
+.contelistabenefi::-webkit-scrollbar {
+  height: 8px; /* Tamaño del scrollbar */
+}
+
+.contelistabenefi::-webkit-scrollbar-thumb {
+  background: rgb(250, 206, 10); /* Color del scrollbar */
+  border-radius: 4px;
+}
+
+
+
+
+.contelistabenefi > li {
+  max-width: 20px;
+
+  min-width: 300px; /* Ancho mínimo para cada cupón */
+  flex-shrink: 0; /* Evita que los elementos se reduzcan */
+  background-color: #ffffff;
+justify-content: space-around;
+  border-radius: 8px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+   /* Permite que el texto se divida en varias líneas */
+   word-wrap: break-word;
+   overflow-wrap: break-word;
+   white-space: normal;
+   border: solid 2px  #ffbb00;
+   box-shadow: 2px 1px 7px black;
+   color:#21386c;
+}
+
+
+.fresepago{
+  width: 95%;
+  font-size: clamp(17px,25px, 104rem);
+  text-align: center;
+    background-color: #1bcde0;
+    color: #ffffff;
+    border-radius: 11px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    margin-top: 25px;
+  }
+.btncompawr{
+  width: 55%;
+  height: 50px;
+  font-size: clamp(17px,25px, 104rem);
+  text-align: center;
+   background-color:  #ffbb00;
+    color: #ffffff;
+    border-radius: 11px;
+    border: solid 1px #ffbb00;
+  }
+
+
+
+  #itembeni1 {
+    background-color: rgb(255, 255, 255);
+      width: 100%;
+      height: 100%;
+    margin-top: 20px;
+    padding: 5px;
+    border-radius: 20px 20px 20px 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      border-bottom: 2px solid #0197b3;
+      z-index: 1;
+      max-width:  250px;;
+      min-height: 390px;
+    }
+    
+    
+
+
+    .tiylcdofunciona3 {
+      background-color: rgb(255, 255, 255);
+      width: 100%;
+      height: 50%;
+    font-size: clamp(22px, 2vw, 14rem);
+    border-radius: 20px 20px 20px 20px;
+    text-align: center;
+    }
+
+
+    .tiylcdofunciona4 {
+      background-color: rgb(255, 255, 255);
+      
+    font-size: clamp(42px, 2vw, 14rem);
+    border-radius: 20px 20px 20px 20px;
+    text-align: center;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*formmulario de pagos */
+
+.contefromufull{
+  background-color: #ffffff;
+width: 100%;
+display: flex;
+flex-direction: column;
+text-align: center;
+gap: 20px;
+margin-top: 5px;
+}
+.itemfomu{
+  background-color: #ffffffd0;
+  display: flex;
+  flex-direction: column;
+  padding: 9px;
+  width: 100%;
+  color: #003b5c;
+  font-size: clamp(22px, 2vw, 14rem);
+}
+.iputfomu{
+  background-color: #ffffffd0;
+  display: flex;
+  flex-direction: column;
+  padding: 5px;
+  border: solid 1px  #0197b3;
+  color: #003b5c;
+  font-size: clamp(22px, 2vw, 14rem);
+  border-radius: 25px;
+}
+
+
+/*carga panmta*/
+.cargapantd{
+  max-width: 250px;
+  justify-content: center;
+  align-items: center;
+
+  margin-left: 40%;
+}

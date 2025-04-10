@@ -5,14 +5,17 @@ export const generarMenu = async (preferencias, ingredientes) => {
   const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
   console.log(preferencias, "sonlaspere");
-  console.log(ingredientes, "igetis a usar");
+ 
 
   const prompt = `
-  Genera un menú de  7 dias  Ponle un nobre gurmet a todos los platos   con desayuno, snack de media mañana, almuerzo, snack de media tarde y cena. Agrega una pequeña y atractiva decipcion del plato que no super los 75 palabras 
-  Considera los ingredientes disponibles en la bodega: ${Object.keys(ingredientes).join(", ")}.
-  Cada comida debe incluir cantidades exactas en gramos de cada ingrediente y suss calorias
-  Considera las siguientes restricciones del usuario: ${JSON.stringify(preferencias)}.
-  El costo total del mes no debe superar los $10.
+  Genera un menú de  7 dias  Ponle un nobre gurmet a todos los platos   Para cada día, quiero que sigas estrictamente el  formato JSON, usando claves como "desayuno", "snack1", "almuerzo", "snack2" y "cena". Agrega una pequeña y atractiva decipcion del plato que no super los 75 palabras 
+ 
+  Cada comida debe incluir cantidades exactas en gramos de cada ingrediente y sus calorias vitaminas proteinas minerales.
+  
+  Considera las siguientes peticones del usuario: ${JSON.stringify(preferencias)}.
+  Considera los gustos  del usuario: ${JSON.stringify(preferencias.like)}.
+
+  El costo total del mes no debe superar los $30.
   Devuelve el menú en JSON con este formato:
   
   Tu respuesta debe ser **EXCLUSIVAMENTE** un JSON válido, sin texto adicional.
@@ -24,16 +27,131 @@ export const generarMenu = async (preferencias, ingredientes) => {
   Si el JSON supera el límite de caracteres, divídelo en múltiples partes claramente separadas por ***PARTE 1***, ***PARTE 2***, etc.
   Asegúrate de que cada parte sea válida por sí misma y no esté truncada.
   
-  El formato debe ser el siguiente:
-  {
-    "dia1": {
-      "desayuno": { "nombre": "Avena con frutos secos", "ingredientes": { "avena": "50g", "nueces": "15g", "leche": "200ml" }, calorias:{758}  },
-      "snack1": { "nombre": "Batido de proteína", "ingredientes": { "leche": "250ml", "plátano": "100g", "proteína en polvo": "30g" } ,calorias:{7758} },
-      "almuerzo": { "nombre": "Pechuga de pollo con arroz", "ingredientes": { "pollo": "150g", "arroz": "120g", "brócoli": "100g" } ,calorias:{78} },
-      "snack2": { "nombre": "Yogur con almendras", "ingredientes": { "yogur": "200g", "almendras": "20g" },calorias:{77758}},
-      "cena": { "nombre": "Ensalada de atún", "ingredientes": { "atún": "120g", "lechuga": "50g", "aguacate": "50g" },calorias:{7588888} }
+
+Cada comida debe tener:
+
+"nombre" del plato
+
+ "descripcion": Agrega una pequeña y atractiva decipcion del plato que no super los 75 palabras  
+
+"ingredientes" como objeto con ingredientes y cantidades
+
+"calorias" como número (sin llaves, ni comillas)
+
+"vitaminas" como objeto con tipos y porcentaje
+
+"proteinas" como objeto con clave "total"
+
+"minerales" como objeto con tipo y cantidad
+
+Formato JSON obligatorio   :
+
+{
+  "dia1": {
+    "desayuno": {
+      "nombre": "nombre del plato", 
+      "descripcion": "descripcion del plato", 
+
+      "ingredientes": {
+        "ingrediente1": "cantidad",
+        "ingrediente2": "cantidad",
+        "ingrediente3": "cantidad"
+      },
+      "calorias": "valor",
+      "vitaminas": {
+        "vitamina1": "porcentaje",
+        "vitamina2": "porcentaje"
+      },
+      "proteinas": {
+        "total": "valor"
+      },
+      "minerales": {
+        "mineral1": "cantidad"
+      }
+    },
+    "snack1": {
+      "nombre": "nombre del plato",
+       "descripcion": "descripcion del plato", 
+      "ingredientes": {
+        "ingrediente1": "cantidad",
+        "ingrediente2": "cantidad",
+        "ingrediente3": "cantidad"
+      },
+      "calorias": "valor",
+      "vitaminas": {
+        "vitamina1": "porcentaje",
+        "vitamina2": "porcentaje"
+      },
+      "proteinas": {
+        "total": "valor"
+      },
+      "minerales": {
+        "mineral1": "cantidad"
+      }
+    },
+    "almuerzo": {
+      "nombre": "nombre del plato",
+       "descripcion": "descripcion del plato", 
+      "ingredientes": {
+        "ingrediente1": "cantidad",
+        "ingrediente2": "cantidad",
+        "ingrediente3": "cantidad"
+      },
+      "calorias": "valor",
+      "vitaminas": {
+        "vitamina1": "porcentaje",
+        "vitamina2": "porcentaje"
+      },
+      "proteinas": {
+        "total": "valor"
+      },
+      "minerales": {
+        "mineral1": "cantidad"
+      }
+    },
+    "snack2": {
+      "nombre": "nombre del plato",
+       "descripcion": "descripcion del plato", 
+      "ingredientes": {
+        "ingrediente1": "cantidad",
+        "ingrediente2": "cantidad",
+        "ingrediente3": "cantidad"
+      },
+      "calorias": "valor",
+      "vitaminas": {
+        "vitamina1": "porcentaje",
+        "vitamina2": "porcentaje"
+      },
+      "proteinas": {
+        "total": "valor"
+      },
+      "minerales": {
+        "mineral1": "cantidad"
+      }
+    },
+    "cena": {
+      "nombre": "nombre del plato",
+       "descripcion": "descripcion del plato", 
+      "ingredientes": {
+        "ingrediente1": "cantidad",
+        "ingrediente2": "cantidad",
+        "ingrediente3": "cantidad"
+      },
+      "calorias": "valor",
+      "vitaminas": {
+        "vitamina1": "porcentaje",
+        "vitamina2": "porcentaje"
+      },
+      "proteinas": {
+        "total": "valor"
+      },
+      "minerales": {
+        "mineral1": "cantidad"
+      }
     }
   }
+}
+
   `;
 
   try {

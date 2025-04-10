@@ -7,6 +7,7 @@ import Home from './HOME/Home';
 import Formo from './Formulario/Formo';
 import { useState } from 'react';
 import MenuDinamico from './Menu/MenuDinamico';
+import Formulariopagos from './Menu/Pagos/Formulariopagos';
 
 function App() {
   const [preferencias, setPreferencias] = useState(null);
@@ -17,6 +18,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/Formulario" element={<Formo setPreferencias={setPreferencias}    />} />
         <Route path="/menu" element={<MenuDinamico preferencias={preferencias} />} />
+        <Route path="/Formulariopagos" element={<Formulariopagos preferencias={""} />} />
       </Routes>
     </HashRouter>
   );

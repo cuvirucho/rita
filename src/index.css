@@ -8,100 +8,269 @@
 * {
   margin: 0;
   padding: 0;
+
   box-sizing: border-box;
 }
+html {
+  scroll-behavior: smooth;
+}
+
 
 body {
   font-family: 'Arial', sans-serif;
-  background-color: #f4f4f4;
+    background-color: white;
 }
 
 .hero {
   position: relative;
   width: 100%;
   height: "auto";
-  background-color: #0197b3;
-  
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
   color: white;
-  background-color: aqua;
+  background-color: rgb(255, 255, 255);
+  transform: translate(0, -73px);
+  z-index: 0;
 }
-
+/* Estilos responsivos para connetnoe del vido */
+@media (max-width: 768px) {
+  .hero{
+    transform: translate(0, -45px);
+  }
+}
+/*fin de midao par el video*/
 .video-bg {
 
   width: 100%;
   height: 100%;
   object-fit: scale-down;
+
+}
+
+.btnsconte{
+  background-color: rgba(255, 255, 255, 0);
+  width: auto;  
+  height: auto;
+  padding: 10px;
+  display: flex;
+  position: absolute;
+  top: 80%;
+  left: 28%;
+  gap: 1px;
+  z-index:0;
+}
+
+.btnlocomo1{
+
+  font-size: clamp(18px, 3vw, 5rem);
+  border-radius: 10px;
+  padding: 2px;
+  text-align: center;
+  color: white;
+  background:#ffbb00;
+ box-shadow: 2px 2px 5px black;
+  cursor: pointer;
+ display: flex;
+ justify-content: center;
+ align-items: center;
+  width: 180%;
+  height: auto;
+}
+.btnlocomo2{
+
+  font-size: clamp(15px, 2vw, 4rem);
+  border-radius: 10px;
+  padding: 2px;
+  text-align: center;
+  background-color: white;
+  border: none;
+color: #0197b3;
+  cursor: pointer;
+ display: flex;
+ justify-content: center;
+ align-items: center;
+  width: 100%;
+  height: auto;
+}
+.btnlocomo1:hover{
+  background-color: #0197b3;
+ 
+}
+
+/*hder desplegabel*/
+/* Estilos base */
+
+
+.header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: #ffa01100;
+  position: relative;
+  margin-left: 28%;
+width: 50%;
+  margin-top: 10px;
+  border-radius: 25rem;
+  font-size: clamp(17px, 2vw , 75px);
+  border: solid 2px #0197b3;
+  color: #003b5c;
   z-index: 1;
 }
 
+
+
+.nav-menu {
+  display: flex;
+  gap: 30px;
+  background-color: #ffffff;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+
+}
+
+.menu-toggle {
+  display: none;
+  font-size: 28px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  background-color: rgba(255, 255, 255, 0);
+  text-align: center;
+  
+}
+
+/* Estilos responsivos para hedere */
+@media (max-width: 768px) {
+  .menu-toggle {
+    display: block;
+      margin-left: 28%;
+  }
+  .header {
+    margin-top: 0px;
+    background-color: #ffffff00;
+    margin-left:50%;
+    justify-content: flex-end;
+    padding: 2px  ;
+    border: none;
+  }
+
+  .nav-menu {
+    display: none;
+    flex-direction: column;
+    position: absolute;
+    top: 42px;
+    left: -2px;
+    right: 0;
+    background-color: rgba(255, 255, 255, 0.973);
+    padding: 10px 0;
+
+    text-align: center;
+    border: solid 2px #0197b3;
+    border-radius: 20px 0px 20px 20px;
+  }
+
+  .nav-menu.open {
+    display: flex;
+  }
+}
+
+.linkmenu{
+  color: #003b5c;
+  text-decoration: none;
+  background-color: rgba(255, 255, 255, 0);
+  border: none;
+}
+/*fin de gerde*/
+/* Estilos para el contenedor como */
 .COMO {
-  background: rgb(255, 255, 255);
+  background: rgba(255, 255, 255, 0);
   padding: 0px;
   display: flex;
   flex-direction: column;
   justify-content: space-around;
   align-items: center;
 gap: 10px;
+transform: translate(0, -73px);
+  z-index: 0;
+  width: 100%;
+  height: auto;
 
+  
 }
 .titulocomo {
   background:#ffbb00;
-  padding: 1px;
+  padding: 2px;
   color: white;
   text-align: center;
   border-radius: 0px 0px 20px 20px;
-  font-size: clamp(18px, 5vw, 68px);
+  font-size: clamp(28px, 5.17vw, 88px);
 }
-.steps {
-  background:#ffffff;
-  padding: 0px;
+
+/*ESFERA DE DIV*/
+
+.ESFER{
+  width: 75px; /* Ancho del div */
+  height: 90px; /* Alto del div (igual al ancho para que sea un círculo) */
+  border-radius: 50%; /* Bordes completamente redondeados */
+  background: linear-gradient(45deg,#0197b3, #003b5c); /* Degradado lineal de colores */
   color: white;
+  display: flex;
+  justify-content: center;
+align-items: center;
+  font-size: clamp(30px, 2vw, 14rem);
   text-align: center;
-  width: 100%;
-color:#003b5c;
-  font-size: clamp(18px, 2vw, 64px);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-around;
-  align-items: center;
+  margin-bottom: 5px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); /* Sombra para dar efecto de profundidad */
+}  
 
-}
+
+/*FINDE ESFERE*/
 .itemsecmo1 {
-background-color: rgb(255, 255, 255);
-  width: 100%;
-  height: 100%;
-margin-top: 20px;
-padding: 5px;
-border-radius: 20px 20px 20px 20px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-around;
-  align-items: center;
-  border-bottom: 2px solid #0197b3;
-  z-index: 1;
-  max-width:  250px;;
-  min-height: 390px;
-}
+  background-color: rgba(255, 255, 255, 0);
+    width: 20%;
+    height: auto;
+  margin-top: 20px;
+  padding: 5px;
+  border-radius: 20px 20px 20px 20px;
+    display: flex;
+    
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+  
+  
+  }
+  /*mediacure paelos items*/
 
+  @media (max-width: 468px) {
+    .itemsecmo1 {
+      width: 45%;
+      
+    }
+
+  }
 
 .tiylcdofunciona {
   background-color: rgb(255, 255, 255);
   width: 100%;
   height: 100%;
-font-size: clamp(22px, 2vw, 14rem);
+font-size: clamp(22px, 1.4vw, 14rem);
 border-radius: 20px 20px 20px 20px;
 text-align: center;
+display: flex;
+justify-content: center;
+align-items: center;
 }
 .tiylcdofunciona2 {
   background-color: rgb(255, 255, 255);
   width: 100%;
   height: 100%;
-font-size: clamp(30px, 3vw, 124rem);
+font-size: clamp(15px, 2vw, 54rem);
 border-radius: 20px 20px 20px 20px;
 text-align: center;
 }
@@ -118,8 +287,364 @@ height: 100%;
 display: flex;
 flex-wrap: wrap;
 justify-content: space-around;
-gap: 20px;
+
 }
+/*fin de como*/
+/* Estilos para el contenedor de la planes */
+
+/*son los mismo quie coom pero con pquela barientes */
+.planes{
+  background-color: rgba(255, 255, 255, 0.979);
+padding: 15px;
+  transform: translate(0, -45px);
+}
+.titulplaness {
+  background:#ffffff;
+  padding: 2px;
+  color: #ffbb00;
+  text-align: center;
+
+  font-size: clamp(38px, 5.17vw, 88px);
+}
+
+.imgsecmo1{
+width: 100%;
+  object-fit: contain;
+  border-radius: 20px ;
+}
+.decricioplan{
+  background-color: #ffffff00;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+text-align: center;
+font-size: clamp(15px, 1.5vw, 88px);
+}
+
+.itemseplanes1 {
+  flex: 0 0 auto;  /* Evita que los elementos se redimensionen, manteniéndolos en su tamaño original */
+  margin-right: 15px;  /* Espacio entre los elementos */
+  width: 300px;  /* Ajusta el tamaño de cada ítem */
+  position: relative;
+  cursor: pointer;
+
+  }
+  .contelistaplanes{
+    display: flex;  /* Alinea los elementos horizontalmente */
+    overflow-x: auto;  /* Habilita el desplazamiento horizontal */
+    padding: 10px;  /* Espacio adicional para los bordes */
+    list-style-type: none;  /* Elimina los puntos de lista predeterminados */
+justify-content: space-around;
+overflow-y: hidden;
+    }
+ 
+ 
+
+
+ 
+
+  /*animar palnes*/
+ 
+ 
+  
+  .back {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden; /* Esconde la parte posterior al rotar */
+    transition: transform 0.6s;
+object-fit: contain;
+    background-color: #003b5c;
+    z-index: 5;
+  }
+  .front {
+    background-color: #ffffff;
+    width: 100%;
+    height: 100%;
+
+    backface-visibility: hidden; /* Esconde la parte posterior al rotar */
+    display: flex;
+    
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+  }
+    
+
+
+  
+  .itemseplanes1 .back {
+
+    transform: rotateY(180deg); /* Empieza rotada */
+  }
+
+  .itemseplanes1.flipped .front {
+    transform: rotateY(180deg); /* Cuando se da vuelta */
+  }
+  
+  .itemseplanes1.flipped .back {
+    transform: rotateY(0); /* Despliega la parte posterior */
+  }
+  
+
+  
+ /*parte de atras*/
+ .videopalnes{
+  width: 100%;
+ }
+ .btnlopl1{
+ 
+  font-size: clamp(18px, 3vw, 5rem);
+  border-radius: 10px;
+  padding: 10px;
+  text-align: center;
+  color: white;
+  background:#ffbb004d;
+ box-shadow: 2px 2px 5px black;
+  cursor: pointer;
+ display: flex;
+ justify-content: center;
+ align-items: center;
+  width: 50%;
+  margin-left: 25%;
+  height: auto;
+  transform: translate(0, -170px);
+ }
+ .btnlopl2{
+ 
+  font-size: clamp(18px, 3vw, 5rem);
+  border-radius: 10px;
+  padding: 10px;
+  text-align: center;
+  color: white;
+  background:#1f1b1100;
+  cursor: pointer;
+ display: flex;
+ justify-content: center;
+ align-items: center;
+  width: 50%;
+  margin-left: 25%;
+  height: auto;
+  transform: translate(0, -175px);
+ }
+  
+
+/*fini de plsnes*/
+
+
+
+
+
+
+/*resñas*/
+.mas{
+  background-color: rgb(255, 255, 255);
+  padding: 15px;
+
+}
+.reviews-container {
+  text-align: center;
+  
+  padding: 5px;
+  background-color: #ffffff;
+  border-radius: 10px;
+  width: 100%;
+
+}
+
+h2 {
+  font-size: 2rem;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.reviews {
+  display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+}
+
+.review {
+  padding: 20px;
+  background-color: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  max-width: 500px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.review-text {
+  font-style: italic;
+  font-size: 1rem;
+  color: #555;
+  margin-bottom: 10px;
+}
+
+.review-author {
+  font-weight: bold;
+  color: #333;
+}
+
+
+
+/*finde resla*/
+
+
+
+/*CABIATUVIS*/
+.cabaituvid{
+  background-color:  #003b5c;
+  width: 100%;
+  height: 100%;
+  display: flex;
+gap: 10px;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+}
+.caiaimg{
+  width: 50%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 20px;
+  
+}
+.coteinfocabi{
+  background-color: #b3f3ab00;
+  width: 50%;
+  height: 100%;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+ text-align: center;
+
+}
+
+
+.tulocabi{
+  color: white;
+  font-size: clamp(25px, 2.5vw, 5rem);
+}
+.descabi{
+  font-size: clamp(18px, 2vw, 5rem);
+
+}
+.btnlcabituvid{
+  background-color: #ffbb00;
+  width: 90%;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-content: center;
+padding: 5px;
+  font-size: clamp(18px, 3vw, 124rem);
+  border-radius: 20px;
+  color: white;
+  background:#ffbb00;
+  
+}
+/*FINDE CABIA TU VIDA*/
+
+
+
+
+/*planes*/
+.PLNES{
+  background-color: #ffffff;
+  padding: 20px;
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.plans-container {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  padding: 2rem;
+  flex-wrap: wrap;
+  background-color: rgb(253, 253, 253);
+}
+
+.plan-card {
+  border-radius: 15px;
+  padding: 2rem;
+  width: 250px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  text-align: center;
+  transition: transform 0.3s ease;
+}
+
+.plan-card:hover {
+  transform: scale(1.05);
+}
+
+.plan-card h2 {
+  margin-bottom: 1rem;
+}
+
+.plan-card .price {
+  font-size: 1.5rem;
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+.plan-card ul {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0;
+}
+
+.plan-card li {
+  margin: 0.5rem 0;
+}
+
+/* Estilos para los diferentes planes */
+.basic {
+  background-color: #f4f4f4;
+  border: 2px solid #ccc;
+}
+
+.premium {
+  background-color: #ffe7c2;
+  border: 2px solid #ffa500;
+}
+
+.btnpñla {
+  padding: 0.5rem 1rem;
+  border: none;
+  background-color: #ffbb00;
+  color: white;
+  border-radius: 10px;
+  cursor: pointer;
+  margin-top: 1rem;
+  transition: background-color 0.3s ease;
+}
+
+
+button:hover {
+  background-color: #00e67bd5;
+}
+
+.cooplnes{
+  color:  #ffbb00;
+}
+/*finde plnes*/
+
+
+
+
 .gotest{
 background-color: #ffffff;
 width: 100%;
@@ -174,6 +699,90 @@ cursor: pointer;
 
 
 /* fin de home        */
+/*foder*/
+
+
+.footer {
+  background-color: #0197b3;
+  color: #ffffff;
+  padding: 40px 20px 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.footer-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  max-width: 1200px;
+  margin: auto;
+}
+
+.footer-section {
+  flex: 1 1 250px;
+  margin: 10px;
+}
+
+.footer-section h3,
+.footer-section h4 {
+  margin-bottom: 15px;
+  color: #f8c291;
+}
+
+.footer-section ul {
+  list-style: none;
+  padding: 0;
+}
+
+.footer-section ul li {
+  margin-bottom: 10px;
+}
+
+.footer-section ul li a,
+.footer-section a {
+  color: #ffffff;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.footer-section a:hover {
+  color: #f8c291;
+}
+
+.social-icons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.footer-bottom {
+  text-align: center;
+  border-top: 1px solid #444;
+  margin-top: 30px;
+  padding-top: 20px;
+  font-size: 0.9rem;
+  color: #ccc;
+}
+.btnlocontac{
+  background-color: #ffbb00;
+  width: 100%;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-content: center;
+  border: none;
+  margin-top: 5px;
+  border-radius: 5px;
+  color: white;
+  font-size: 0.9rem;
+  max-width: 500px;
+}
+/*findel fode*/
+
+
+
+
+
 /*  comineso de formulario      */
 
 .titulopricopafomu{
@@ -205,7 +814,7 @@ font-size: clamp(20px, 1.5vw, 104rem);
   height: 80%;
   max-height: 658px;
   object-fit: cover;
-  z-index: 1;
+
   background-color: yellowgreen;
 }
 
@@ -357,7 +966,7 @@ text-align: center;
   background-color: #ffffff;
   color: #ffffff;
   border-radius: 11px;
-  color: #1bcde0
+  color:#ffbb00
 }
 .frese2{
 width: 95%;
@@ -495,8 +1104,19 @@ text-align: center;
 }
 
 
+.contingre{
+  background-color: rgba(153, 205, 50, 0);
+  display: flex;
+  gap: 55px;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 10px;
+  overflow:hidden ;
+  overflow-x: auto;  /* Habilita el desplazamiento horizontal */
+}
 
 
+/*FINDE CARTA DE MENIS*/
 
 
 
@@ -616,7 +1236,7 @@ justify-content: space-around;
       justify-content: center;
       align-items: center;
       border-bottom: 2px solid #0197b3;
-      z-index: 1;
+   
       max-width:  250px;;
       min-height: 390px;
     }
@@ -692,10 +1312,15 @@ margin-top: 5px;
 
 
 /*carga panmta*/
+.contcargapant{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
 .cargapantd{
   max-width: 250px;
   justify-content: center;
   align-items: center;
 
-  margin-left: 40%;
 }

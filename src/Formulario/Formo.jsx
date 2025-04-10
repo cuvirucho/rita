@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 
 const Formo = ({setPreferencias}) => {
@@ -10,6 +10,8 @@ const Formo = ({setPreferencias}) => {
     goal: "bajar peso",
     dietaryRestrictions: "",
     dislikes: "",
+    like: "",
+
   });
   const navigate = useNavigate();
   const handleChange = (e) => {
@@ -18,11 +20,19 @@ const Formo = ({setPreferencias}) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    alert("Encuesta enviada con éxito");
+
     console.log(formData);
     setPreferencias(formData);
     navigate("/menu");
   };
+
+
+  useEffect(() => {
+    // Desplazar al principio de la página cuando se monte el componente
+    window.scrollTo(0, 0);
+  }, []);
+
+
 
   return (
    
@@ -51,15 +61,18 @@ const Formo = ({setPreferencias}) => {
       <label  className='itmeformo'  >Altura (cm): <input    className='impuformo' type="number" name="height" value={formData.height} onChange={handleChange} required /></label>
       <label  className='itmeformo'  >Objetivo:
         <select  className='impuformo'    name="goal" value={formData.goal} onChange={handleChange}>
-          <option value="bajar peso">Bajar de peso</option>
-          <option value="aumentar musculo">Aumentar músculo</option>
-          <option value="Cuidado de diavetis">Cuidado de diavetis</option>
-          <option value="Cuidado de  hipertencio">Cuidado de  hipertencio</option>
-          <option value="Cuidado de  Gastritis">Cuidado de  Gastritis</option>
+          <option value="Bajar peso">Bajar de peso</option>
+          <option value="Aumentar musculo">Aumentar músculo</option>
+          <option value="Cuidado de diabetes">Cuidado de diabetes</option>
+          <option value="Cuidado de  hipertensión">Cuidado de  hipertensión</option>
+          <option value="Cuidado de  gastritis">Cuidado de  Gastritis</option>
         </select>
       </label>
       <label className='itmeformo'  >Restricciones alimenticias: <input   className='impuformo' type="text" name="dietaryRestrictions" value={formData.dietaryRestrictions} onChange={handleChange} /></label>
       <label className='itmeformo'   >Alimentos que no te gustan: <input   className='impuformo'   type="text" name="dislikes" value={formData.dislikes} onChange={handleChange} /></label>
+      <label className='itmeformo'   >Cuentale a la IA que te gusta comer <input   className='impuformo'   type="text" name="like" value={formData.like} onChange={handleChange} /></label>
+      
+
       <button className='btnecuat'    type="submit">Enviar Encuesta</button>
     </form>
     </section>

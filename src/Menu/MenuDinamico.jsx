@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { generarMenu } from './Genradoria';
 import { collection, getDocs } from 'firebase/firestore';
 import Formulariopagos from './Pagos/Formulariopagos';
+import Planos from './Plano/Planos';
+import Footer from '../HOME/Footer';
 
 const MenuDinamico = ({ preferencias }) => {
   const [listaigre, setListaIgre] = useState(null);
@@ -11,25 +13,16 @@ const MenuDinamico = ({ preferencias }) => {
   const [cargando, setCargando] = useState(true);
   const navigate = useNavigate();
 
-  // Función para obtener los ingredientes disponibles
-  const obtenerIngredientes = async () => {
-    const ingredientesSnapshot = await getDocs(collection(db, 'ingredientes'));
-    const ingredientes = {};
-    ingredientesSnapshot.forEach((doc) => {
-      ingredientes[doc.id] = doc.data();
-    });
-    setListaIgre(ingredientes);
-  };
-
+ 
   // Generar menú solo cuando listaigre está disponible
   useEffect(() => {
-    if (listaigre) {
+   
       cargarMenu();
-    }
-  }, [listaigre]); // Se ejecuta cuando listaigre cambia
+    
+  }, []); // Se ejecuta cuando listaigre cambia
 
   const cargarMenu = async () => {
-    const nuevoMenu = await generarMenu(preferencias, listaigre);
+    const nuevoMenu = await generarMenu(preferencias);
     setMenu(nuevoMenu);
     setCargando(false);
   };
@@ -40,7 +33,7 @@ const MenuDinamico = ({ preferencias }) => {
       navigate('/'); // Si no hay preferencias, volver al formulario
       return;
     }
-    obtenerIngredientes();
+
   }, []); // Se ejecuta solo una vez al montar
 
   console.log(menu);
@@ -122,7 +115,27 @@ setActiivarfomuoago(true)
         <h3>{meal.charAt(0).toUpperCase() + meal.slice(1)}</h3>
         <p><strong>{details.nombre}</strong></p>
         <p>{details.descripcion}</p>
-        <p><strong>Calorías:</strong> {details.calorias}</p>
+        <div     className='contingre'  >
+
+       
+        
+ 
+       <div> <p><strong>Vitaminas</strong></p> {details.vitaminas ? Object.entries(details.vitaminas).map(([key, value], index) => (
+  <p key={index}>{key}: {value}</p>
+)) : 'No disponible'}
+</div>
+
+<p><strong>Proteinas</strong> {details.proteinas ? details.proteinas.total : 'No disponible'}</p>
+
+
+<div> 
+<p><strong>Minerales</strong></p> {details.minerales ? Object.entries(details.minerales).map(([key, value], index) => (
+  <span key={index}>{key}: {value}</span>
+)) : 'No disponible'}
+</div>
+        
+        <p><strong>Calorías</strong> {details.calorias}</p>
+        </div>
       </div>
     ))}
   </div>
@@ -210,22 +223,16 @@ setActiivarfomuoago(true)
 
 
 
-{
-  actiivarfomuoago?
- 
-<Formulariopagos preferciausaro ={preferencias}   />
 
-
-  :
   <p className='fresepago'  > 
-  Adquire tu suscripcion mensual con todos estos benficios solo por   $65 precio de lanzamiento  
-<button  onClick={actipago} className='btncompawr' >
-  Coninuar
-</button>
+  Adquire tu suscripcion mensual con todos estos benficios   
+
 </p>
 
-}
 
+<section >
+  <Planos/>
+</section>
 
 </section>
 
@@ -237,7 +244,7 @@ setActiivarfomuoago(true)
 
 </>
 :
-<div>
+<div className='contcargapant'  >
 
  <p className='frese'   >La IA de nutricion esta crando algo especial para ti </p> 
  
@@ -254,7 +261,7 @@ setActiivarfomuoago(true)
 
    </section>
    <p className='frese'    >¡Registrate hoy y comienza a trabajar en tu mejor versión!</p>
-
+<Footer/>
 
 
 </>

@@ -1,18 +1,21 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-export const generarMenu = async (preferencias, ingredientes) => {
-  const genAI = new GoogleGenerativeAI("AIzaSyCyWWJK42hC7xlKvXx-5_t_U_gmF4Wgi7U"); // Reemplaza con tu clave API
+export const generarMenu = async (preferencias) => {
+  const genAI = new GoogleGenerativeAI(
+    "AIzaSyAAXdKef2yQ9W0zuXjs98ATRrTjmwokIgY"
+  ); // Reemplaza con tu clave API
   const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
   console.log(preferencias, "sonlaspere");
- 
 
   const prompt = `
   Genera un menú de  7 dias  Ponle un nobre gurmet a todos los platos   Para cada día, quiero que sigas estrictamente el  formato JSON, usando claves como "desayuno", "snack1", "almuerzo", "snack2" y "cena". Agrega una pequeña y atractiva decipcion del plato que no super los 75 palabras 
  
   Cada comida debe incluir cantidades exactas en gramos de cada ingrediente y sus calorias vitaminas proteinas minerales.
   
-  Considera las siguientes peticones del usuario: ${JSON.stringify(preferencias)}.
+  Considera las siguientes peticones del usuario: ${JSON.stringify(
+    preferencias
+  )}.
   Considera los gustos  del usuario: ${JSON.stringify(preferencias.like)}.
 
   El costo total del mes no debe superar los $30.
@@ -157,7 +160,7 @@ Formato JSON obligatorio   :
   try {
     const result = await model.generateContent(prompt);
     const response = await result.response;
-    
+
     if (!response || !response.candidates || response.candidates.length === 0) {
       console.error("La IA no devolvió una respuesta válida");
       return null;
@@ -184,7 +187,7 @@ Formato JSON obligatorio   :
 // Función para reparar JSON truncado o malformado
 function repararJSON(jsonString) {
   // Eliminar caracteres no deseados
-  let cleanedString = jsonString.replace(/```json|```/g, '').trim();
+  let cleanedString = jsonString.replace(/```json|```/g, "").trim();
 
   // Intentar analizar el JSON
   try {

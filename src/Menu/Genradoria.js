@@ -1,8 +1,64 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export const generarMenu = async (preferencias) => {
+  const resp = await fetch(
+    "https://us-central1-rita-ede4f.cloudfunctions.net/api/generarMenu",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        preferencias: preferencias,
+      }),
+    },
+  );
+
+  const data = await resp.json();
+
+  console.log(data.menu);
+  return data.menu;
+};
+
+// Función para reparar JSON truncado o malformado
+function repararJSON(jsonString) {
+  // Eliminar caracteres no deseados
+  let cleanedString = jsonString.replace(/```json|```/g, "").trim();
+
+  // Intentar analizar el JSON
+  try {
+    return JSON.parse(cleanedString);
+  } catch (error) {
+    console.error("Error al analizar el JSON:", error.message);
+
+    // Detectar si hay una cadena sin cerrar
+    const match = cleanedString.match(/"([^"]*)$/);
+    if (match) {
+      console.warn("Cadena truncada detectada, intentando corregir...");
+      cleanedString += '"}'; // Cierra la cadena
+    }
+
+    // Detectar si falta una llave de cierre
+    let openBraces = (cleanedString.match(/{/g) || []).length;
+    let closeBraces = (cleanedString.match(/}/g) || []).length;
+
+    while (closeBraces < openBraces) {
+      cleanedString += "}";
+      closeBraces++;
+    }
+
+    // Reintentar parsear después de la corrección
+    try {
+      return JSON.parse(cleanedString);
+    } catch (finalError) {
+      console.error("No se pudo reparar el JSON:", finalError.message);
+      return null;
+    }
+  }
+}
+/*  
   const genAI = new GoogleGenerativeAI(
-    "AIzaSyAAXdKef2yQ9W0zuXjs98ATRrTjmwokIgY"
+    "AIzaSyCRFbtyWSHJqvGuEKazO5tOFCCpiWfS9xg",
   ); // Reemplaza con tu clave API
   const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
@@ -14,7 +70,7 @@ export const generarMenu = async (preferencias) => {
   Cada comida debe incluir cantidades exactas en gramos de cada ingrediente y sus calorias vitaminas proteinas minerales.
   
   Considera las siguientes peticones del usuario: ${JSON.stringify(
-    preferencias
+    preferencias,
   )}.
   Considera los gustos  del usuario: ${JSON.stringify(preferencias.like)}.
 
@@ -182,41 +238,5 @@ Formato JSON obligatorio   :
     console.error("Error al generar el menú:", error);
     return null;
   }
-};
 
-// Función para reparar JSON truncado o malformado
-function repararJSON(jsonString) {
-  // Eliminar caracteres no deseados
-  let cleanedString = jsonString.replace(/```json|```/g, "").trim();
-
-  // Intentar analizar el JSON
-  try {
-    return JSON.parse(cleanedString);
-  } catch (error) {
-    console.error("Error al analizar el JSON:", error.message);
-
-    // Detectar si hay una cadena sin cerrar
-    const match = cleanedString.match(/"([^"]*)$/);
-    if (match) {
-      console.warn("Cadena truncada detectada, intentando corregir...");
-      cleanedString += '"}'; // Cierra la cadena
-    }
-
-    // Detectar si falta una llave de cierre
-    let openBraces = (cleanedString.match(/{/g) || []).length;
-    let closeBraces = (cleanedString.match(/}/g) || []).length;
-
-    while (closeBraces < openBraces) {
-      cleanedString += "}";
-      closeBraces++;
-    }
-
-    // Reintentar parsear después de la corrección
-    try {
-      return JSON.parse(cleanedString);
-    } catch (finalError) {
-      console.error("No se pudo reparar el JSON:", finalError.message);
-      return null;
-    }
-  }
-}
+*/

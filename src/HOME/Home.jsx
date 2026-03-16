@@ -1,419 +1,470 @@
-import React, { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { GoTriangleRight } from "react-icons/go";
-import { SiCodefresh } from "react-icons/si";
-import { LuChefHat } from "react-icons/lu";
+import { useEffect, useState, useRef } from "react";
+import { Link } from "react-router-dom";
+import Videocatgoriashome from "./Videocatgoriashome";
+import Reviews from "./Reseñas/Reviews";
+import Planos from "../Menu/Plano/Planos";
+import Footer from "./Footer";
 
-import { FaHandHoldingHeart } from "react-icons/fa";
-import Videocatgoriashome from './Videocatgoriashome';
-import Videosmucoloplnes from './Videosmucoloplnes';
-import Videiofievriolnes from './Videiofievriolnes';
-import Videopricipla from './Videopricipla';
-import Videogastrisi from './Videogastrisi';
-import Reviews from './Reseñas/Reviews';
-import { MdDeliveryDining } from "react-icons/md";
+const benefits = [
+  {
+    type: "image",
+    src: "https://res.cloudinary.com/db8e98ggo/image/upload/q_auto,w_200/v1736136676/PROSESANDO_17_kdybz5.gif",
+    title: "Control Total",
+    desc: "Crea tu menú personalizado con tus gustos y deja que nuestra IA optimice cada comida para ti.",
+    detail:
+      "Nuestra IA analiza tus preferencias, alergias y metas para diseñar cada platillo. Tú decides qué comer, nosotros lo hacemos perfecto.",
+    cta: "🔥 Empieza a personalizar tu menú hoy",
+  },
+  {
+    type: "image",
+    src: "https://res.cloudinary.com/db8e98ggo/image/upload/q_auto,w_200/v1735997330/PROSESANDO_12_xjsila.gif",
+    title: "Seguimiento Fit",
+    desc: "Registra tus comidas con calorías y nutrientes para un control total de tu alimentación.",
+    detail:
+      "Dashboard completo con macros, calorías y progreso semanal. Visualiza tu evolución y alcanza tus objetivos más rápido.",
+    cta: "📊 Lleva tu progreso al siguiente nivel",
+  },
+  {
+    type: "video",
+    src: "https://res.cloudinary.com/db8e98ggo/video/upload/v1739459854/PROSESANDO_fpgklg.mp4",
+    title: "Delivery Gratis",
+    desc: "Llevamos tu comida fit directamente a tu puerta. Pide desde la app sin costo de envío.",
+    detail:
+      "Entrega puntual todos los días. Comida fresca, empacada con amor y lista para calentar. Sin preocupaciones, sin cocinar.",
+    cta: "🚀 Recibe tu comida sin costo de envío",
+  },
+  {
+    type: "image",
+    src: "https://res.cloudinary.com/db8e98ggo/image/upload/q_auto,w_200/v1735948964/PROSESANDO_5_dtun5r.gif",
+    title: "IA de Entrenamiento",
+    desc: "Accede a rutinas personalizadas por IA para entrenar en casa o en el gym.",
+    detail:
+      "Rutinas adaptadas a tu nivel, equipo disponible y tiempo. La IA ajusta tu plan cada semana según tu progreso real.",
+    cta: "💪 Entrena inteligente, logra más",
+  },
+];
 
-import Planos from '../Menu/Plano/Planos';
-import Footer from './Footer';
+const steps = [
+  {
+    number: "01",
+    icon: "📋",
+    title: "Cuéntanos sobre ti",
+    desc: "Completa un formulario de 2 minutos con tus objetivos, gustos y restricciones alimenticias.",
+    highlight: "Solo 2 minutos",
+  },
+  {
+    number: "02",
+    icon: "🤖",
+    title: "La IA diseña tu plan",
+    desc: "Nuestra inteligencia artificial analiza tus datos y genera un menú de 7 días 100% personalizado.",
+    highlight: "Personalización real",
+  },
+  {
+    number: "03",
+    icon: "🍽️",
+    title: "Recibe y disfruta",
+    desc: "Tus 5 comidas diarias llegan frescas a tu puerta. Sin cocinar, sin preocuparte.",
+    highlight: "Delivery gratis",
+  },
+  {
+    number: "04",
+    icon: "📈",
+    title: "Transforma tu cuerpo",
+    desc: "Monitorea tu progreso con métricas reales y ajusta tu plan semanalmente con la IA.",
+    highlight: "Resultados visibles",
+  },
+];
+
+const LAUNCH_DATE = new Date("2026-07-12T00:00:00");
+
+const getTimeLeft = () => {
+  const now = new Date();
+  const diff = LAUNCH_DATE - now;
+  if (diff <= 0) return { days: 0, hours: 0, minutes: 0, seconds: 0 };
+  return {
+    days: Math.floor(diff / (1000 * 60 * 60 * 24)),
+    hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
+    minutes: Math.floor((diff / (1000 * 60)) % 60),
+    seconds: Math.floor((diff / 1000) % 60),
+  };
+};
 
 const Home = () => {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [flippedIndex, setFlippedIndex] = useState(null);
-const [loquiero, setLoquiero] = useState("")
-  const handleClick = (index) => {
-    setFlippedIndex(flippedIndex === index ? null : index); // Cambia el estado solo para el índice clickeado
+  const [loquiero, setLoquiero] = useState("");
+  const [timeLeft, setTimeLeft] = useState(getTimeLeft);
+  const [flippedCard, setFlippedCard] = useState(null);
+  const [activeDot, setActiveDot] = useState(0);
+
+  const scrollRef = useRef(null);
+  const isDragging = useRef(false);
+  const startX = useRef(0);
+  const scrollLeft = useRef(0);
+
+  const handleMouseDown = (e) => {
+    isDragging.current = true;
+    startX.current = e.pageX - scrollRef.current.offsetLeft;
+    scrollLeft.current = scrollRef.current.scrollLeft;
+    scrollRef.current.style.cursor = "grabbing";
   };
 
+  const handleMouseMove = (e) => {
+    if (!isDragging.current) return;
+    e.preventDefault();
+    const x = e.pageX - scrollRef.current.offsetLeft;
+    scrollRef.current.scrollLeft = scrollLeft.current - (x - startX.current);
+  };
+
+  const handleMouseUp = () => {
+    isDragging.current = false;
+    if (scrollRef.current) scrollRef.current.style.cursor = "grab";
+  };
+
+  const handleScroll = () => {
+    if (!scrollRef.current) return;
+    const { scrollLeft: sl, scrollWidth, clientWidth } = scrollRef.current;
+    const maxScroll = scrollWidth - clientWidth;
+    const index = Math.round((sl / maxScroll) * (benefits.length - 1));
+    setActiveDot(Math.min(index, benefits.length - 1));
+  };
+
+  const scrollToDot = (i) => {
+    if (!scrollRef.current) return;
+    const { scrollWidth, clientWidth } = scrollRef.current;
+    const maxScroll = scrollWidth - clientWidth;
+    scrollRef.current.scrollTo({
+      left: (maxScroll / (benefits.length - 1)) * i,
+      behavior: "smooth",
+    });
+  };
 
   const scrollToSection = (id) => {
     const element = document.getElementById(id);
     if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
+      element.scrollIntoView({ behavior: "smooth" });
     }
+    setMenuOpen(false);
   };
-  
-  const louqero=(name) =>{
-scrollToSection("cabituvid")
-setLoquiero(name)
-  }
+
   useEffect(() => {
-    // Desplazar al principio de la página cuando se monte el componente
     window.scrollTo(0, 0);
+  }, []);
+
+  useEffect(() => {
+    const timer = setInterval(() => setTimeLeft(getTimeLeft()), 1000);
+    return () => clearInterval(timer);
   }, []);
 
   return (
     <>
-    <div>
+      {/* HEADER */}
       <header className="header">
-       
-        <button className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)}>
-          ☰
-        </button>
-        <nav className={`nav-menu ${menuOpen ? 'open' : ''}`}>
-        <button className='linkmenu' onClick={() => scrollToSection('inicio')}>Inicio</button>
-    <button className='linkmenu' onClick={() => scrollToSection('cabituvid')}>Planes y Beneficios</button>
-    <button className='linkmenu' onClick={() => scrollToSection('vida')}>Regístrate</button>
-    <button className='linkmenu' onClick={() => scrollToSection('footer')}>Contáctanos</button>
-        </nav>
+        <div className="header-inner">
+          <img
+            src="https://res.cloudinary.com/db8e98ggo/image/upload/v1743140857/gifs_para_apps_gpxkfq.png"
+            alt="Rita Fit"
+            className="header-logo"
+          />
+          <button
+            className="menu-toggle"
+            onClick={() => setMenuOpen(!menuOpen)}
+          >
+            {menuOpen ? "✕" : "☰"}
+          </button>
+          <nav className={`nav-menu ${menuOpen ? "open" : ""}`}>
+            <button
+              className="nav-link"
+              onClick={() => scrollToSection("inicio")}
+            >
+              Inicio
+            </button>
+            <button
+              className="nav-link"
+              onClick={() => scrollToSection("como-funciona")}
+            >
+              Cómo Funciona
+            </button>
+            <button
+              className="nav-link"
+              onClick={() => scrollToSection("planes")}
+            >
+              Planes
+            </button>
+            <button
+              className="nav-link"
+              onClick={() => scrollToSection("testimonios")}
+            >
+              Testimonios
+            </button>
+            <button className="nav-link" onClick={() => scrollToSection("cta")}>
+              Empieza Gratis
+            </button>
+          </nav>
+        </div>
       </header>
 
-     
-    </div>
-    
- 
-    <section className="hero" id='inicio'   >
-  
-  
-  <Videopricipla/>
-  
-  <div className="btnsconte">
-
-    
-    <button className='btnlocomo1' onClick={() => scrollToSection('cabituvid')}>Explorar Planes </button>
-
-
-    <button    className="btnlocomo2"   onClick={() => scrollToSection('planes')} >
-      Conocer Más
-      <GoTriangleRight />
-
-    </button>
-  </div>
-
-
-  
-  </section>
-
-
-
-
-
-  <section className="COMO">
-     
-     
-     <p className='titulocomo'   >Planes de Nutrición Personalizados para Ti</p>
-    
-    
-
-          <h3 className='tiylcdofunciona2'  >En Rita Fit diseñamos planes adaptados a tus necesidades para que disfrutes de una vida más saludable.</h3>
-          
-          
-          <ul  className='contelistadepaso'   >
-           
-
-      
-
-
-
-
-
-
-        {/* seion 1   */ }
-          
-           
-        <li className='itemsecmo1'   >    
-              
-      
-  
-                <div  className='ESFER'  >
-                <SiCodefresh />
-                </div>
-                
-                  <p  className='tiylcdofunciona'>Ingredientes Frescos y Naturales</p>
-                
-              </li>
-              
-              
-                {/* seion 2  */ }
-           
-           
-           
-            
-            <li className='itemsecmo1'  >    
-               
-            <div  className='ESFER'  >
-            <LuChefHat />
-
-                </div>
-                
-   
-                  
-                   <p  className='tiylcdofunciona'  >Menús Variados y Deliciosos creados con IA</p>
-                  
-               </li>
-
-                    {/* seion 3  */ }
-           
-                    <li className='itemsecmo1'  >  
-                    <div  className='ESFER'  >
-                    <MdDeliveryDining />
-
-
-                </div>
-                
-
-
-                 <p  className='tiylcdofunciona'  >Entrega Directa a Tu Puerta</p> 
-          
-
-             </li>
-           
-           
-           
-              {/* seion 4  */ }
-            <li className='itemsecmo1'  >  
-              
-            <div  className='ESFER'  >
-            <FaHandHoldingHeart />
-
-                </div>
-                
-
-                <p  className='tiylcdofunciona'    >Mejorando Tu Bienestar</p>
-                
-           </li>
-         
-          </ul>
-      
-      
-  
-  
-  
-  
-     </section>
-
-
-
-<section className="planes" id='planes'>
-  
-<p className='titulplaness'   >Explora Nuestras Categorías</p>
-    
-    
-
-   
-    
-<ul className="contelistaplanes">
-      {/* Sección 1 */}
-      <li
-        className={`itemseplanes1${flippedIndex === 0 ? 'flipped' : ''}`}
-        onClick={() => handleClick(0)}
-      >
-
-<div className="front">
-        <img 
-        src="https://static.vecteezy.com/system/resources/previews/020/936/170/non_2x/portrait-of-a-happy-playful-girl-eating-fresh-salad-from-a-bowl-in-her-kitchen-beautiful-fit-woman-eating-healthy-salad-after-fitness-workout-photo.jpg" 
-        alt="Ejemplo desde URL" 
-        className='imgsecmo1'
-      />
-
-  
-    <strong  className='tiylcdofunciona'>Planes Para peder peso</strong>
-    <p  className='decricioplan'>Opciones diseñadas para mantener el equilibrio nutricional.</p>
-    </div>
-        <div className="back">
-         <Videocatgoriashome/>
-         <button onClick={()=> louqero("peder peso")} className="btnlopl1">
-      Lo quiero
-    </button>
-         <p  className="btnlopl2">
-      Mas planes
-    </p>
-        </div>
-      </li>
-
-      {/* Sección 2 */}
-      <li
-        className={`itemseplanes1${flippedIndex === 1 ? 'flipped' : ''}`}
-        onClick={() => handleClick(1)}
-      >
-        <div className="front">
-       <img 
-              src="data:image/jpeg;base64,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" 
-              alt="Ejemplo desde URL" 
-              className='imgsecmo1'
-            />
-      
-        
-          <strong  className='tiylcdofunciona'>Dieta para ganar musculos</strong>
-          <p  className='decricioplan'>Adaptadas a tus objetivos específicos de salud.</p>
-          </div>   
-          <div className="back">
-         <Videosmucoloplnes/>
-         <button onClick={()=> louqero("ganar musculo")}className="btnlopl1">
-      Lo quiero
-    </button>
-         <p  className="btnlopl2">
-      Mas planes
-    </p>
-        </div>
-      </li>
-    {/* seion 3  */ }
-     
-   
-     
-    <li
-        className={`itemseplanes1${flippedIndex === 2 ? 'flipped' : ''}`}
-        onClick={() => handleClick(2)}
-      >
-         <div className="front">
-        <img 
-              src="https://clinicaangloamericana.pe/wp-content/uploads/2020/11/CA_WEB_1200x800_diabetes.png" 
-              alt="Ejemplo desde URL" 
-              className='imgsecmo1'
-            />
-      
-        
-          <strong  className='tiylcdofunciona'>Plan contra la diabetes</strong>
-          <p  className='decricioplan'>Cuida tu cuerpo  tu salud  y transforman tu estilo de vida!</p>
+      {/* HERO */}
+      <section className="hero-section" id="inicio">
+        <Videocatgoriashome />
+        <div className="hero-overlay" />
+        <div className="hero-content">
+          <div className="hero-badge">Precio exclusivo de lanzamiento</div>
+          <h1 className="hero-title">
+            Nutrición inteligente para tu mejor versión
+          </h1>
+          <p className="hero-subtitle">
+            Planes de comida 100% personalizados por IA. 5 comidas diarias,
+            delivery a tu puerta y seguimiento nutricional completo.
+          </p>
+          {/* COUNTDOWN TIMER */}
+          <div className="countdown-container">
+            <p className="countdown-label">🚀 Lanzamiento oficial en:</p>
+            <div className="countdown-grid">
+              <div className="countdown-item">
+                <span className="countdown-number">
+                  {String(timeLeft.days).padStart(2, "0")}
+                </span>
+                <span className="countdown-unit">Días</span>
+              </div>
+              <div className="countdown-separator">:</div>
+              <div className="countdown-item">
+                <span className="countdown-number">
+                  {String(timeLeft.hours).padStart(2, "0")}
+                </span>
+                <span className="countdown-unit">Horas</span>
+              </div>
+              <div className="countdown-separator">:</div>
+              <div className="countdown-item">
+                <span className="countdown-number">
+                  {String(timeLeft.minutes).padStart(2, "0")}
+                </span>
+                <span className="countdown-unit">Min</span>
+              </div>
+              <div className="countdown-separator">:</div>
+              <div className="countdown-item">
+                <span className="countdown-number">
+                  {String(timeLeft.seconds).padStart(2, "0")}
+                </span>
+                <span className="countdown-unit">Seg</span>
+              </div>
+            </div>
           </div>
-          <div className="back">
-         <Videiofievriolnes/>
-         <button onClick={()=> louqero("contra la diabetes")}className="btnlopl1">
-      Lo quiero
-    </button>
-         <p  className="btnlopl2">
-      Mas planes
-    </p>
-        </div>
-              </li>
-              
-     
-     
-        {/* seion 4  */ }
-  
 
-        <li
-        className={`itemseplanes1${flippedIndex === 3 ? 'flipped' : ''}`}
-        onClick={() => handleClick(3)}
-      >
-        <div className="front">
-        <img 
-              src="https://www.webconsultas.com/sites/default/files/styles/wc_adaptive_image__small/public/media/2024/03/20/gastritis_aguda.jpg.webp" 
-              alt="Ejemplo desde URL" 
-              className='imgsecmo1'
-            />
-      
-        
-          <strong  className='tiylcdofunciona'>Dieta contra gastriti</strong>
-          <p  className='decricioplan'>alivia los síntomas de la gastritis de forma natural."</p>
+          <div className="hero-actions">
+            <Link to="/Formulario" className="btn btn-primary btn-lg">
+              Prueba la IA Gratis
+            </Link>
+            <button
+              className="btn btn-secondary btn-lg"
+              onClick={() => scrollToSection("planes")}
+            >
+              Ver Planes
+            </button>
           </div>
-          <div className="back">
-         <Videogastrisi/>
-         <button onClick={()=> louqero("contra gastriti")} className="btnlopl1">
-      Lo quiero
-    </button>
-         <p  className="btnlopl2">
-      Mas planes
-    </p>
         </div>
-              </li>
+      </section>
 
+      {/* BENEFITS CAROUSEL */}
+      <section className="benefits-section">
+        <div
+          className="section-header"
+          style={{ padding: "0 24px", marginTop: "48px" }}
+        >
+          <span className="section-badge">✨ Beneficios</span>
+          <h2 className="section-title">
+            Todo lo que necesitas en un solo lugar
+          </h2>
+          <p className="section-subtitle">
+            Desde la planificación hasta la entrega, nos encargamos de todo para
+            que tú solo disfrutes.
+          </p>
+        </div>
+        <div
+          className="benefits-scroll"
+          ref={scrollRef}
+          style={{ cursor: "grab" }}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseUp}
+          onScroll={handleScroll}
+        >
+          {benefits.map((b, i) => (
+            <div
+              className={`benefit-card-flip ${flippedCard === i ? "flipped" : ""}`}
+              key={i}
+              onClick={() => setFlippedCard(flippedCard === i ? null : i)}
+            >
+              <div className="benefit-card-inner">
+                {/* FRONT */}
+                <div className="benefit-card benefit-card-front">
+                  <div className="benefit-media-wrapper">
+                    {b.type === "image" ? (
+                      <img className="benefit-icon" src={b.src} alt={b.title} />
+                    ) : (
+                      <video
+                        className="benefit-video"
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
+                      >
+                        <source src={b.src} type="video/mp4" />
+                      </video>
+                    )}
+                  </div>
+                  <h3 className="benefit-title">{b.title}</h3>
+                  <p className="benefit-desc">{b.desc}</p>
+                  <span className="benefit-tap-hint">Toca para más info ↻</span>
+                </div>
+                {/* BACK */}
+                <div className="benefit-card benefit-card-back">
+                  <span className="benefit-back-icon">
+                    {["🎯", "📊", "🚀", "💪"][i]}
+                  </span>
+                  <h3 className="benefit-title">{b.title}</h3>
+                  <p className="benefit-detail">{b.detail}</p>
+                  <button
+                    className="benefit-cta-btn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      document
+                        .getElementById("planes")
+                        ?.scrollIntoView({ behavior: "smooth" });
+                    }}
+                  >
+                    {b.cta}
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+        {/* DOTS */}
+        <div className="benefits-dots">
+          {benefits.map((_, i) => (
+            <button
+              key={i}
+              className={`benefits-dot ${activeDot === i ? "active" : ""}`}
+              onClick={() => scrollToDot(i)}
+              aria-label={`Ir al beneficio ${i + 1}`}
+            />
+          ))}
+        </div>
+      </section>
 
+      {/* CTA BANNER - Transform your life */}
+      <section className="section" id="cta">
+        <div className="container">
+          <div className="cta-banner">
+            <div className="cta-banner-text">
+              <h2 className="cta-banner-title">
+                Transforma tu alimentación con inteligencia artificial
+              </h2>
+              <p className="cta-banner-desc">
+                Nuestra IA analiza tus objetivos, gustos y restricciones para
+                crear el menú perfecto. Pruébala ahora — es gratis.
+              </p>
+              <Link to="/Formulario" className="btn btn-primary">
+                Probar la IA Gratis →
+              </Link>
+            </div>
+            <img
+              src="https://res.cloudinary.com/db8e98ggo/image/upload/v1772647027/Gemini_Generated_Image_thoxanthoxanthox_1_fbm7xu.png"
+              alt="Rita Fit IA"
+              className="cta-banner-img"
+            />
+          </div>
+        </div>
+      </section>
 
+      {/* HOW IT WORKS */}
+      <section className="section section-subtle" id="como-funciona">
+        <div className="container">
+          <div className="section-header">
+            <span className="section-badge">🚀 Cómo funciona</span>
+            <h2 className="section-title">
+              Empieza a transformarte en 4 simples pasos
+            </h2>
+            <p className="section-subtitle">
+              Sin complicaciones. En menos de 2 minutos tendrás tu plan de
+              comidas personalizado por inteligencia artificial.
+            </p>
+          </div>
+          <div className="steps-grid">
+            {steps.map((step, i) => (
+              <div
+                className="step-card"
+                key={i}
+                style={{ animationDelay: `${i * 0.15}s` }}
+              >
+                <div className="step-number-badge">{step.number}</div>
+                <div className="step-icon-wrapper">
+                  <span className="step-icon">{step.icon}</span>
+                </div>
+                <h3 className="step-title">{step.title}</h3>
+                <p className="step-desc">{step.desc}</p>
+                <span className="step-highlight">{step.highlight}</span>
+                {i < steps.length - 1 && (
+                  <div className="step-connector" aria-hidden="true" />
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
-    </ul>
-  
-  </section>
+      {/* PLANS */}
+      <section className="plans-section" id="planes">
+        <div className="container">
+          <div className="section-header">
+            <span className="section-badge">🚀 Acceso Anticipado</span>
+            <h2 className="section-title">Precio exclusivo de lanzamiento</h2>
+            <p className="section-subtitle">
+              Sé de los primeros 100 en unirte y asegura el mejor precio de por
+              vida. Después de los 100 lugares, el precio sube.
+            </p>
+          </div>
+          <Planos name={loquiero} />
+        </div>
+      </section>
 
+      {/* REVIEWS */}
+      <section className="reviews-section" id="testimonios">
+        <div className="container">
+          <div className="section-header">
+            <span className="section-badge">💬 Testimonios</span>
+            <h2 className="section-title">Lo que dicen nuestros clientes</h2>
+            <p className="section-subtitle">
+              transforma tu alimentación con Rita Fit.
+            </p>
+          </div>
+          <Reviews />
+        </div>
+      </section>
 
+      {/* CONTACT CTA */}
+      <section className="contact-section" id="footer">
+        <div className="container">
+          <h2 className="contact-title">
+            ¿Tienes preguntas? Estamos aquí para ayudarte
+          </h2>
+          <p className="contact-desc">
+            Contáctanos y descubre cómo Rita Fit puede transformar tu vida.
+          </p>
+          <button
+            className="btn btn-primary btn-lg"
+            onClick={() => window.open("https://wa.me/593963200325", "_blank")}
+          >
+            💬 Contáctanos por WhatsApp
+          </button>
+        </div>
+      </section>
 
-
-<section className="mas" id='mas'>
-
-
-
-<Reviews/>
-
-
-</section>
-
-
-
-
-
-
-
-
-
-
-<section className="cabaituvid" id='vida'>
-
-
-
-<div className='coteinfocabi'  >
-  <h2   className='tulocabi'  >
-  Transforma Tu Vida con Rita Fit
-  </h2>
-  <p   className='descabi'  >
-  Empieza hoy a disfrutar de una alimentación saludable y personalizada. ¡Tu bienestar está a solo un clic de distancia!
-  </p>
-  <button  onClick={() => scrollToSection('cabituvid')} className="btnlcabituvid">
-      Explorar Planes
-    </button>
-</div>
-
-<img 
-        src="https://chvmpionmind.com/wp-content/uploads/2024/03/vida-sana.jpeg" 
-        alt="Ejemplo desde URL" 
-        className='caiaimg'
-      />
-
-
-</section>
-
-
-<section className="PLNES" id='cabituvid'>
- <div>
-
- <p className='cooplnes'  >
- Descubre Nuestros Planes
- </p>
- <h2>
- Planes Flexibles para Tu Estilo de Vida
- </h2>
- <p>
- Elige el plan que mejor se adapte a tus necesidades y comienza tu viaje hacia una vida más saludable con Rita Fit.
- </p>
- 
- 
-</div>
- <Planos name={loquiero}  />
- 
-  </section>
-
-
-
-<section className="gotest">
-    <p  className='empisatitulo'  >Empiesa tu nueva vida !</p>
-    <Link className='txbtngoformu'  to="/Formulario">
-   <button className='btnlocomo11'   >
-   
-     Prueba nuestra IA 
-   </button>
-     </Link>
-   
- 
-   
-    </section>
-
-
-<section className="footer"   id='footer'>
-  <div className='contfooter'>
-  <p className='titulofotter'  >¿Tienes preguntas? ¡Estamos aquí para ayudarte!</p>
-  <p className='descfooter'  >Contáctanos y descubre cómo Rita Fit puede transformar tu vida.</p>
- 
-  <button className='btnlocontac' onClick={() => window.open('https://wa.me/593963200325', '_blank')}>
-  Contactanos
-</button>
-
- 
-  </div>
-
-<Footer/>
-  </section>
-
-
+      {/* FOOTER */}
+      <Footer />
     </>
-  )
-}
+  );
+};
 
-export default Home
+export default Home;

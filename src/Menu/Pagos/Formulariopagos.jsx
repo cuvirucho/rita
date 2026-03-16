@@ -1,113 +1,172 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 
 const Formulariopagos = ({ preferciausaro }) => {
-  // Estado único para almacenar toda la información del usuario
-  const [usuariocplto, setUsuariocplto] = useState({
-    document: '',
-    documentType: 'CC',
-    surname: '',
-    email: '',
-    phone: '',
-    ...preferciausaro, // Cargar datos iniciales desde preferciausaro si existen
-  });
+  const location = useLocation();
+  const { plan } = location.state || {};
 
   const [loading, setLoading] = useState(false);
-  const [paymentUrl, setPaymentUrl] = useState('');
+  const [visible, setVisible] = useState(false);
 
-  // Actualizar estado si `preferciausaro` cambia
   useEffect(() => {
-    setUsuariocplto((prevState) => ({
-      ...prevState,
-      ...preferciausaro,
-    }));
-  }, [preferciausaro]);
-
-  const handleChange = (e) => {
-    const { id, value } = e.target;
-    setUsuariocplto((prevState) => ({
-      ...prevState,
-      [id]: value,
-    }));
-  };
+    window.scrollTo(0, 0);
+    const t = setTimeout(() => setVisible(true), 80);
+    return () => clearTimeout(t);
+  }, []);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     setLoading(true);
 
-    if (!usuariocplto.document || !usuariocplto.phone || !usuariocplto.email) {
-      alert('Por favor, completa todos los campos');
-      setLoading(false);
-      return;
+    try {
+      const response = await fetch(
+        "https://us-central1-rita-ede4f.cloudfunctions.net/api/create-order",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            form: {},
+            cart: {
+              nombre: plan.title,
+              precioVenta: parseFloat(plan.price.replace(/[^0-9.]/g, "")),
+              cantidad: 1,
+            },
+          }),
+        },
+      );
+
+      const data = await response.json();
+
+      const openPayphone = () => {
+        new window.PPaymentButtonBox({
+          token: data.token,
+          clientTransactionId: data.clientTransactionId,
+          amount: data.amount,
+          amountWithoutTax: 0,
+          amountWithTax: data.amountWithoutTax,
+          tax: data.tax,
+          service: data.service,
+          currency: "USD",
+          reference: data.reference,
+          storeId: data.storeId,
+        }).render("pp-button");
+      };
+
+      if (!window.PPaymentButtonBox) {
+        const script = document.createElement("script");
+        script.src =
+          "https://cdn.payphonetodoesposible.com/box/v1.1/payphone-payment-box.js";
+
+        script.onload = openPayphone;
+
+        document.body.appendChild(script);
+      } else {
+        openPayphone();
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Error al iniciar el pago");
     }
 
-    console.log('Datos enviados:', usuariocplto);
-    alert("pasarela de pagos en construccion")
+    setLoading(false);
   };
 
+  useEffect(() => {
+    if (plan) {
+      handleSubmit({ preventDefault: () => {} });
+    }
+  }, [plan]);
+
+  const price = plan?.price || "$0";
+  const originalPrice = plan?.originalPrice || "";
+  const title = plan?.title || "Plan";
+  const savings = originalPrice
+    ? `$${parseInt(originalPrice.replace("$", "")) - parseInt(price.replace("$", ""))}`
+    : null;
+
   return (
-    <div className="contefromufull">
-      <h2 className="frese">Completa tu registro {usuariocplto.name}</h2>
+    <div className={`pay-page ${visible ? "pay-page--visible" : ""}`}>
+      {/* Banner de preventa */}
+      <div className="pay-preventa-banner">
+        <span className="pay-preventa-icon">🔥</span>
+        <div className="pay-preventa-text">
+          <strong>¡Estás comprando en PREVENTA!</strong>
+          <span>Precio exclusivo por tiempo limitado — No te lo pierdas</span>
+        </div>
+      </div>
 
-      <form className="conetfomu" onSubmit={handleSubmit}>
-        <div className="itemfomu">
-          <label htmlFor="document">Identificación</label>
-          <input
-            className="iputfomu"
-            type="number"
-            id="document"
-            value={usuariocplto.document}
-            onChange={handleChange}
-            required
-          />
+      <div className="pay-layout">
+        {/* Resumen del plan */}
+        <div className="pay-summary-card">
+          <div className="pay-badge-row">
+            <span className="pay-badge-preventa">🚀 PREVENTA</span>
+            {savings && <span className="pay-badge-off">50% OFF</span>}
+          </div>
+
+          <h2 className="pay-plan-name">{title}</h2>
+
+          <div className="pay-guarantee">
+            <span>🛡️</span>
+            <p>
+              Precio garantizado de por vida. Tu tarifa no subirá aunque
+              aumentemos los precios después del lanzamiento.
+            </p>
+          </div>
         </div>
 
-        <div className="itemfomu">
-          <label htmlFor="documentType">Tipo de Documento:</label>
-          <select
-            className="iputfomu"
-            id="documentType"
-            value={usuariocplto.documentType}
-            onChange={handleChange}
-          >
-            <option value="CC">Cédula</option>
-            <option value="RUC">RUC</option>
-            <option value="PASAPORTE">Pasaporte</option>
-          </select>
-        </div>
+        {/* Columna derecha: acción de pago */}
+        <div className="pay-action-card">
+          <div className="pay-action-header">
+            <span className="pay-action-lock">🔒</span>
+            <h3>Completa tu compra</h3>
+          </div>
 
-        <div className="itemfomu">
-          <label htmlFor="email">Correo Electrónico:</label>
-          <input
-            className="iputfomu"
-            type="email"
-            id="email"
-            value={usuariocplto.email}
-            onChange={handleChange}
-            required
-          />
-        </div>
+          <div className="pay-order-line">
+            <span>{title}</span>
+            <span className="pay-order-price">
+              {plan?.originalPrice || price}
+            </span>
+          </div>
+          {originalPrice && (
+            <div className="pay-order-line pay-order-discount">
+              <span>Descuento preventa</span>
+              <span className="pay-order-savings">-{savings}</span>
+            </div>
+          )}
+          <div className="pay-order-divider" />
+          <div className="pay-order-line pay-order-total">
+            <span>Total hoy</span>
+            <span>{plan?.prcieconiva || price}</span>
+          </div>
 
-        <div className="itemfomu">
-          <label htmlFor="phone">Número de Teléfono:</label>
-          <input
-            className="iputfomu"
-            type="number"
-            id="phone"
-            value={usuariocplto.phone}
-            onChange={handleChange}
-            required
-          />
-        </div>
+          <div id="pp-button" className="pay-pp-slot"></div>
 
-        <div>
-       
-          <button type="submit" className="btncompawr">
-            Continuar
-          </button>
-          
+          <div className="pay-trust-icons">
+            <span>🔐 Pago 100% seguro</span>
+            <span>⚡ Activación inmediata</span>
+            <span>✅ Garantía total</span>
+          </div>
+
+          {/* Bloque app */}
+          <div className="pay-app-promo">
+            <div className="pay-app-icon">📱</div>
+            <div className="pay-app-info">
+              <strong>¡Lleva a Rita a todo lado!</strong>
+              <p>
+                Pronto podrás descargar nuestra app y tener tu menú
+                personalizado, seguimiento nutricional y pedidos desde tu
+                celular.
+              </p>
+            </div>
+          </div>
+
+          <p className="pay-urgency">
+            🔥 Quedan pocos lugares a este precio. ¡Asegura el tuyo hoy!
+          </p>
         </div>
-      </form>
+      </div>
     </div>
   );
 };

@@ -13,7 +13,6 @@ const GeoGate = ({ children }) => {
   const [enviando, setEnviando] = useState(false);
 
   useEffect(() => {
-    // Cuenca, Ecuador: lat -2.9001, lon -79.0059
     const CUENCA_LAT = -2.9001;
     const CUENCA_LON = -79.0059;
     const MAX_RADIUS_KM = 40;
@@ -28,27 +27,32 @@ const GeoGate = ({ children }) => {
       return 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     };
 
-    if (!navigator.geolocation) {
-      // Navegador no soporta geolocalización, permitir acceso
-      setStatus("allowed");
+    // 🔥 SI VIENE DE REACT NATIVE
+    if (window.REACT_NATIVE_LOCATION) {
+      const { latitude, longitude } = window.REACT_NATIVE_LOCATION;
+
+      const dist = haversineKm(latitude, longitude, CUENCA_LAT, CUENCA_LON);
+
+      setCiudad(dist <= MAX_RADIUS_KM ? "Cuenca" : "tu ciudad");
+      setPais(dist <= MAX_RADIUS_KM ? "Ecuador" : "");
+      setStatus(dist <= MAX_RADIUS_KM ? "allowed" : "blocked");
+
       return;
     }
 
+    // 🌐 SI ES NAVEGADOR NORMAL
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const { latitude, longitude } = position.coords;
         const dist = haversineKm(latitude, longitude, CUENCA_LAT, CUENCA_LON);
-        setCiudad(dist <= MAX_RADIUS_KM ? "Cuenca" : "tu ciudad");
-        setPais(dist <= MAX_RADIUS_KM ? "Ecuador" : "");
+
         setStatus(dist <= MAX_RADIUS_KM ? "allowed" : "blocked");
       },
       () => {
-        // Usuario denegó ubicación o error, permitir acceso
         setStatus("allowed");
       },
     );
   }, []);
-
   const handlePeticion = async (e) => {
     e.preventDefault();
     if (!nombre.trim() || !email.trim() || !ciudadUsuario.trim()) return;

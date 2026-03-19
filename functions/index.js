@@ -42,7 +42,7 @@ app.use(express.json());
  */
 app.post("/create-order", async (req, res) => {
   try {
-    const { cart, form } = req.body;
+    const { cart } = req.body;
     if (!cart) return res.status(400).json({ error: "Carrito vacío" });
     let amountWithoutTax = Number(cart.precioVenta);
     // calcular impuesto
@@ -66,14 +66,7 @@ app.post("/create-order", async (req, res) => {
       .add({
         clientTransactionId,
         cart,
-        form,
-        amount,
-        amountWithoutTax,
-        amountWithTax,
-        tax,
-        service,
-        tip,
-        status: "pending",
+        menu,
         createdAt: admin.firestore.FieldValue.serverTimestamp(),
       });
     console.log(amount, "catida");
@@ -151,9 +144,10 @@ app.post("/confirm", async (req, res) => {
           .doc(clientTxId)
           .set({
             ...orderData, // todos los datos del usuario
-            payphoneTransactionId: data.authorizationCode,
+            authorizationCode: data.authorizationCode,
             transactionStatus: data.transactionStatus,
             datapayphone: data, // guardar toda la respuesta de Payphone para referencia
+            ubicacines: {}, // guardar ubicaciones del pedido
             activatedAt: admin.firestore.FieldValue.serverTimestamp(),
           });
 

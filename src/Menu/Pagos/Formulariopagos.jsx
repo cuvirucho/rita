@@ -38,6 +38,7 @@ const Formulariopagos = ({ preferciausaro }) => {
       );
 
       const data = await response.json();
+      console.log(data);
 
       const openPayphone = () => {
         new window.PPaymentButtonBox({

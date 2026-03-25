@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Videocatgoriashome from "./Videocatgoriashome";
 import Reviews from "./Reseñas/Reviews";
 import Planos from "../Menu/Plano/Planos";
@@ -89,12 +89,35 @@ const getTimeLeft = () => {
   };
 };
 
+const MAX_FREE_TRIALS = 3;
+const TRIAL_KEY = "rita_ia_trials";
+
+const getTrialCount = () => {
+  try {
+    return parseInt(localStorage.getItem(TRIAL_KEY) || "0", 10);
+  } catch {
+    return 0;
+  }
+};
+
+const incrementTrialCount = () => {
+  try {
+    const count = getTrialCount() + 1;
+    localStorage.setItem(TRIAL_KEY, String(count));
+    return count;
+  } catch {
+    return 0;
+  }
+};
+
 const Home = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [loquiero, setLoquiero] = useState("");
   const [timeLeft, setTimeLeft] = useState(getTimeLeft);
   const [flippedCard, setFlippedCard] = useState(null);
   const [activeDot, setActiveDot] = useState(0);
+  const [showTrialModal, setShowTrialModal] = useState(false);
+  const navigate = useNavigate();
 
   const scrollRef = useRef(null);
   const isDragging = useRef(false);
@@ -144,6 +167,18 @@ const Home = () => {
       element.scrollIntoView({ behavior: "smooth" });
     }
     setMenuOpen(false);
+  };
+
+  const handleTrialClick = (e) => {
+    if (e) e.preventDefault();
+    const count = getTrialCount();
+    if (count >= MAX_FREE_TRIALS) {
+      scrollToSection("planes");
+      setShowTrialModal(true);
+    } else {
+      incrementTrialCount();
+      navigate("/Formulario");
+    }
   };
 
   useEffect(() => {
@@ -251,9 +286,12 @@ const Home = () => {
           </div>
 
           <div className="hero-actions">
-            <Link to="/Formulario" className="btn btn-primary btn-lg">
+            <button
+              className="btn btn-primary btn-lg"
+              onClick={handleTrialClick}
+            >
               Prueba la IA Gratis
-            </Link>
+            </button>
             <button
               className="btn btn-secondary btn-lg"
               onClick={() => scrollToSection("planes")}
@@ -365,9 +403,9 @@ const Home = () => {
                 Nuestra IA analiza tus objetivos, gustos y restricciones para
                 crear el menú perfecto. Pruébala ahora — es gratis.
               </p>
-              <Link to="/Formulario" className="btn btn-primary">
+              <button className="btn btn-primary" onClick={handleTrialClick}>
                 Probar la IA Gratis →
-              </Link>
+              </button>
             </div>
             <img
               src="https://res.cloudinary.com/db8e98ggo/image/upload/v1772647027/Gemini_Generated_Image_thoxanthoxanthox_1_fbm7xu.png"
@@ -460,6 +498,41 @@ const Home = () => {
           </button>
         </div>
       </section>
+
+      {/* MODAL TRIAL LIMIT */}
+      {showTrialModal && (
+        <div
+          className="trial-modal-overlay"
+          onClick={() => setShowTrialModal(false)}
+        >
+          <div className="trial-modal" onClick={(e) => e.stopPropagation()}>
+            <button
+              className="trial-modal-close"
+              onClick={() => setShowTrialModal(false)}
+            >
+              ✕
+            </button>
+            <span className="trial-modal-icon">🚀</span>
+            <h2 className="trial-modal-title">
+              ¡Alcanzaste tu máximo de pruebas!
+            </h2>
+            <p className="trial-modal-desc">
+              Ya usaste tus {MAX_FREE_TRIALS} pruebas gratuitas de la IA. Si
+              deseas seguir disfrutando de Rita Fit, suscríbete a un plan y
+              transforma tu alimentación.
+            </p>
+            <button
+              className="btn btn-primary btn-lg"
+              onClick={() => {
+                setShowTrialModal(false);
+                scrollToSection("planes");
+              }}
+            >
+              Ver Planes 🔥
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* FOOTER */}
       <Footer />

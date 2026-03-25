@@ -29,7 +29,8 @@ app.use(
     origin: [
       "http://localhost:5173",
       "http://localhost:5173/Formulariopagos",
-      "https://moritasgo.netlify.app", // cambia por tu dominio
+      "https://moritasgo.netlify.app",
+      "https://ritafit.netlify.app", // cambia por tu dominio
     ],
     methods: ["GET", "POST", "OPTIONS"],
     credentials: true,
@@ -66,7 +67,7 @@ app.post("/create-order", async (req, res) => {
       .add({
         clientTransactionId,
         cart,
-        menu,
+        menu: {}, // aquí podrías guardar el menú generado para este pedido
         createdAt: admin.firestore.FieldValue.serverTimestamp(),
       });
     console.log(amount, "catida");

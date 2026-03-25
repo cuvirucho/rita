@@ -1,4 +1,4 @@
-import { HashRouter, Routes, Route } from "react-router-dom";
+import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
 import Home from "./HOME/Home";
 import Formo from "./Formulario/Formo";
 import { useState } from "react";
@@ -7,6 +7,17 @@ import Formulariopagos from "./Menu/Pagos/Formulariopagos";
 import DetallePlan from "./Menu/Plano/DetallePlan";
 import Verific from "./Verificarcobro/Verific";
 import GeoGate from "./GeoGate/GeoGate";
+
+const MAX_FREE_TRIALS = 3;
+const TRIAL_KEY = "rita_ia_trials";
+
+const TrialGate = ({ children }) => {
+  const count = parseInt(localStorage.getItem(TRIAL_KEY) || "0", 10);
+  if (count > MAX_FREE_TRIALS) {
+    return <Navigate to="/" replace />;
+  }
+  return children;
+};
 
 function App() {
   const [preferencias, setPreferencias] = useState(null);
@@ -18,7 +29,11 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route
             path="/Formulario"
-            element={<Formo setPreferencias={setPreferencias} />}
+            element={
+              <TrialGate>
+                <Formo setPreferencias={setPreferencias} />
+              </TrialGate>
+            }
           />
           <Route
             path="/menu"

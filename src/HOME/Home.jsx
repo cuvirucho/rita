@@ -296,7 +296,7 @@ const Home = () => {
               className="btn btn-secondary btn-lg"
               onClick={() => scrollToSection("planes")}
             >
-              Ver Planes
+              Crear cuenta
             </button>
           </div>
         </div>
@@ -458,10 +458,6 @@ const Home = () => {
           <div className="section-header">
             <span className="section-badge">🚀 Acceso Anticipado</span>
             <h2 className="section-title">Precio exclusivo de lanzamiento</h2>
-            <p className="section-subtitle">
-              Sé de los primeros 100 en unirte y asegura el mejor precio de por
-              vida. Después de los 100 lugares, el precio sube.
-            </p>
           </div>
           <Planos name={loquiero} />
         </div>

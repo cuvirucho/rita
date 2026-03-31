@@ -3365,13 +3365,36 @@ textarea {
   box-shadow: 0 6px 20px var(--accent-glow);
   transition: all var(--transition);
 }
+.detalle-cta-btn2 {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  background: var(--accent);
+  color: var(--text);
+  padding: 8px 20px;
+  border-radius: var(--radius-lg);
+  font-size: 1.125rem;
+  font-weight: 700;
+  text-decoration: none;
+  text-align: center;
+  justify-content: center;
+  margin-top: 16px;
+  box-shadow: 0 6px 20px var(--accent-glow);
+  transition: all var(--transition);
+}
 
+.detalle-cta-btn2:hover {
+  transform: translateY(-3px);
+  color: var(--text-inverse);
+  background-color: #06b6d4;
+  box-shadow: 0 10px 30px var(--accent-rgb);
+}
 .detalle-cta-btn:hover {
   transform: translateY(-3px);
   box-shadow: 0 10px 30px var(--accent-glow);
   background: var(--accent-dark);
 }
-
 .detalle-cta-garantia {
   margin-top: 16px;
   color: var(--text-muted);

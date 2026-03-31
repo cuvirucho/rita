@@ -57,7 +57,9 @@ const Planos = ({ name }) => {
           <div className="launch-banner-text">
             <strong>Acceso Anticipado — Precio de Lanzamiento</strong>
             <span>
-              Solo para las primeras 100 personas. Después el precio se duplica.
+              Seleciona el plan que mejor se adapte a ti y comienza tu
+              transformación hoy mismo. ¡Los primeros 100 clientes obtienen un
+              precio especial!
             </span>
           </div>
         </div>

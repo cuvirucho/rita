@@ -157,6 +157,14 @@ const DetallePlan = () => {
                 <span className="detalle-precio-ahorro">50% OFF</span>
               )}
             </div>
+            <Link
+              className="detalle-cta-btn2"
+              to="/Formulariopagos"
+              state={{ plan }}
+            >
+              {`Suscribirte  al ${plan.title}`}
+            </Link>
+
             {plan.launch && (
               <p className="detalle-hero-urgency">
                 ⚡ Al completar los 100 lugares, el precio sube a{" "}
@@ -354,9 +362,7 @@ const DetallePlan = () => {
             to="/Formulariopagos"
             state={{ plan }}
           >
-            {plan.launch
-              ? "🚀 Asegurar Mi Lugar Ahora"
-              : `Suscribirme al ${plan.title}`}
+            {`Suscribirme al ${plan.title}`}
           </Link>
           <p className="detalle-cta-garantia">
             🔒{" "}

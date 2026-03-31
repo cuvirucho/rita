@@ -176,6 +176,59 @@ const CSS = `
 }
 .verific-page * { box-sizing: border-box; }
 
+/* ── Email modal ── */
+.verific-email-overlay {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.55); backdrop-filter: blur(8px);
+  z-index: 1000; display: flex; align-items: center; justify-content: center;
+  animation: fadeIn 0.3s ease;
+  padding: 1rem;
+}
+.verific-email-modal {
+  background: #fff; border-radius: 24px; padding: 2.5rem 2rem;
+  max-width: 440px; width: 100%; text-align: center;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.18);
+  animation: bounceIn 0.5s cubic-bezier(0.34,1.56,0.64,1);
+  position: relative;
+}
+.verific-email-modal-icon {
+  width: 72px; height: 72px; border-radius: 50%; margin: 0 auto 1rem;
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 8px 28px rgba(245,158,11,0.3);
+}
+.verific-email-input {
+  width: 100%; padding: 14px 18px; border-radius: 14px;
+  border: 2px solid #e2e8f0; font-size: 1rem;
+  font-family: 'Inter', sans-serif; font-weight: 500;
+  outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+  background: #f8fafc;
+}
+.verific-email-input:focus {
+  border-color: #0197b3; box-shadow: 0 0 0 4px rgba(1,151,179,0.12);
+  background: #fff;
+}
+.verific-email-input::placeholder { color: #94a3b8; }
+.verific-email-error {
+  color: #dc2626; font-size: 0.82rem; font-weight: 600;
+  margin-top: 6px; font-family: 'Inter', sans-serif;
+}
+.verific-email-btn {
+  width: 100%; padding: 14px; border: none; border-radius: 14px;
+  background: linear-gradient(135deg, #0197b3, #015a7a);
+  color: #fff; font-size: 1rem; font-weight: 700;
+  font-family: 'Outfit', 'Inter', sans-serif;
+  cursor: pointer; transition: transform 0.15s, box-shadow 0.15s;
+  box-shadow: 0 4px 16px rgba(1,151,179,0.3);
+  margin-top: 1rem;
+}
+.verific-email-btn:hover {
+  transform: translateY(-2px); box-shadow: 0 8px 24px rgba(1,151,179,0.4);
+}
+.verific-email-btn:disabled {
+  opacity: 0.6; cursor: not-allowed; transform: none;
+}
+
 /* Background orbs — bigger, more vivid */
 .verific-orb {
   position: absolute; border-radius: 50%; filter: blur(100px);
@@ -587,7 +640,7 @@ const CSS = `
 }
 .verific-ticket-field:hover {
   background: rgba(255,255,255,0.75);
-  transform: translateX(6px) scale(1.02);
+  transform: translateX(6px);
   box-shadow: 0 6px 24px rgba(180,130,0,0.15);
   border-color: rgba(180,130,20,0.35);
 }
@@ -792,35 +845,6 @@ function EmojiRain() {
         >
           {item.emoji}
         </span>
-      ))}
-    </div>
-  );
-}
-
-function Sparkles() {
-  const sparkles = Array.from({ length: 30 }, (_, i) => ({
-    id: i,
-    left: `${Math.random() * 100}%`,
-    top: `${Math.random() * 100}%`,
-    delay: `${Math.random() * 4}s`,
-    duration: `${1.5 + Math.random() * 2}s`,
-    size: `${3 + Math.random() * 6}px`,
-  }));
-  return (
-    <div className="verific-sparkles">
-      {sparkles.map((s) => (
-        <div
-          key={s.id}
-          className="verific-sparkle"
-          style={{
-            left: s.left,
-            top: s.top,
-            width: s.size,
-            height: s.size,
-            animationDelay: s.delay,
-            animationDuration: s.duration,
-          }}
-        />
       ))}
     </div>
   );
@@ -1126,6 +1150,11 @@ export default function Verific() {
   const [params] = useSearchParams();
   const [estado, setEstado] = useState("loading");
   const [usuario, setUsuario] = useState(null);
+  const [emailEnUso, setEmailEnUso] = useState(false);
+  const [nuevoEmail, setNuevoEmail] = useState("");
+  const [verificandoEmail, setVerificandoEmail] = useState(false);
+  const [emailError, setEmailError] = useState("");
+  const [paymentData, setPaymentData] = useState(null);
   const navigate = useNavigate();
   const ticketRef = useRef(null);
 
@@ -1137,6 +1166,49 @@ export default function Verific() {
     link.href = canvas.toDataURL("image/png");
     link.click();
   }, [usuario]);
+
+  const handleNuevoEmail = async () => {
+    if (!nuevoEmail.trim()) {
+      setEmailError("Ingresa un correo electrónico");
+      return;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(nuevoEmail.trim())) {
+      setEmailError("Ingresa un correo electrónico válido");
+      return;
+    }
+    setEmailError("");
+    setVerificandoEmail(true);
+    try {
+      const resp = await fetch(
+        "https://us-central1-rita-ede4f.cloudfunctions.net/api/updateEmail",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            newEmail: nuevoEmail.trim(),
+            userId: paymentData.clientTransactionId,
+          }),
+        },
+      );
+      const data = await resp.json();
+      // // console.log(data, "Respuesta de verificación de nuevo email");
+
+      if (!data.success) {
+        setEmailError("Este correo también está en uso. Intenta con otro.");
+      } else {
+        setEmailEnUso(false);
+        setUsuario({
+          email: nuevoEmail.trim(),
+          tempPassword: paymentData.authorizationCode,
+        });
+      }
+    } catch {
+      setEmailError("Error al verificar. Intenta de nuevo.");
+    } finally {
+      setVerificandoEmail(false);
+    }
+  };
 
   const id = Number(params.get("id"));
   const clientTransactionId = params.get("clientTransactionId");
@@ -1159,14 +1231,42 @@ export default function Verific() {
         );
 
         const data = await resp.json();
-        console.log(data);
+        // console.log(data);
 
         if (data.transactionStatus === "Approved") {
-          setEstado("approved");
-          setUsuario({
-            email: data.email,
-            tempPassword: data.authorizationCode,
-          });
+          // Verificar si el email ya está en uso
+          try {
+            const emailResp = await fetch(
+              "https://us-central1-rita-ede4f.cloudfunctions.net/api/Verificaremail",
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email: data.email }),
+              },
+            );
+            const emailData = await emailResp.json();
+
+            if (emailData.exists) {
+              // Email ya está en uso, guardar data y mostrar modal
+              setPaymentData(data);
+              setEmailEnUso(true);
+              setEstado("approved");
+            } else {
+              // Email libre, continuar normal
+              setEstado("approved");
+              setUsuario({
+                email: data.email,
+                tempPassword: data.authorizationCode,
+              });
+            }
+          } catch {
+            // Si falla la verificación, continuar normal
+            setEstado("approved");
+            setUsuario({
+              email: data.email,
+              tempPassword: data.authorizationCode,
+            });
+          }
         } else {
           setEstado("rejected");
         }
@@ -1302,6 +1402,93 @@ export default function Verific() {
         <Confetti />
         <EmojiRain />
 
+        {/* Modal email en uso */}
+        {emailEnUso && (
+          <div className="verific-email-overlay">
+            <div className="verific-email-modal">
+              <div className="verific-email-modal-icon">
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M12 9v4m0 4h.01"
+                    stroke="#fff"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  <path
+                    d="M12 2L2 20h20L12 2z"
+                    stroke="#fff"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </div>
+              <h2
+                style={{
+                  fontSize: "1.4rem",
+                  fontWeight: 800,
+                  color: "#0f172a",
+                  margin: "0 0 0.5rem",
+                  fontFamily: '"Outfit", "Inter", sans-serif',
+                }}
+              >
+                Correo ya en uso
+              </h2>
+              <p
+                style={{
+                  fontSize: "0.92rem",
+                  color: "#64748b",
+                  margin: "0 0 1.2rem",
+                  lineHeight: 1.6,
+                  fontFamily: '"Outfit", "Inter", sans-serif',
+                }}
+              >
+                El correo{" "}
+                <strong style={{ color: "#0f172a" }}>
+                  {paymentData?.email}
+                </strong>{" "}
+                ya está registrado por otro usuario. Por favor ingresa un correo
+                diferente para crear tu cuenta.
+              </p>
+              <div style={{ textAlign: "left" }}>
+                <label
+                  style={{
+                    fontSize: "0.82rem",
+                    fontWeight: 700,
+                    color: "#334155",
+                    marginBottom: "6px",
+                    display: "block",
+                    fontFamily: '"Inter", sans-serif',
+                  }}
+                >
+                  📧 Nuevo correo electrónico
+                </label>
+                <input
+                  type="email"
+                  className="verific-email-input"
+                  placeholder="tu@correo.com"
+                  value={nuevoEmail}
+                  onChange={(e) => {
+                    setNuevoEmail(e.target.value);
+                    setEmailError("");
+                  }}
+                />
+                {emailError && (
+                  <p className="verific-email-error">⚠️ {emailError}</p>
+                )}
+              </div>
+              <button
+                className="verific-email-btn"
+                onClick={handleNuevoEmail}
+                disabled={verificandoEmail}
+              >
+                {verificandoEmail ? "Verificando..." : "✅ Usar este correo"}
+              </button>
+            </div>
+          </div>
+        )}
+
         <div
           className="verific-page"
           style={{
@@ -1348,59 +1535,6 @@ export default function Verific() {
               </p>
             </div>
 
-            {/* Success message card */}
-            <div
-              className="verific-glass"
-              style={{
-                padding: "1.5rem",
-                marginBottom: "1.2rem",
-                animation: "slideUp 0.7s ease 0.3s both",
-                textAlign: "center",
-                background:
-                  "linear-gradient(135deg, rgba(16,185,129,0.08), rgba(1,151,179,0.06), rgba(255,255,255,0.7))",
-                border: "1.5px solid rgba(16,185,129,0.2)",
-              }}
-            >
-              <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>🏆</div>
-              <p
-                style={{
-                  margin: 0,
-                  fontSize: "1rem",
-                  fontWeight: 700,
-                  color: "#059669",
-                  fontFamily: '"Outfit", "Inter", sans-serif',
-                }}
-              >
-                ¡Felicidades! Eres parte del grupo exclusivo de preventa
-              </p>
-            </div>
-
-            {/* Steps card */}
-            <div
-              className="verific-glass"
-              style={{
-                padding: "1.8rem",
-                marginBottom: "1.2rem",
-                animation: "fadeInUp 0.7s ease 0.35s both",
-              }}
-            >
-              <div className="verific-timeline">
-                {steps.map((s, i) => (
-                  <div
-                    className="verific-step"
-                    key={i}
-                    style={{
-                      animation: `slideInLeft 0.5s cubic-bezier(0.34,1.56,0.64,1) ${0.45 + i * 0.12}s both`,
-                    }}
-                  >
-                    <div className="verific-step-num">{i + 1}</div>
-                    <span className="verific-step-icon">{s.icon}</span>
-                    <span className="verific-step-text">{s.text}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
             {/* Golden Ticket */}
             <div
               className="verific-ticket"
@@ -1412,15 +1546,48 @@ export default function Verific() {
             >
               <div className="verific-ticket-stamp">RITA</div>
               <div className="verific-ticket-header">
-                <span className="verific-ticket-icon">🎫</span>
-                <p className="verific-ticket-title">Ticket de Acceso</p>
+                <span className="verific-ticket-icon">🔑</span>
+                <p className="verific-ticket-title">Tu Usuario Temporal</p>
                 <p className="verific-ticket-subtitle">
                   Rita Fit · Preventa Exclusiva
                 </p>
               </div>
 
+              {/* Alert banner */}
+              <div
+                style={{
+                  background:
+                    "linear-gradient(135deg, rgba(120,53,15,0.18) 0%, rgba(180,83,9,0.12) 100%)",
+                  border: "2px solid rgba(120,53,15,0.3)",
+                  borderRadius: "14px",
+                  padding: "12px 16px",
+                  marginBottom: "1rem",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "10px",
+                  position: "relative",
+                  zIndex: 1,
+                  animation: "goldPulse 3s ease-in-out infinite",
+                }}
+              >
+                <span style={{ fontSize: "1.5rem", flexShrink: 0 }}>⚠️</span>
+                <p
+                  style={{
+                    margin: 0,
+                    fontSize: "0.78rem",
+                    color: "#78350f",
+                    fontWeight: 800,
+                    fontFamily: "'Inter', sans-serif",
+                    lineHeight: 1.45,
+                  }}
+                >
+                  ¡IMPORTANTE! Guarda estos datos. Son tu acceso temporal para
+                  entrar a la app.
+                </p>
+              </div>
+
               <div className="verific-ticket-divider">
-                <span>Credenciales</span>
+                <span>Tus datos de acceso</span>
               </div>
 
               <div className="verific-ticket-field">
@@ -1442,9 +1609,9 @@ export default function Verific() {
                     />
                   </svg>
                 </div>
-                <div>
+                <div style={{ flex: 1 }}>
                   <div className="verific-ticket-field-label">
-                    Correo electrónico
+                    📧 Tu correo de acceso
                   </div>
                   <div className="verific-ticket-field-value">
                     {usuario?.email}
@@ -1452,8 +1619,20 @@ export default function Verific() {
                 </div>
               </div>
 
-              <div className="verific-ticket-field">
-                <div className="verific-ticket-field-icon">
+              <div
+                className="verific-ticket-field"
+                style={{
+                  border: "2px solid rgba(180,83,9,0.35)",
+                  background: "rgba(255,255,255,0.7)",
+                }}
+              >
+                <div
+                  className="verific-ticket-field-icon"
+                  style={{
+                    background: "linear-gradient(135deg, #dc2626, #b91c1c)",
+                    boxShadow: "0 2px 12px rgba(220,38,38,0.35)",
+                  }}
+                >
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                     <rect
                       x="3"
@@ -1474,23 +1653,117 @@ export default function Verific() {
                     />
                   </svg>
                 </div>
-                <div>
-                  <div className="verific-ticket-field-label">
-                    Contraseña temporal
+                <div style={{ flex: 1 }}>
+                  <div
+                    className="verific-ticket-field-label"
+                    style={{ color: "#b91c1c" }}
+                  >
+                    🔑 Contraseña temporal (guárdala)
                   </div>
                   <div
                     className="verific-ticket-field-value"
-                    style={{ fontFamily: "monospace", letterSpacing: "1px" }}
+                    style={{
+                      fontFamily: "monospace",
+                      letterSpacing: "2px",
+                      fontSize: "1.1rem",
+                      background: "rgba(120,53,15,0.06)",
+                      padding: "6px 10px",
+                      borderRadius: "8px",
+                      marginTop: "4px",
+                      display: "inline-block",
+                    }}
                   >
                     {usuario?.tempPassword}
                   </div>
                 </div>
               </div>
 
+              {/* Steps to follow */}
+              <div
+                style={{
+                  position: "relative",
+                  zIndex: 1,
+                  background: "rgba(255,255,255,0.45)",
+                  backdropFilter: "blur(8px)",
+                  borderRadius: "14px",
+                  padding: "14px 16px",
+                  marginTop: "0.8rem",
+                  border: "1.5px solid rgba(180,130,20,0.18)",
+                }}
+              >
+                <p
+                  style={{
+                    margin: "0 0 8px 0",
+                    fontSize: "0.72rem",
+                    fontWeight: 800,
+                    color: "#78350f",
+                    textTransform: "uppercase",
+                    letterSpacing: "1.5px",
+                    fontFamily: "'Inter', sans-serif",
+                  }}
+                >
+                  ¿Qué hacer ahora?
+                </p>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "6px",
+                  }}
+                >
+                  {[
+                    { num: "1", text: "Guarda o descarga este ticket" },
+                    {
+                      num: "2",
+                      text: "Abre la app e inicia sesión con estos datos",
+                    },
+                    { num: "3", text: "Cambia tu contraseña una vez dentro" },
+                  ].map((step) => (
+                    <div
+                      key={step.num}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "10px",
+                      }}
+                    >
+                      <span
+                        style={{
+                          width: "22px",
+                          height: "22px",
+                          borderRadius: "50%",
+                          background:
+                            "linear-gradient(135deg, #b45309, #92400e)",
+                          color: "#fef3c7",
+                          fontSize: "0.7rem",
+                          fontWeight: 800,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          flexShrink: 0,
+                        }}
+                      >
+                        {step.num}
+                      </span>
+                      <span
+                        style={{
+                          fontSize: "0.78rem",
+                          color: "#78350f",
+                          fontWeight: 600,
+                          fontFamily: "'Inter', sans-serif",
+                        }}
+                      >
+                        {step.text}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
               <div className="verific-ticket-footer">
                 <p>
-                  🔒 Guarda este ticket en un lugar seguro. Podrás cambiar tu
-                  contraseña al iniciar sesión.
+                  🔒 Este es tu usuario temporal. Podrás cambiar tu contraseña
+                  después de iniciar sesión.
                 </p>
               </div>
             </div>
@@ -1511,53 +1784,6 @@ export default function Verific() {
               </button>
             </div>
 
-            {/* Preventa banner — ultra vibrant */}
-            <div
-              style={{
-                ...styles.bannerCard,
-                animation: "fadeInUp 0.7s ease 0.8s both",
-              }}
-            >
-              <div
-                style={{
-                  position: "absolute",
-                  inset: 0,
-                  opacity: 0.08,
-                  backgroundImage:
-                    "radial-gradient(circle at 20% 50%, #fff 1px, transparent 1px), radial-gradient(circle at 80% 20%, #fff 1px, transparent 1px), radial-gradient(circle at 60% 80%, #ffbb00 0.5px, transparent 0.5px)",
-                  backgroundSize: "60px 60px, 40px 40px, 30px 30px",
-                }}
-              />
-              <div style={{ position: "relative", zIndex: 1 }}>
-                <div
-                  style={{
-                    fontSize: "3rem",
-                    marginBottom: "0.8rem",
-                    animation: "float 2.5s ease-in-out infinite",
-                  }}
-                >
-                  🌟
-                </div>
-                <p style={{ ...styles.bannerTitle, fontSize: "1.4rem" }}>
-                  ¡Eres de los primeros!
-                </p>
-                <p style={styles.bannerText}>
-                  Aseguraste tu lugar en la{" "}
-                  <strong
-                    style={{
-                      color: "#ffbb00",
-                      textShadow: "0 0 20px rgba(255,187,0,0.3)",
-                    }}
-                  >
-                    preventa exclusiva
-                  </strong>
-                  . Pronto te contactaremos para que pruebes el servicio antes
-                  que nadie. 🚀
-                </p>
-                <CountdownTimer dark />
-              </div>
-            </div>
-
             {/* CTAs */}
             <div
               style={{
@@ -1575,6 +1801,35 @@ export default function Verific() {
               >
                 Ir al inicio
               </button>
+            </div>
+
+            {/* Success message card */}
+            <div
+              className="verific-glass"
+              style={{
+                padding: "1.5rem",
+                marginBottom: "1.2rem",
+                marginTop: "1.5rem",
+                animation: "slideUp 0.7s ease 0.3s both",
+                textAlign: "center",
+
+                border: "1.5px solid rgba(16,185,129,0.2)",
+              }}
+            >
+              <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>🏆</div>
+              <p
+                style={{
+                  margin: 0,
+                  fontSize: "1rem",
+                  fontWeight: 700,
+                  color: "#898d8c",
+                  fontFamily: '"Outfit", "Inter", sans-serif',
+                }}
+              >
+                ¡Felicidades! Eres parte del grupo exclusivo de Rita Fit.
+                Prepárate para una experiencia fitness revolucionaria diseñada
+                solo para ti.
+              </p>
             </div>
 
             {/* Trust footer */}

@@ -16,7 +16,7 @@ export const generarMenu = async (preferencias) => {
 
   const data = await resp.json();
 
-  console.log(data.menu);
+  // console.log(data.menu);
   return data.menu;
 };
 
@@ -62,7 +62,7 @@ function repararJSON(jsonString) {
   ); // Reemplaza con tu clave API
   const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
-  console.log(preferencias, "sonlaspere");
+  // console.log(preferencias, "sonlaspere");
 
   const prompt = `
   Genera un menú de  7 dias  Ponle un nobre gurmet a todos los platos   Para cada día, quiero que sigas estrictamente el  formato JSON, usando claves como "desayuno", "snack1", "almuerzo", "snack2" y "cena". Agrega una pequeña y atractiva decipcion del plato que no super los 75 palabras 
@@ -232,7 +232,7 @@ Formato JSON obligatorio   :
       return null;
     }
 
-    console.log("Respuesta de la IA:", cleanedResponse);
+    // console.log("Respuesta de la IA:", cleanedResponse);
     return cleanedResponse;
   } catch (error) {
     console.error("Error al generar el menú:", error);

@@ -70,9 +70,9 @@ app.post("/create-order", async (req, res) => {
         menu: {}, // aquí podrías guardar el menú generado para este pedido
         createdAt: admin.firestore.FieldValue.serverTimestamp(),
       });
-    console.log(amount, "catida");
-    console.log(tax, "impuesto");
-    console.log(amountWithoutTax, "valor sin impuestos");
+    // console.log(amount, "catida");
+    // console.log(tax, "impuesto");
+    // console.log(amountWithoutTax, "valor sin impuestos");
 
     res.json({
       clientTransactionId,
@@ -121,7 +121,7 @@ app.post("/confirm", async (req, res) => {
     );
 
     const text = await resp.text();
-    console.log("Respuesta Payphone:", text);
+    // console.log("Respuesta Payphone:", text);
 
     const data = JSON.parse(text);
 
@@ -152,7 +152,7 @@ app.post("/confirm", async (req, res) => {
             activatedAt: admin.firestore.FieldValue.serverTimestamp(),
           });
 
-        console.log("Usuario movido a UsuariosActivos");
+        // console.log("Usuario movido a UsuariosActivos");
       } else {
         console.warn(
           `Orden no encontrada para clientTransactionId: ${clientTxId}`,
@@ -364,5 +364,104 @@ function repararJSON(jsonString) {
     }
   }
 }
+
+/*Verifvar corrrep*/
+
+app.post("/Verificaremail", async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ error: "Email requerido" });
+    }
+
+    const usersRef = db.collection("UsuariosActivos");
+
+    const querySnapshot = await usersRef
+      .where("datapayphone.email", "==", email)
+      .get();
+
+    if (!querySnapshot.empty) {
+      // 🔴 El correo YA existe
+      return res.json({
+        exists: true,
+        message: "El correo ya está en uso",
+      });
+    }
+
+    // 🟢 El correo NO existe
+    return res.json({
+      exists: false,
+      message: "Correo disponible",
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+/*actualisar correo*/
+app.post("/updateEmail", async (req, res) => {
+  try {
+    const { userId, newEmail } = req.body;
+
+    if (!userId || !newEmail) {
+      return res.status(400).json({ error: "Faltan datos" });
+    }
+
+    const emailNormalized = newEmail.trim().toLowerCase();
+
+    const usersRef = db.collection("UsuariosActivos");
+
+    // 🔴 1. Verificar si el correo ya está en uso por OTRO usuario
+    const emailQuery = await usersRef
+      .where("datapayphone.email", "==", emailNormalized)
+      .get();
+
+    let emailEnUso = false;
+
+    emailQuery.forEach((doc) => {
+      const data = doc.data();
+
+      if (data.clientTransactionId !== userId) {
+        emailEnUso = true;
+      }
+    });
+
+    if (emailEnUso) {
+      return res.json({
+        success: false,
+        message: "El correo ya está en uso por otro usuario",
+      });
+    }
+
+    // 🟢 2. Buscar usuario actual
+    const userQuery = await usersRef
+      .where("clientTransactionId", "==", userId)
+      .get();
+
+    if (userQuery.empty) {
+      return res.status(404).json({
+        success: false,
+        message: "Usuario no encontrado",
+      });
+    }
+
+    const userDoc = userQuery.docs[0];
+
+    // 🟢 3. Actualizar email
+    await userDoc.ref.update({
+      "datapayphone.email": emailNormalized,
+    });
+
+    return res.json({
+      success: true,
+      message: "Correo actualizado correctamente",
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: err.message });
+  }
+});
 
 exports.api = onRequest(app);

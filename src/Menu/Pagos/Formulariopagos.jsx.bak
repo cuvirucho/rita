@@ -5,7 +5,7 @@ const Formulariopagos = ({ preferciausaro }) => {
   const location = useLocation();
   const { plan } = location.state || {};
 
-  console.log(plan);
+  // console.log(plan);
 
   const [loading, setLoading] = useState(false);
 
@@ -33,7 +33,7 @@ const Formulariopagos = ({ preferciausaro }) => {
       );
 
       const data = await response.json();
-      console.log(data, "daprenviaallacajs");
+      // console.log(data, "daprenviaallacajs");
 
       const openPayphone = () => {
         new window.PPaymentButtonBox({

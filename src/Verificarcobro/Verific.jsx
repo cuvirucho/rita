@@ -1572,7 +1572,9 @@ export default function Verific() {
           {/* Sticky save banner */}
           <div className="verific-save-banner">
             <span className="verific-save-icon">🚨</span>
-            <strong>¡NO CIERRES ESTA PÁGINA! Guarda tus datos de acceso antes de salir</strong>
+            <strong>
+              ¡NO CIERRES ESTA PÁGINA! Guarda tus datos de acceso antes de salir
+            </strong>
             <span className="verific-save-icon">👇</span>
           </div>
 
@@ -1650,8 +1652,18 @@ export default function Verific() {
                   animation: "pulse 3s ease-in-out infinite",
                 }}
               >
-                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                  <span style={{ fontSize: "1.6rem", flexShrink: 0, animation: "float 1.5s ease-in-out infinite" }}>🚨</span>
+                <div
+                  style={{ display: "flex", alignItems: "center", gap: "8px" }}
+                >
+                  <span
+                    style={{
+                      fontSize: "1.6rem",
+                      flexShrink: 0,
+                      animation: "float 1.5s ease-in-out infinite",
+                    }}
+                  >
+                    🚨
+                  </span>
                   <p
                     style={{
                       margin: 0,
@@ -1666,7 +1678,15 @@ export default function Verific() {
                   >
                     ¡GUARDA ESTOS DATOS AHORA!
                   </p>
-                  <span style={{ fontSize: "1.6rem", flexShrink: 0, animation: "float 1.5s ease-in-out infinite" }}>🚨</span>
+                  <span
+                    style={{
+                      fontSize: "1.6rem",
+                      flexShrink: 0,
+                      animation: "float 1.5s ease-in-out infinite",
+                    }}
+                  >
+                    🚨
+                  </span>
                 </div>
                 <p
                   style={{
@@ -1679,7 +1699,8 @@ export default function Verific() {
                     textAlign: "center",
                   }}
                 >
-                  Sin estos datos <strong>no podrás acceder</strong> a tu cuenta. Haz una captura de pantalla o descarga tu ticket.
+                  Sin estos datos <strong>no podrás acceder</strong> a tu
+                  cuenta. Haz una captura de pantalla o descarga tu ticket.
                 </p>
               </div>
 
@@ -1809,13 +1830,21 @@ export default function Verific() {
                   }}
                 >
                   {[
-                    { num: "1", text: "📸 Haz captura de pantalla o descarga el ticket", critical: true },
+                    {
+                      num: "1",
+                      text: "📸 Haz captura de pantalla o descarga el ticket",
+                      critical: true,
+                    },
                     {
                       num: "2",
                       text: "📱 Abre la app e inicia sesión con estos datos",
                       critical: false,
                     },
-                    { num: "3", text: "🔐 Cambia tu contraseña una vez dentro", critical: false },
+                    {
+                      num: "3",
+                      text: "🔐 Cambia tu contraseña una vez dentro",
+                      critical: false,
+                    },
                   ].map((step) => (
                     <div
                       key={step.num}
@@ -1842,7 +1871,9 @@ export default function Verific() {
                           alignItems: "center",
                           justifyContent: "center",
                           flexShrink: 0,
-                          boxShadow: step.critical ? "0 2px 8px rgba(220,38,38,0.3)" : "none",
+                          boxShadow: step.critical
+                            ? "0 2px 8px rgba(220,38,38,0.3)"
+                            : "none",
                         }}
                       >
                         {step.num}

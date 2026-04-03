@@ -718,6 +718,61 @@ const CSS = `
 }
 .verific-btn-download:active { transform: translateY(0) scale(0.97); }
 
+/* ── Sticky save banner ── */
+.verific-save-banner {
+  position: sticky; top: 0; z-index: 50;
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 50%, #991b1b 100%);
+  color: #fff; text-align: center;
+  padding: 14px 20px; border-radius: 0 0 20px 20px;
+  box-shadow: 0 8px 32px rgba(220,38,38,0.35);
+  animation: fadeInUp 0.5s ease, pulse 2.5s ease-in-out infinite;
+  font-family: 'Outfit', 'Inter', sans-serif;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  flex-wrap: wrap;
+  max-width: 540px; width: 100%; margin: 0 auto 1rem;
+}
+.verific-save-banner strong {
+  font-size: 0.92rem; font-weight: 800;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+.verific-save-banner .verific-save-icon {
+  font-size: 1.3rem; animation: float 2s ease-in-out infinite;
+}
+
+/* ── Highlight download button ── */
+.verific-btn-download-highlight {
+  display: inline-flex; align-items: center; gap: 12px;
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 50%, #991b1b 100%);
+  background-size: 200% 200%;
+  animation: gradientShift 3s ease-in-out infinite, glowPulse 2s ease-in-out infinite;
+  color: #fff; border: none; border-radius: 20px;
+  padding: 18px 44px; font-size: 1.1rem; font-weight: 900;
+  cursor: pointer; transition: all 0.4s cubic-bezier(0.4,0,0.2,1);
+  box-shadow: 0 8px 32px rgba(220,38,38,0.4), 0 2px 4px rgba(0,0,0,0.1);
+  text-decoration: none; font-family: 'Outfit', 'Inter', sans-serif;
+  letter-spacing: 0.02em; position: relative; overflow: hidden;
+  width: 100%; max-width: 400px; justify-content: center;
+}
+.verific-btn-download-highlight::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 60%);
+  pointer-events: none;
+}
+.verific-btn-download-highlight:hover {
+  transform: translateY(-4px) scale(1.04);
+  box-shadow: 0 16px 50px rgba(220,38,38,0.5), 0 4px 8px rgba(0,0,0,0.12);
+}
+.verific-btn-download-highlight:active { transform: translateY(0) scale(0.97); }
+
+/* ── Critical step highlight ── */
+.verific-critical-step {
+  background: rgba(220,38,38,0.08) !important;
+  border: 2px solid rgba(220,38,38,0.25) !important;
+  border-radius: 10px;
+  padding: 8px 10px;
+  animation: pulse 3s ease-in-out infinite;
+}
+
 /* ── Success celebration text ── */
 .verific-celebration-text {
   font-size: 2.8rem;
@@ -1158,6 +1213,23 @@ export default function Verific() {
   const navigate = useNavigate();
   const ticketRef = useRef(null);
 
+  /*conetar el webvie*/
+
+  const irALogin = () => {
+    if (window.ReactNativeWebView) {
+      window.ReactNativeWebView.postMessage(
+        JSON.stringify({
+          type: "GO_LOGIN",
+          email: usuario?.email || paymentData?.email,
+          codigo: usuario?.tempPassword || paymentData?.authorizationCode,
+        }),
+      );
+    } else {
+      // por si abres la web en navegador normal
+      navigate("/");
+    }
+  };
+
   const handleDownloadTicket = useCallback(() => {
     if (!usuario) return;
     const canvas = drawTicketImage(usuario.email, usuario.tempPassword);
@@ -1497,6 +1569,13 @@ export default function Verific() {
           }}
         >
           <BackgroundOrbs />
+          {/* Sticky save banner */}
+          <div className="verific-save-banner">
+            <span className="verific-save-icon">🚨</span>
+            <strong>¡NO CIERRES ESTA PÁGINA! Guarda tus datos de acceso antes de salir</strong>
+            <span className="verific-save-icon">👇</span>
+          </div>
+
           <div
             className="verific-inner verific-inner--top"
             style={{ maxWidth: 540, margin: "0 auto" }}
@@ -1553,36 +1632,54 @@ export default function Verific() {
                 </p>
               </div>
 
-              {/* Alert banner */}
+              {/* Alert banner - CRITICAL */}
               <div
                 style={{
                   background:
-                    "linear-gradient(135deg, rgba(120,53,15,0.18) 0%, rgba(180,83,9,0.12) 100%)",
-                  border: "2px solid rgba(120,53,15,0.3)",
-                  borderRadius: "14px",
-                  padding: "12px 16px",
+                    "linear-gradient(135deg, rgba(220,38,38,0.15) 0%, rgba(185,28,28,0.1) 100%)",
+                  border: "2.5px solid rgba(220,38,38,0.4)",
+                  borderRadius: "16px",
+                  padding: "16px 18px",
                   marginBottom: "1rem",
                   display: "flex",
+                  flexDirection: "column",
                   alignItems: "center",
-                  gap: "10px",
+                  gap: "8px",
                   position: "relative",
                   zIndex: 1,
-                  animation: "goldPulse 3s ease-in-out infinite",
+                  animation: "pulse 3s ease-in-out infinite",
                 }}
               >
-                <span style={{ fontSize: "1.5rem", flexShrink: 0 }}>⚠️</span>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <span style={{ fontSize: "1.6rem", flexShrink: 0, animation: "float 1.5s ease-in-out infinite" }}>🚨</span>
+                  <p
+                    style={{
+                      margin: 0,
+                      fontSize: "0.88rem",
+                      color: "#991b1b",
+                      fontWeight: 900,
+                      fontFamily: "'Inter', sans-serif",
+                      lineHeight: 1.4,
+                      textTransform: "uppercase",
+                      letterSpacing: "0.5px",
+                    }}
+                  >
+                    ¡GUARDA ESTOS DATOS AHORA!
+                  </p>
+                  <span style={{ fontSize: "1.6rem", flexShrink: 0, animation: "float 1.5s ease-in-out infinite" }}>🚨</span>
+                </div>
                 <p
                   style={{
                     margin: 0,
                     fontSize: "0.78rem",
                     color: "#78350f",
-                    fontWeight: 800,
+                    fontWeight: 600,
                     fontFamily: "'Inter', sans-serif",
-                    lineHeight: 1.45,
+                    lineHeight: 1.5,
+                    textAlign: "center",
                   }}
                 >
-                  ¡IMPORTANTE! Guarda estos datos. Son tu acceso temporal para
-                  entrar a la app.
+                  Sin estos datos <strong>no podrás acceder</strong> a tu cuenta. Haz una captura de pantalla o descarga tu ticket.
                 </p>
               </div>
 
@@ -1712,44 +1809,49 @@ export default function Verific() {
                   }}
                 >
                   {[
-                    { num: "1", text: "Guarda o descarga este ticket" },
+                    { num: "1", text: "📸 Haz captura de pantalla o descarga el ticket", critical: true },
                     {
                       num: "2",
-                      text: "Abre la app e inicia sesión con estos datos",
+                      text: "📱 Abre la app e inicia sesión con estos datos",
+                      critical: false,
                     },
-                    { num: "3", text: "Cambia tu contraseña una vez dentro" },
+                    { num: "3", text: "🔐 Cambia tu contraseña una vez dentro", critical: false },
                   ].map((step) => (
                     <div
                       key={step.num}
+                      className={step.critical ? "verific-critical-step" : ""}
                       style={{
                         display: "flex",
                         alignItems: "center",
                         gap: "10px",
+                        padding: step.critical ? "8px 10px" : undefined,
                       }}
                     >
                       <span
                         style={{
-                          width: "22px",
-                          height: "22px",
+                          width: "24px",
+                          height: "24px",
                           borderRadius: "50%",
-                          background:
-                            "linear-gradient(135deg, #b45309, #92400e)",
+                          background: step.critical
+                            ? "linear-gradient(135deg, #dc2626, #991b1b)"
+                            : "linear-gradient(135deg, #b45309, #92400e)",
                           color: "#fef3c7",
-                          fontSize: "0.7rem",
-                          fontWeight: 800,
+                          fontSize: "0.72rem",
+                          fontWeight: 900,
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
                           flexShrink: 0,
+                          boxShadow: step.critical ? "0 2px 8px rgba(220,38,38,0.3)" : "none",
                         }}
                       >
                         {step.num}
                       </span>
                       <span
                         style={{
-                          fontSize: "0.78rem",
-                          color: "#78350f",
-                          fontWeight: 600,
+                          fontSize: "0.8rem",
+                          color: step.critical ? "#991b1b" : "#78350f",
+                          fontWeight: step.critical ? 800 : 600,
                           fontFamily: "'Inter', sans-serif",
                         }}
                       >
@@ -1768,20 +1870,47 @@ export default function Verific() {
               </div>
             </div>
 
-            {/* Download ticket button */}
+            {/* Download ticket button - PROMINENT */}
             <div
               style={{
                 textAlign: "center",
                 marginBottom: "1.2rem",
                 animation: "fadeInUp 0.7s ease 0.7s both",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: "10px",
               }}
             >
+              <p
+                style={{
+                  margin: 0,
+                  fontSize: "0.85rem",
+                  fontWeight: 800,
+                  color: "#991b1b",
+                  fontFamily: "'Outfit', 'Inter', sans-serif",
+                  animation: "pulse 2s ease-in-out infinite",
+                }}
+              >
+                👇 Descarga tu ticket para no perder tus datos
+              </p>
               <button
-                className="verific-btn-download"
+                className="verific-btn-download-highlight"
                 onClick={handleDownloadTicket}
               >
-                📥 Descargar mi ticket
+                📥 GUARDAR MI TICKET DE ACCESO
               </button>
+              <p
+                style={{
+                  margin: 0,
+                  fontSize: "0.75rem",
+                  color: "#64748b",
+                  fontFamily: "'Inter', sans-serif",
+                  fontWeight: 500,
+                }}
+              >
+                También puedes hacer una captura de pantalla 📸
+              </p>
             </div>
 
             {/* CTAs */}
@@ -1795,10 +1924,7 @@ export default function Verific() {
                 alignItems: "center",
               }}
             >
-              <button
-                className="verific-btn-ghost"
-                onClick={() => navigate("/")}
-              >
+              <button className="verific-btn-ghost" onClick={irALogin}>
                 Ir al inicio
               </button>
             </div>

@@ -1313,7 +1313,10 @@ export default function Verific() {
               {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email: data.email }),
+                body: JSON.stringify({
+                  email: data.email,
+                  userId: clientTransactionId,
+                }),
               },
             );
             const emailData = await emailResp.json();
@@ -1569,14 +1572,6 @@ export default function Verific() {
           }}
         >
           <BackgroundOrbs />
-          {/* Sticky save banner */}
-          <div className="verific-save-banner">
-            <span className="verific-save-icon">🚨</span>
-            <strong>
-              ¡NO CIERRES ESTA PÁGINA! Guarda tus datos de acceso antes de salir
-            </strong>
-            <span className="verific-save-icon">👇</span>
-          </div>
 
           <div
             className="verific-inner verific-inner--top"
@@ -1700,7 +1695,7 @@ export default function Verific() {
                   }}
                 >
                   Sin estos datos <strong>no podrás acceder</strong> a tu
-                  cuenta. Haz una captura de pantalla o descarga tu ticket.
+                  cuenta. Haz una captura de pantalla
                 </p>
               </div>
 
@@ -1832,7 +1827,7 @@ export default function Verific() {
                   {[
                     {
                       num: "1",
-                      text: "📸 Haz captura de pantalla o descarga el ticket",
+                      text: "📸 Haz captura de pantalla",
                       critical: true,
                     },
                     {
@@ -1899,49 +1894,6 @@ export default function Verific() {
                   después de iniciar sesión.
                 </p>
               </div>
-            </div>
-
-            {/* Download ticket button - PROMINENT */}
-            <div
-              style={{
-                textAlign: "center",
-                marginBottom: "1.2rem",
-                animation: "fadeInUp 0.7s ease 0.7s both",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: "10px",
-              }}
-            >
-              <p
-                style={{
-                  margin: 0,
-                  fontSize: "0.85rem",
-                  fontWeight: 800,
-                  color: "#991b1b",
-                  fontFamily: "'Outfit', 'Inter', sans-serif",
-                  animation: "pulse 2s ease-in-out infinite",
-                }}
-              >
-                👇 Descarga tu ticket para no perder tus datos
-              </p>
-              <button
-                className="verific-btn-download-highlight"
-                onClick={handleDownloadTicket}
-              >
-                📥 GUARDAR MI TICKET DE ACCESO
-              </button>
-              <p
-                style={{
-                  margin: 0,
-                  fontSize: "0.75rem",
-                  color: "#64748b",
-                  fontFamily: "'Inter', sans-serif",
-                  fontWeight: 500,
-                }}
-              >
-                También puedes hacer una captura de pantalla 📸
-              </p>
             </div>
 
             {/* CTAs */}

@@ -369,11 +369,13 @@ function repararJSON(jsonString) {
 
 app.post("/Verificaremail", async (req, res) => {
   try {
-    const { email } = req.body;
+    let { email, userId } = req.body;
 
     if (!email) {
       return res.status(400).json({ error: "Email requerido" });
     }
+
+    email = email.trim().toLowerCase();
 
     const usersRef = db.collection("UsuariosActivos");
 
@@ -381,18 +383,21 @@ app.post("/Verificaremail", async (req, res) => {
       .where("datapayphone.email", "==", email)
       .get();
 
-    if (!querySnapshot.empty) {
-      // 🔴 El correo YA existe
-      return res.json({
-        exists: true,
-        message: "El correo ya está en uso",
-      });
-    }
+    let exists = false;
 
-    // 🟢 El correo NO existe
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      console.log(data);
+
+      // 🔥 ignorar el mismo usuario
+      if (data.clientTransactionId !== userId) {
+        exists = true;
+      }
+    });
+
     return res.json({
-      exists: false,
-      message: "Correo disponible",
+      exists,
+      message: exists ? "El correo ya está en uso" : "Correo disponible",
     });
   } catch (err) {
     console.error(err);

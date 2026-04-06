@@ -75,7 +75,7 @@ const steps = [
   },
 ];
 
-const LAUNCH_DATE = new Date("2026-07-12T00:00:00");
+const LAUNCH_DATE = new Date("2026-05-12T00:00:00");
 
 const getTimeLeft = () => {
   const now = new Date();

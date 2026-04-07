@@ -115,7 +115,9 @@ const Planos = ({ name }) => {
             </div>
 
             <Link className={plan.btnStyle} to="/detales" state={{ plan }}>
-              {plan.launch ? "🚀 Asegurar Mi Lugar" : `Elegir ${plan.title}`}
+              {plan.launch
+                ? "🚀 Asegurar Mi Lugar crear mi cuenta"
+                : `Elegir ${plan.title}`}
             </Link>
 
             {plan.launch && (

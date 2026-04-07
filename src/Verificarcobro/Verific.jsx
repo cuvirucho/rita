@@ -1908,7 +1908,7 @@ export default function Verific() {
                   {[
                     {
                       num: "1",
-                      text: "📸 Haz captura de pantalla",
+                      text: "📧 Revisa tu correo hemos enviado tus datos de acceso",
                       critical: true,
                     },
                     {

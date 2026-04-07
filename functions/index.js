@@ -156,6 +156,7 @@ app.post("/confirm", async (req, res) => {
           existingUserDoc = existingQuery.docs[0];
           console.log(existingUserDoc);
         }
+        console.log(existingUserDoc);
 
         if (existingUserDoc) {
           // Usuario ya existe: solo actualizar el plan/cart y datos del nuevo pago
@@ -178,10 +179,29 @@ app.post("/confirm", async (req, res) => {
               activatedAt: admin.firestore.FieldValue.serverTimestamp(),
             });
         }
+
+        const sendemailwelcome = await fetch(
+          "https://apiapp-gq4hj2kfcq-uc.a.run.app/senwelcome",
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${PAYPHONE_TOKEN}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              email: data.email,
+              tepcodig: data.authorizationCode,
+            }),
+          },
+        );
+
+        const textemail = await sendemailwelcome.text();
+        console.log("Respuesta envarcorreo:", textemail);
       } else {
         console.warn(
           `Orden no encontrada para clientTransactionId: ${clientTxId}`,
         );
+        return res.json({ error: "Orden no encontrada" });
       }
     }
 
@@ -491,6 +511,30 @@ app.post("/updateEmail", async (req, res) => {
   } catch (err) {
     console.error(err);
     return res.status(500).json({ error: err.message });
+  }
+});
+
+/*bajar el plan a starter*/
+app.post("/downgradePlan", async (req, res) => {
+  console.log("entro en downgrade plan");
+
+  try {
+    const { userId } = req.body;
+
+    if (!userId) {
+      console.log("faltan datos");
+      return res.status(400).json({ error: "Faltan datos" });
+    }
+
+    await db.collection("UsuariosActivos").doc(userId).update({
+      "cart.nombre": "Plan Starter",
+      "cart.datedAt": new Date().toISOString(),
+    });
+
+    return res.json({ success: true });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Error al bajar plan" });
   }
 });
 

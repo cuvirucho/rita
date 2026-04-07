@@ -28,6 +28,8 @@ app.use(
   cors({
     origin: [
       "http://localhost:5173",
+      "http://localhost:5174",
+      "https://ritafitcanbio.netlify.app",
       "http://localhost:5173/Formulariopagos",
       "https://moritasgo.netlify.app",
       "https://ritafit.netlify.app", // cambia por tu dominio
@@ -138,21 +140,44 @@ app.post("/confirm", async (req, res) => {
       if (!querySnapshot.empty) {
         const orderDoc = querySnapshot.docs[0];
         const orderData = orderDoc.data();
+        console.log("Datos de la orden:", orderData);
+        console.log("Datos de la transacción:", data);
 
-        // Crear usuario activo usando clientTxId como ID para evitar duplicados
-        await db
+        // Verificar si ya existe un usuario activo con el mismo email
+        const email = data.email ? data.email.trim().toLowerCase() : null;
+        let existingUserDoc = null;
+
+        const existingQuery = await db
           .collection("UsuariosActivos")
-          .doc(clientTxId)
-          .set({
-            ...orderData, // todos los datos del usuario
-            authorizationCode: data.authorizationCode,
-            transactionStatus: data.transactionStatus,
-            datapayphone: data, // guardar toda la respuesta de Payphone para referencia
-            ubicacines: {}, // guardar ubicaciones del pedido
-            activatedAt: admin.firestore.FieldValue.serverTimestamp(),
-          });
+          .where("datapayphone.email", "==", email)
+          .get();
 
-        // console.log("Usuario movido a UsuariosActivos");
+        if (!existingQuery.empty) {
+          existingUserDoc = existingQuery.docs[0];
+          console.log(existingUserDoc);
+        }
+
+        if (existingUserDoc) {
+          // Usuario ya existe: solo actualizar el plan/cart y datos del nuevo pago
+          await existingUserDoc.ref.update({
+            cart: orderData.cart,
+
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+          });
+        } else if (data.amount !== 4200) {
+          // Usuario nuevo: crear documento completo (solo si el monto NO es 4200)
+          await db
+            .collection("UsuariosActivos")
+            .doc(clientTxId)
+            .set({
+              ...orderData,
+              authorizationCode: data.authorizationCode,
+              transactionStatus: data.transactionStatus,
+              datapayphone: data,
+              ubicacines: {},
+              activatedAt: admin.firestore.FieldValue.serverTimestamp(),
+            });
+        }
       } else {
         console.warn(
           `Orden no encontrada para clientTransactionId: ${clientTxId}`,

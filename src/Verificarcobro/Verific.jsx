@@ -1303,9 +1303,11 @@ export default function Verific() {
         );
 
         const data = await resp.json();
-        // console.log(data);
+        console.log(data);
 
-        if (data.transactionStatus === "Approved") {
+        if (data.transactionStatus === "Approved" && data.amount === 4200) {
+          setEstado("premium");
+        } else if (data.transactionStatus === "Approved") {
           // Verificar si el email ya está en uso
           try {
             const emailResp = await fetch(
@@ -1454,6 +1456,85 @@ export default function Verific() {
                   Conexión segura encriptada
                 </span>
               </div>
+            </div>
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  // ── PREMIUM ──
+  if (estado === "premium") {
+    return (
+      <>
+        <style>{CSS}</style>
+        <Confetti />
+        <EmojiRain />
+        <div
+          className="verific-page"
+          style={{
+            background:
+              "linear-gradient(160deg, #f0f9ff 0%, #e0f7fa 25%, #ede9fe 50%, #fef3c7 75%, #fce7f3 100%)",
+          }}
+        >
+          <BackgroundOrbs />
+          <div className="verific-inner">
+            <div
+              className="verific-glass"
+              style={{
+                padding: "3.5rem 2.5rem",
+                textAlign: "center",
+                animation: "fadeInUp 0.7s cubic-bezier(0.34,1.56,0.64,1)",
+                maxWidth: 480,
+              }}
+            >
+              <RitaLogo />
+              <div
+                style={{
+                  animation:
+                    "scaleIn 0.7s cubic-bezier(0.34,1.56,0.64,1) 0.2s both",
+                  marginBottom: "1.5rem",
+                }}
+              >
+                <CheckIcon />
+              </div>
+              <h1
+                className="verific-celebration-text"
+                style={{ margin: "0 0 1rem" }}
+              >
+                ¡Felicidades!
+              </h1>
+              <p
+                style={{
+                  fontSize: "1.2rem",
+                  fontWeight: 700,
+                  color: "#0f172a",
+                  fontFamily: '"Outfit", "Inter", sans-serif',
+                  lineHeight: 1.6,
+                  margin: "0 0 1.5rem",
+                }}
+              >
+                Has actualizado tu cuenta a{" "}
+                <span
+                  style={{
+                    background: "linear-gradient(135deg, #ffbb00, #ff9500)",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    fontWeight: 900,
+                  }}
+                >
+                  Premium
+                </span>{" "}
+                💎
+              </p>
+              <CountdownTimer />
+              <button
+                className="verific-btn-primary"
+                style={{ marginTop: "1.5rem" }}
+                onClick={irALogin}
+              >
+                🚀 Ir al inicio
+              </button>
             </div>
           </div>
         </div>

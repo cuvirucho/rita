@@ -994,7 +994,7 @@ function CheckIcon() {
   );
 }
 
-const LAUNCH_DATE = new Date("2026-05-12T00:00:00");
+const LAUNCH_DATE = new Date("2026-05-30T00:00:00");
 
 const getTimeLeft = () => {
   const now = new Date();
@@ -1307,7 +1307,10 @@ export default function Verific() {
 
         if (data.transactionStatus === "Approved" && data.amount === 4200) {
           setEstado("premium");
-        } else if (data.transactionStatus === "Approved") {
+        } else if (
+          data.transactionStatus === "Approved" &&
+          data.renovacion === false
+        ) {
           // Verificar si el email ya está en uso
           try {
             const emailResp = await fetch(
@@ -1344,6 +1347,11 @@ export default function Verific() {
               tempPassword: data.authorizationCode,
             });
           }
+        } else if (
+          data.transactionStatus === "Approved" &&
+          data.renovacion === true
+        ) {
+          setEstado("renovacion");
         } else {
           setEstado("rejected");
         }
@@ -2063,6 +2071,113 @@ export default function Verific() {
                   </span>
                 </React.Fragment>
               ))}
+            </div>
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  // ── RENOVACION ──
+  if (estado === "renovacion") {
+    return (
+      <>
+        <style>{CSS}</style>
+        <Confetti />
+        <EmojiRain />
+        <div
+          className="verific-page"
+          style={{
+            background:
+              "linear-gradient(160deg, #f0f9ff 0%, #e0f7fa 25%, #ede9fe 50%, #fef3c7 75%, #fce7f3 100%)",
+          }}
+        >
+          <BackgroundOrbs />
+          <div className="verific-inner">
+            <div
+              className="verific-glass"
+              style={{
+                padding: "3.5rem 2.5rem",
+                textAlign: "center",
+                animation: "fadeInUp 0.7s cubic-bezier(0.34,1.56,0.64,1)",
+                maxWidth: 480,
+              }}
+            >
+              <RitaLogo />
+              <div
+                style={{
+                  animation:
+                    "scaleIn 0.7s cubic-bezier(0.34,1.56,0.64,1) 0.2s both",
+                  marginBottom: "1.5rem",
+                }}
+              >
+                <CheckIcon />
+              </div>
+              <h1
+                className="verific-celebration-text"
+                style={{ margin: "0 0 0.5rem" }}
+              >
+                ¡Felicidades!
+              </h1>
+              <p
+                style={{
+                  fontSize: "1.2rem",
+                  fontWeight: 700,
+                  color: "#0f172a",
+                  fontFamily: '"Outfit", "Inter", sans-serif',
+                  lineHeight: 1.6,
+                  margin: "0 0 1.2rem",
+                }}
+              >
+                Has renovado tu{" "}
+                <span
+                  style={{
+                    background: "linear-gradient(135deg, #0197b3, #a855f7)",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    fontWeight: 900,
+                  }}
+                >
+                  suscripción
+                </span>{" "}
+                🔄
+              </p>
+              <div
+                style={{
+                  background:
+                    "linear-gradient(135deg, rgba(1,151,179,0.08), rgba(168,85,247,0.06))",
+                  border: "1.5px solid rgba(1,151,179,0.18)",
+                  borderRadius: "20px",
+                  padding: "1.2rem 1.5rem",
+                  marginBottom: "1.4rem",
+                  textAlign: "center",
+                }}
+              >
+                <div style={{ fontSize: "2rem", marginBottom: "0.4rem" }}>
+                  🎊
+                </div>
+                <p
+                  style={{
+                    margin: 0,
+                    fontSize: "0.95rem",
+                    fontWeight: 700,
+                    color: "#0f172a",
+                    fontFamily: '"Outfit", "Inter", sans-serif',
+                    lineHeight: 1.6,
+                  }}
+                >
+                  Tu suscripción ha sido renovada exitosamente. Sigue
+                  disfrutando de todos los beneficios exclusivos de Rita Fit. 💪
+                </p>
+              </div>
+              <CountdownTimer />
+              <button
+                className="verific-btn-primary"
+                style={{ marginTop: "1.5rem" }}
+                onClick={irALogin}
+              >
+                🚀 Ir al inicio
+              </button>
             </div>
           </div>
         </div>

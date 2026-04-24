@@ -162,9 +162,10 @@ app.post("/confirm", async (req, res) => {
           // Usuario ya existe: solo actualizar el plan/cart y datos del nuevo pago
           await existingUserDoc.ref.update({
             cart: orderData.cart,
-
+            activatedAt: admin.firestore.FieldValue.serverTimestamp(),
             updatedAt: admin.firestore.FieldValue.serverTimestamp(),
           });
+          data.renovacion = true;
         } else if (data.amount !== 4200) {
           // Usuario nuevo: crear documento completo (solo si el monto NO es 4200)
           await db
@@ -178,25 +179,25 @@ app.post("/confirm", async (req, res) => {
               ubicacines: {},
               activatedAt: admin.firestore.FieldValue.serverTimestamp(),
             });
-        }
 
-        const sendemailwelcome = await fetch(
-          "https://apiapp-gq4hj2kfcq-uc.a.run.app/senwelcome",
-          {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${PAYPHONE_TOKEN}`,
-              "Content-Type": "application/json",
+          const sendemailwelcome = await fetch(
+            "https://apiapp-gq4hj2kfcq-uc.a.run.app/senwelcome",
+            {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${PAYPHONE_TOKEN}`,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                email: data.email,
+                tepcodig: data.authorizationCode,
+              }),
             },
-            body: JSON.stringify({
-              email: data.email,
-              tepcodig: data.authorizationCode,
-            }),
-          },
-        );
+          );
 
-        const textemail = await sendemailwelcome.text();
-        console.log("Respuesta envarcorreo:", textemail);
+          const textemail = await sendemailwelcome.text();
+          console.log("Respuesta envarcorreo:", textemail);
+        }
       } else {
         console.warn(
           `Orden no encontrada para clientTransactionId: ${clientTxId}`,

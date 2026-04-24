@@ -2170,7 +2170,7 @@ export default function Verific() {
                   disfrutando de todos los beneficios exclusivos de Rita Fit. 💪
                 </p>
               </div>
-              <CountdownTimer />
+
               <button
                 className="verific-btn-primary"
                 style={{ marginTop: "1.5rem" }}

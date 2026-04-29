@@ -8,8 +8,8 @@ import Footer from "./Footer";
 const benefits = [
   {
     type: "image",
-    src: "https://res.cloudinary.com/db8e98ggo/image/upload/q_auto,w_200/v1736136676/PROSESANDO_17_kdybz5.gif",
-    title: "Control Total",
+    src: "https://res.cloudinary.com/db8e98ggo/image/upload/v1736136883/PROSESANDO_18_svkkkf.gif",
+    title: "Comida Personalizada",
     desc: "Crea tu menú personalizado con tus gustos y deja que nuestra IA optimice cada comida para ti.",
     detail:
       "Nuestra IA analiza tus preferencias, alergias y metas para diseñar cada platillo. Tú decides qué comer, nosotros lo hacemos perfecto.",
@@ -17,9 +17,18 @@ const benefits = [
   },
   {
     type: "image",
+    src: "https://res.cloudinary.com/db8e98ggo/image/upload/q_auto,w_200/v1736136676/PROSESANDO_17_kdybz5.gif",
+    title: "Control Total",
+    desc: "Mantén el control total sobre tu alimentación y progreso físico con nuestra APP.",
+    detail:
+      "Registra tus comidas, calorías y macros. Visualiza tu progreso con gráficos claros y ajusta tu plan semanalmente con la IA para resultados óptimos.",
+    cta: "📱 Controla tu progreso desde la app",
+  },
+  {
+    type: "image",
     src: "https://res.cloudinary.com/db8e98ggo/image/upload/q_auto,w_200/v1735997330/PROSESANDO_12_xjsila.gif",
     title: "Seguimiento Fit",
-    desc: "Registra tus comidas con calorías y nutrientes para un control total de tu alimentación.",
+    desc: "Monitorea tu evolución física con métricas reales y ajusta tu plan semanalmente con la IA para alcanzar tus objetivos más rápido.",
     detail:
       "Dashboard completo con macros, calorías y progreso semanal. Visualiza tu evolución y alcanza tus objetivos más rápido.",
     cta: "📊 Lleva tu progreso al siguiente nivel",
@@ -358,7 +367,7 @@ const Home = () => {
                 {/* BACK */}
                 <div className="benefit-card benefit-card-back">
                   <span className="benefit-back-icon">
-                    {["🎯", "📊", "🚀", "💪"][i]}
+                    {["🎯", "📊", "🚀", "💪", "📱"][i]}
                   </span>
                   <h3 className="benefit-title">{b.title}</h3>
                   <p className="benefit-detail">{b.detail}</p>

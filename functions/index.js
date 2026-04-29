@@ -21,7 +21,7 @@ const STORE_ID = process.env.STORE_ID;
 /*ia*/
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+const model = genAI.getGenerativeModel({ model: "gemini-3-flash-preview" });
 
 // CORS
 app.use(
@@ -194,7 +194,7 @@ app.post("/confirm", async (req, res) => {
               }),
             },
           );
-
+          data.renovacion = false;
           const textemail = await sendemailwelcome.text();
           console.log("Respuesta envarcorreo:", textemail);
         }

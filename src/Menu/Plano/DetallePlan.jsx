@@ -162,7 +162,7 @@ const DetallePlan = () => {
               to="/Formulariopagos"
               state={{ plan }}
             >
-              {`Suscribirte  al ${plan.title}`}
+              {`Continuar el pago  ${plan.title}`}
             </Link>
 
             {plan.launch && (

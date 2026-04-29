@@ -33,12 +33,21 @@ const Footer = () => {
           <h4>Redes Sociales</h4>
           <div className="footer-social">
             <a
-              href="https://www.facebook.com"
+              href="https://www.tiktok.com"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              🎵 TikTok
+            </a>
+
+            <a
+              href="https://www.facebook.com/profile.php?id=61577464739446"
               target="_blank"
               rel="noopener noreferrer"
             >
               📘 Facebook
             </a>
+
             <a
               href="https://www.instagram.com"
               target="_blank"

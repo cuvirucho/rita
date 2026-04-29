@@ -2682,6 +2682,36 @@ textarea {
   margin-top: 16px;
 }
 
+/* Spinner de carga antes de la caja de pago */
+.pay-spinner-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 28px 0;
+  margin-top: 16px;
+}
+
+.pay-spinner {
+  width: 44px;
+  height: 44px;
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-top-color: #f97316;
+  border-radius: 50%;
+  animation: pay-spin 0.75s linear infinite;
+}
+
+@keyframes pay-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.pay-spinner-text {
+  font-size: 0.85rem;
+  color: var(--text-muted, #666);
+}
+
 /* Trust */
 .pay-trust-icons {
   display: flex;

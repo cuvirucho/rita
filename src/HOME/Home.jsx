@@ -89,7 +89,7 @@ const getTimeLeft = () => {
   };
 };
 
-const MAX_FREE_TRIALS = 3;
+const MAX_FREE_TRIALS = 2;
 const TRIAL_KEY = "rita_ia_trials";
 
 const getTrialCount = () => {

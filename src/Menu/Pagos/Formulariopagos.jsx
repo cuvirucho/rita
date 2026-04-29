@@ -53,6 +53,7 @@ const Formulariopagos = ({ preferciausaro }) => {
           reference: data.reference,
           storeId: data.storeId,
         }).render("pp-button");
+        setLoading(false);
       };
 
       if (!window.PPaymentButtonBox) {
@@ -61,6 +62,7 @@ const Formulariopagos = ({ preferciausaro }) => {
           "https://cdn.payphonetodoesposible.com/box/v1.1/payphone-payment-box.js";
 
         script.onload = openPayphone;
+        script.onerror = () => setLoading(false);
 
         document.body.appendChild(script);
       } else {
@@ -69,9 +71,8 @@ const Formulariopagos = ({ preferciausaro }) => {
     } catch (error) {
       console.error(error);
       alert("Error al iniciar el pago");
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   useEffect(() => {
@@ -142,7 +143,19 @@ const Formulariopagos = ({ preferciausaro }) => {
             <span>{plan?.prcieconiva || price}</span>
           </div>
 
-          <div id="pp-button" className="pay-pp-slot"></div>
+          {loading && (
+            <div className="pay-spinner-wrap">
+              <div className="pay-spinner" />
+              <span className="pay-spinner-text">
+                Cargando pasarela de pago…
+              </span>
+            </div>
+          )}
+          <div
+            id="pp-button"
+            className="pay-pp-slot"
+            style={{ display: loading ? "none" : "block" }}
+          ></div>
 
           <div className="pay-trust-icons">
             <span>🔐 Pago 100% seguro</span>

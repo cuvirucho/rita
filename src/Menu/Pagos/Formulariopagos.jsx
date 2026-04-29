@@ -20,7 +20,7 @@ const Formulariopagos = ({ preferciausaro }) => {
 
     try {
       const response = await fetch(
-        "https://us-central1-rita-ede4f.cloudfunctions.net/api/create-order",
+        `${import.meta.env.VITE_API_BASE_URL}/create-order`,
         {
           method: "POST",
           headers: {

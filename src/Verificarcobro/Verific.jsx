@@ -1253,7 +1253,7 @@ export default function Verific() {
     setVerificandoEmail(true);
     try {
       const resp = await fetch(
-        "https://us-central1-rita-ede4f.cloudfunctions.net/api/updateEmail",
+        `${import.meta.env.VITE_API_BASE_URL}/updateEmail`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -1294,7 +1294,7 @@ export default function Verific() {
     const confirmarPago = async () => {
       try {
         const resp = await fetch(
-          "https://us-central1-rita-ede4f.cloudfunctions.net/api/confirm",
+          `${import.meta.env.VITE_API_BASE_URL}/confirm`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -1314,7 +1314,7 @@ export default function Verific() {
           // Verificar si el email ya está en uso
           try {
             const emailResp = await fetch(
-              "https://us-central1-rita-ede4f.cloudfunctions.net/api/Verificaremail",
+              `${import.meta.env.VITE_API_BASE_URL}/Verificaremail`,
               {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },

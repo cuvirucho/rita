@@ -1,18 +1,15 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export const generarMenu = async (preferencias) => {
-  const resp = await fetch(
-    "https://us-central1-rita-ede4f.cloudfunctions.net/api/generarMenu",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        preferencias: preferencias,
-      }),
+  const resp = await fetch(`${import.meta.env.VITE_API_BASE_URL}/generarMenu`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
     },
-  );
+    body: JSON.stringify({
+      preferencias: preferencias,
+    }),
+  });
 
   const data = await resp.json();
 

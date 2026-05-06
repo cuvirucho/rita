@@ -32,6 +32,7 @@ app.use(
       "https://ritafitcanbio.netlify.app",
       "http://localhost:5173/Formulariopagos",
       "https://moritasgo.netlify.app",
+      "https://ritafit.com",
       "https://ritafit.netlify.app", // cambia por tu dominio
     ],
     methods: ["GET", "POST", "OPTIONS"],
@@ -220,46 +221,44 @@ app.post("/generarMenu", async (req, res) => {
     const { preferencias } = req.body;
 
     const prompt = `
-  Genera un menú de  7 dias  Ponle un nombre gurmet a todos los platos   Para cada día, quiero que sigas estrictamente el  formato JSON, usando claves como "desayuno", "snack1", "almuerzo", "snack2" y "cena". Agrega una pequeña y atractiva decipcion del plato que no super los 75 palabras 
- 
-  Cada comida debe incluir cantidades exactas en gramos de cada ingrediente y sus calorias vitaminas proteinas minerales.
-  
-  Considera las siguientes peticones del usuario: ${JSON.stringify(
-    preferencias,
-  )}.
-  Considera los gustos  del usuario: ${JSON.stringify(preferencias.like)}.
+Genera un menú gourmet de 5 días completamente personalizado.
 
-  El costo total del mes no debe superar los $100.
-  Devuelve el menú en JSON con este formato:
-  
-  Tu respuesta debe ser **EXCLUSIVAMENTE** un JSON válido, sin texto adicional.
-  NO agregues comentarios, explicaciones ni advertencias. Solo devuelve el JSON.
-  ...
-  **IMPORTANTE:** La respuesta debe ser **únicamente** un JSON válido y sin explicaciones. 
-  No incluyas para nada markdown.
-  **IMPORTANTE:** La respuesta debe ser exclusivamente un JSON válido y bien formado. No incluir texto adicional. 
-  Si el JSON supera el límite de caracteres, divídelo en múltiples partes claramente separadas por ***PARTE 1***, ***PARTE 2***, etc.
-  Asegúrate de que cada parte sea válida por sí misma y no esté truncada.
-  
+PREFERENCIAS:
+- Alimentos que le gustan: usa datos de preferencias para incluir solo alimentos que le gusten al usuario
+- Alimentos que NO le gustan: usa datos de preferencias para excluir alimentos que no le gusten al usuario  
+DATOS DEL USUARIO: ${preferencias}
+
+REQUISITOS:
+- Eres un nutricionista profesional.
+- Menú para 5 días
+- 5 comidas por día: desayuno, snack1, almuerzo, snack2 y cena
+- Cada plato debe tener un nombre gourmet
+- Incluir una descripción atractiva (máx 50 palabras)
+- Incluir ingredientes con cantidades exactas
+- Incluir calorías, vitaminas, proteínas y minerales
+- El costo  total de las 5 comidas NO debe superar los 50 dolares semanalmente
+Devuelve el menú en JSON con este formato:
+Tu respuesta debe ser **EXCLUSIVAMENTE** un JSON válido, sin texto adicional.
+NO agregues comentarios, explicaciones ni advertencias. Solo devuelve el JSON.
+...
+**IMPORTANTE:** La respuesta debe ser **únicamente** un JSON válido y sin explicaciones. 
+No incluyas para nada markdown.
+**IMPORTANTE:** La respuesta debe ser exclusivamente un JSON válido y bien formado. No incluir texto adicional.
+Asegúrate de que cada parte sea válida por sí misma y no esté truncada.
 
 Cada comida debe tener:
-
-"nombre" del plato
-
- "descripcion": Agrega una pequeña y atractiva decipcion del plato que no super las 100 palabras  
-
+"nombre"un nombre subliminalmente atractivo del plato
+"descripcion": Agrega una pequeña y atractiva decipcion del plato que se entida que es y  que no supere las 50 palabras
 "ingredientes" como objeto con ingredientes y cantidades
-
 "calorias" como número (sin llaves, ni comillas)
-
 "vitaminas" como objeto con tipos y porcentaje
-
 "proteinas" como objeto con clave "total"
-
 "minerales" como objeto con tipo y cantidad
 
-Formato JSON obligatorio   :
-
+FORMATO:
+Devuelve SOLO JSON válido sin texto adicional.
+Estructura obligatoria
+Formato JSON obligatorio:
 {
   "dia1": {
     "desayuno": {
@@ -365,9 +364,11 @@ Formato JSON obligatorio   :
     }
   }
 }
-
+IMPORTANTE:
+- NO markdown
+- NO explicaciones
+- SOLO JSON válido
   `;
-
     const result = await model.generateContent(prompt);
     const response = await result.response;
 

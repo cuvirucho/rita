@@ -84,7 +84,7 @@ const steps = [
   },
 ];
 
-const LAUNCH_DATE = new Date("2026-05-30T00:00:00");
+const LAUNCH_DATE = new Date("2026-06-15T00:00:00");
 
 const getTimeLeft = () => {
   const now = new Date();
@@ -119,6 +119,52 @@ const incrementTrialCount = () => {
   }
 };
 
+const PageSkeleton = ({ visible }) => (
+  <div className={`page-skeleton${visible ? "" : " fade-out"}`}>
+    {/* Header */}
+    <div className="skel-header">
+      <div className="skeleton-block skel-logo" />
+      <div className="skel-nav">
+        <div className="skeleton-block skel-nav-item" />
+        <div className="skeleton-block skel-nav-item" />
+        <div className="skeleton-block skel-nav-item" />
+        <div className="skeleton-block skel-nav-item" />
+      </div>
+    </div>
+    {/* Hero */}
+    <div className="skel-hero">
+      <div className="skel-hero-shimmer" />
+      <div className="skel-hero-content">
+        <div className="skel-badge" />
+        <div className="skel-title" />
+        <div className="skel-title short" />
+        <div className="skel-subtitle" />
+        <div className="skel-subtitle" style={{ width: "60%" }} />
+        <div className="skel-countdown">
+          <div className="skel-countdown-item" />
+          <div className="skel-countdown-item" />
+          <div className="skel-countdown-item" />
+          <div className="skel-countdown-item" />
+        </div>
+        <div className="skel-btns">
+          <div className="skel-btn" />
+          <div className="skel-btn" />
+        </div>
+      </div>
+    </div>
+    {/* Benefits */}
+    <div className="skel-section">
+      <div className="skeleton-block skel-section-badge" />
+      <div className="skeleton-block skel-section-title" />
+      <div className="skel-cards">
+        <div className="skeleton-block skel-card" />
+        <div className="skeleton-block skel-card" />
+        <div className="skeleton-block skel-card" />
+      </div>
+    </div>
+  </div>
+);
+
 const Home = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [loquiero, setLoquiero] = useState("");
@@ -126,6 +172,8 @@ const Home = () => {
   const [flippedCard, setFlippedCard] = useState(null);
   const [activeDot, setActiveDot] = useState(0);
   const [showTrialModal, setShowTrialModal] = useState(false);
+  const [videoLoaded, setVideoLoaded] = useState(false);
+  const [skeletonVisible, setSkeletonVisible] = useState(true);
   const navigate = useNavigate();
 
   const scrollRef = useRef(null);
@@ -190,8 +238,20 @@ const Home = () => {
     }
   };
 
+  const loadedRef = useRef(false);
+
+  const handleVideoLoaded = () => {
+    if (loadedRef.current) return;
+    loadedRef.current = true;
+    setVideoLoaded(true);
+    setTimeout(() => setSkeletonVisible(false), 520);
+  };
+
   useEffect(() => {
     window.scrollTo(0, 0);
+    // Fallback: hide skeleton after 5s if video never fires canPlay
+    const fallback = setTimeout(() => handleVideoLoaded(), 5000);
+    return () => clearTimeout(fallback);
   }, []);
 
   useEffect(() => {
@@ -201,6 +261,7 @@ const Home = () => {
 
   return (
     <>
+      {skeletonVisible && <PageSkeleton visible={!videoLoaded} />}
       {/* HEADER */}
       <header className="header">
         <div className="header-inner">
@@ -249,7 +310,7 @@ const Home = () => {
 
       {/* HERO */}
       <section className="hero-section" id="inicio">
-        <Videocatgoriashome />
+        <Videocatgoriashome onLoaded={handleVideoLoaded} />
         <div className="hero-overlay" />
         <div className="hero-content">
           <div className="hero-badge">Precio exclusivo de lanzamiento</div>

@@ -994,7 +994,7 @@ function CheckIcon() {
   );
 }
 
-const LAUNCH_DATE = new Date("2026-06-15T00:00:00");
+const LAUNCH_DATE = new Date("2026-06-25T00:00:00");
 
 const getTimeLeft = () => {
   const now = new Date();

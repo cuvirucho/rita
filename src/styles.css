@@ -5298,3 +5298,395 @@ textarea {
     grid-template-columns: 1fr;
   }
 }
+
+/* ============================================================
+   ORDEN DIARIA
+   ============================================================ */
+.orden-page {
+  min-height: 100vh;
+  background: var(--bg-subtle);
+  padding-bottom: calc(24px + env(safe-area-inset-bottom));
+}
+.orden-container {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 8px 24px 48px;
+}
+.orden-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  margin-bottom: 20px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  color: var(--text-secondary);
+  font-family: var(--font);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.orden-back:hover {
+  color: var(--primary);
+  border-color: var(--primary);
+  transform: translateX(-2px);
+}
+.orden-back:active {
+  transform: translateX(0);
+}
+
+.orden-header {
+  margin-bottom: 32px;
+}
+.orden-title {
+  margin-top: 12px;
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--secondary);
+  line-height: 1.2;
+}
+.orden-subtitle {
+  margin-top: 8px;
+  font-size: 1rem;
+  color: var(--text-secondary);
+  line-height: 1.55;
+}
+
+/* Layout */
+.orden-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 24px;
+  align-items: start;
+}
+
+/* Lista de platos seleccionables */
+.orden-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.orden-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  text-align: left;
+  padding: 16px;
+  background: var(--bg);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xs);
+  cursor: pointer;
+  font-family: var(--font);
+  transition: transform var(--transition), border-color var(--transition),
+    box-shadow var(--transition), background var(--transition);
+}
+.orden-item:hover {
+  border-color: var(--primary);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+.orden-item:active {
+  transform: translateY(0) scale(0.995);
+}
+.orden-item.is-selected {
+  border-color: var(--primary);
+  background: var(--primary-light);
+  box-shadow: 0 4px 16px var(--primary-glow);
+}
+.orden-item-icon {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  font-size: 1.4rem;
+  background: var(--bg);
+  border-radius: 50%;
+  box-shadow: var(--shadow-xs);
+}
+.orden-item-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.orden-item-tipo {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--primary);
+}
+.orden-item-nombre {
+  margin-top: 2px;
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--secondary);
+  line-height: 1.25;
+}
+.orden-item-desc {
+  margin-top: 3px;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.orden-item-right {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.orden-item-precio {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--accent-dark);
+}
+.orden-item-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  transition: all var(--transition);
+}
+.orden-item.is-selected .orden-item-check {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+/* Resumen del pedido */
+.orden-summary {
+  position: sticky;
+  top: 80px;
+  background: var(--bg);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
+  padding: 24px;
+}
+.orden-summary-title {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--secondary);
+}
+.orden-summary-count {
+  margin-top: 6px;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+.orden-summary-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 16px 0;
+}
+.orden-summary-empty {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+.orden-sum-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.92rem;
+  color: var(--text-secondary);
+}
+.orden-sum-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.orden-sum-price {
+  font-weight: 700;
+  color: var(--text);
+  white-space: nowrap;
+}
+.orden-sum-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 14px 0;
+}
+.orden-sum-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--secondary);
+  margin-top: 6px;
+}
+.orden-sum-total span:last-child {
+  color: var(--accent-dark);
+}
+.orden-continuar {
+  width: 100%;
+  margin-top: 20px;
+  padding: 16px 24px;
+  font-family: var(--font);
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #fff;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  letter-spacing: 0.3px;
+  transition: transform var(--transition), box-shadow var(--transition),
+    opacity var(--transition);
+}
+.orden-continuar:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px var(--primary-glow);
+}
+.orden-continuar:active {
+  transform: translateY(0) scale(0.98);
+}
+.orden-continuar:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Modal método de pago (reusa keyframes trialFadeIn / trialSlideUp) */
+.orden-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(6px);
+  animation: trialFadeIn 0.25s ease;
+}
+.orden-modal {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  padding: 44px 28px 32px;
+  background: var(--bg);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xl);
+  text-align: center;
+  animation: trialSlideUp 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.orden-modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  background: var(--bg-muted);
+  border: none;
+  border-radius: var(--radius-full);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+.orden-modal-close:hover {
+  background: var(--border);
+  color: var(--text);
+}
+.orden-modal-title {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--secondary);
+  margin-bottom: 24px;
+  line-height: 1.3;
+}
+.orden-pay-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.orden-pay-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 24px 12px;
+  background: var(--bg-subtle);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-lg);
+  font-family: var(--font);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--secondary);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.orden-pay-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+.orden-pay-btn:active {
+  transform: translateY(0) scale(0.97);
+}
+.orden-pay-icon {
+  font-size: 2rem;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .orden-layout {
+    grid-template-columns: 1fr;
+  }
+  .orden-summary {
+    position: sticky;
+    top: auto;
+    bottom: 0;
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    box-shadow: 0 -8px 28px rgba(0, 0, 0, 0.12);
+    padding-bottom: calc(20px + env(safe-area-inset-bottom));
+  }
+}
+@media (max-width: 480px) {
+  .orden-container {
+    padding: 8px 16px 40px;
+  }
+  .orden-item {
+    padding: 14px;
+    gap: 12px;
+  }
+  .orden-item-icon {
+    width: 42px;
+    height: 42px;
+    font-size: 1.25rem;
+  }
+  .orden-modal {
+    padding: 40px 20px 26px;
+  }
+  .orden-modal-title {
+    font-size: 1.25rem;
+  }
+}

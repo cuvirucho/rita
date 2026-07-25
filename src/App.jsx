@@ -7,6 +7,7 @@ import Formulariopagos from "./Menu/Pagos/Formulariopagos";
 import DetallePlan from "./Menu/Plano/DetallePlan";
 import Verific from "./Verificarcobro/Verific";
 import GeoGate from "./GeoGate/GeoGate";
+import OrdenDiaria from "./OrdenDiaria/OrdenDiaria";
 
 const MAX_FREE_TRIALS = 3;
 const TRIAL_KEY = "rita_ia_trials";
@@ -39,6 +40,7 @@ function App() {
             path="/menu"
             element={<MenuDinamico preferencias={preferencias} />}
           />
+          <Route path="/orden-diaria" element={<OrdenDiaria />} />
           <Route path="/detales" element={<DetallePlan />} />
           <Route path="/verificarcobro" element={<Verific />} />
           <Route path="/Formulariopagos" element={<Formulariopagos />} />

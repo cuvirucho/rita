@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import menuDiario from "./menuDiario";
 
 const OBJETIVOS = [
@@ -17,6 +18,7 @@ function porcentajeMacro(valor, macros) {
 }
 
 function MenuDiario() {
+  const navigate = useNavigate();
   const [objetivo, setObjetivo] = useState("ganar_musculo");
   // Índices de las tarjetas abiertas (acordeones independientes, cerradas por defecto).
   const [abiertas, setAbiertas] = useState(() => new Set());
@@ -229,6 +231,11 @@ function MenuDiario() {
                   <button
                     type="button"
                     className="btn btn-primary btn-lg btn-full"
+                    onClick={() =>
+                      navigate("/orden-diaria", {
+                        state: { objetivo, tipo: comida.tipo },
+                      })
+                    }
                   >
                     Ordenar ahora
                   </button>

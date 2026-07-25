@@ -4,6 +4,7 @@ import Videocatgoriashome from "./Videocatgoriashome";
 import Reviews from "./Reseñas/Reviews";
 import Planos from "../Menu/Plano/Planos";
 import Footer from "./Footer";
+import MenuDiario from "../MenuDiario/MenuDiario.jsx";
 
 const benefits = [
   {
@@ -321,15 +322,15 @@ const Home = () => {
             </button>
             <button
               className="nav-link"
-              onClick={() => scrollToSection("planes")}
+              onClick={() => scrollToSection("menu-diario")}
             >
-              Planes
+              Menú Diario
             </button>
             <button
               className="nav-link"
-              onClick={() => scrollToSection("testimonios")}
+              onClick={() => scrollToSection("planes")}
             >
-              Testimonios
+              Planes
             </button>
             <button className="nav-link" onClick={() => scrollToSection("cta")}>
               Empieza Gratis
@@ -366,7 +367,7 @@ const Home = () => {
             </button>
             <button
               className="btn btn-secondary btn-lg"
-              onClick={() => scrollToSection("planes")}
+              onClick={() => scrollToSection("menu-diario")}
             >
               Ver menu diario
             </button>
@@ -532,7 +533,9 @@ const Home = () => {
       </section>
 
       {/* Menu diario */}
-      <section id="menu-diario"></section>
+      <section className="menu-diario-section" id="menu-diario">
+        <MenuDiario />
+      </section>
       {/* PLANS */}
       <section className="plans-section" id="planes">
         <div className="container">

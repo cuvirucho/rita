@@ -898,9 +898,7 @@ textarea {
     rgba(255, 255, 255, 0.06) 45%,
     rgba(1, 151, 179, 0.25)
   );
-  -webkit-mask:
-    linear-gradient(#000 0 0) content-box,
-    linear-gradient(#000 0 0);
+ 
   -webkit-mask-composite: xor;
   mask-composite: exclude;
 }
@@ -4891,5 +4889,412 @@ textarea {
   }
   .skel-card {
     flex: 0 0 80vw;
+  }
+}
+
+/* ============================================================
+   MENÚ DIARIO
+   ============================================================ */
+.menu-diario-section {
+  padding: 80px 24px;
+  background: var(--bg-subtle);
+}
+
+/* Toggle switch objetivo */
+.md-toggle {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  max-width: 520px;
+  margin: 0 auto 48px;
+  padding: 6px;
+  background: var(--bg-muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-xs) inset;
+}
+.md-toggle-thumb {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  width: calc(50% - 6px);
+  height: calc(100% - 12px);
+  background: var(--primary);
+  border-radius: var(--radius-full);
+  box-shadow: 0 4px 14px var(--primary-glow);
+  transition: transform var(--transition-slow);
+  z-index: 0;
+}
+.md-toggle[data-active="bajar_peso"] .md-toggle-thumb {
+  transform: translateX(calc(100% + 4px));
+  background: linear-gradient(90deg, var(--accent-dark), #ff6b00);
+  box-shadow: 0 4px 14px var(--accent-glow);
+}
+.md-toggle-option {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: var(--radius-full);
+  transition: color var(--transition);
+  white-space: nowrap;
+}
+.md-toggle-option.active {
+  color: var(--text-inverse);
+}
+.md-toggle-icon {
+  font-size: 1.1rem;
+}
+
+/* Grid de comidas */
+.md-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+  align-items: start;
+}
+
+.md-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-xl);
+  padding: 0;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  transition: transform var(--transition), box-shadow var(--transition);
+  animation: fadeInUp 0.5s ease both;
+}
+.md-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-xl);
+}
+.md-card.is-open {
+  box-shadow: var(--shadow-md);
+}
+
+/* Resumen clicable (trigger del acordeón) — siempre visible */
+.md-card-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  padding: 22px 24px;
+  background: transparent;
+  border: none;
+  text-align: left;
+  font-family: var(--font);
+  color: inherit;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  transition: background var(--transition);
+}
+.md-card-summary:hover {
+  background: var(--bg-subtle);
+}
+.md-card-summary:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: -3px;
+}
+.md-card-summary-top {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.md-card-icon {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  font-size: 1.6rem;
+  background: var(--primary-light);
+  border-radius: 50%;
+}
+.md-card-heading {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.md-card-tipo {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--primary);
+}
+.md-card-nombre {
+  margin-top: 2px;
+  font-size: 1.05rem;
+  font-weight: 800;
+  line-height: 1.3;
+  color: var(--secondary);
+}
+.md-card-cal {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  padding: 6px 12px;
+  background: var(--accent-light);
+  border-radius: var(--radius-full);
+}
+.md-cal-num {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--accent-dark);
+  line-height: 1;
+}
+.md-cal-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--accent-dark);
+  text-transform: uppercase;
+}
+.md-card-chevron {
+  flex: 0 0 auto;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--text-muted);
+  transition: transform var(--transition-slow), color var(--transition);
+}
+.md-card.is-open .md-card-chevron {
+  transform: rotate(180deg);
+  color: var(--primary);
+}
+.md-card-desc {
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+
+/* Cuerpo colapsable del acordeón */
+.md-card-body {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows var(--transition-slow);
+}
+.md-card.is-open .md-card-body {
+  grid-template-rows: 1fr;
+}
+.md-card-body-inner {
+  overflow: hidden;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 4px 24px 24px;
+}
+
+/* Barras de macros */
+.md-block-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+.md-macros {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.md-macro-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.82rem;
+  margin-bottom: 5px;
+}
+.md-macro-label {
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+.md-macro-value {
+  color: var(--text);
+  font-weight: 700;
+}
+.md-macro-bar {
+  width: 100%;
+  height: 8px;
+  background: var(--border);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+.md-macro-fill {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-full);
+  transition: width 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.md-macro-fill--prote {
+  background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+}
+.md-macro-fill--carbo {
+  background: linear-gradient(90deg, var(--accent), #ff6b00);
+}
+.md-macro-fill--grasa {
+  background: linear-gradient(90deg, #7c3aed, #a855f7);
+}
+
+/* Etiquetas numéricas */
+.md-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+.md-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 10px 6px;
+  background: var(--bg-muted);
+  border-radius: var(--radius-sm);
+  text-align: center;
+}
+.md-stat-num {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--secondary);
+}
+.md-stat-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text-muted);
+}
+
+/* Bloques (ingredientes, vitaminas, minerales, micros) */
+.md-block {
+  border-top: 1px solid var(--border-light);
+  padding-top: 14px;
+}
+.md-ingredientes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.md-ingrediente {
+  position: relative;
+  padding-left: 20px;
+  font-size: 0.86rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+.md-ingrediente::before {
+  content: "•";
+  position: absolute;
+  left: 4px;
+  color: var(--primary);
+  font-weight: 800;
+}
+.md-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.md-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 12px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border-radius: var(--radius-full);
+}
+.md-chip--vit {
+  background: var(--primary-light);
+  color: var(--primary-dark);
+}
+.md-chip--min {
+  background: var(--accent-light);
+  color: var(--accent-dark);
+}
+.md-micros {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+.md-micro {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+}
+.md-micro-name {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: capitalize;
+}
+.md-micro-value {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--secondary);
+}
+
+/* Botón final */
+.md-order {
+  max-width: 520px;
+  margin: 40px auto 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .menu-diario-section {
+    padding: 56px 16px;
+  }
+  .md-grid {
+    grid-template-columns: 1fr;
+  }
+  .md-toggle {
+    margin-bottom: 32px;
+  }
+}
+@media (max-width: 480px) {
+  .md-toggle-option {
+    padding: 11px 8px;
+    font-size: 0.82rem;
+    gap: 5px;
+  }
+  .md-card-summary {
+    padding: 18px 18px;
+  }
+  .md-card-body-inner {
+    padding: 4px 18px 20px;
+  }
+  .md-card-icon {
+    width: 46px;
+    height: 46px;
+    font-size: 1.4rem;
+  }
+  .md-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .md-micros {
+    grid-template-columns: 1fr;
   }
 }

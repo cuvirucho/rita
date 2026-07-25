@@ -57,29 +57,29 @@ const steps = [
   {
     number: "01",
     icon: "📋",
-    title: "Cuéntanos sobre ti",
-    desc: "Completa un formulario de 2 minutos con tus objetivos, gustos y restricciones alimenticias.",
+    title: "Crea una cuenta",
+    desc: "Regístrate completamente gratis o adqueire un plan de suscripción personalizado y empieza a disfrutar de todos los beneficios de Rita Fit.",
     highlight: "Solo 2 minutos",
   },
   {
     number: "02",
     icon: "🤖",
-    title: "La IA diseña tu plan",
-    desc: "Nuestra inteligencia artificial analiza tus datos y genera un menú de 7 días 100% personalizado.",
+    title: "La IA diseña tu plan o revisa el menu diario",
+    desc: "Nuestra inteligencia artificial genera un menú de 5 días 100% personalizado. O si lo prefieres, revisa el menú diario y ajusta tus comidas a tu gusto.",
     highlight: "Personalización real",
   },
   {
     number: "03",
     icon: "🍽️",
     title: "Recibe y disfruta",
-    desc: "Tus 5 comidas diarias llegan frescas a tu puerta. Sin cocinar, sin preocuparte.",
+    desc: "Tus comidas diarias llegan frescas a tu puerta. Sin cocinar, sin preocuparte.",
     highlight: "Delivery gratis",
   },
   {
     number: "04",
     icon: "📈",
     title: "Transforma tu cuerpo",
-    desc: "Monitorea tu progreso con métricas reales y ajusta tu plan semanalmente con la IA.",
+    desc: "Monitorea tu progreso con métricas reales y un entrenador personal",
     highlight: "Resultados visibles",
   },
 ];
@@ -181,8 +181,14 @@ const Home = () => {
   const startX = useRef(0);
   const scrollLeft = useRef(0);
 
+  // Refs espejo para el auto-avance (evitan closures obsoletas)
+  const activeDotRef = useRef(0);
+  const pausedRef = useRef(false);
+  const flippedRef = useRef(null);
+
   const handleMouseDown = (e) => {
     isDragging.current = true;
+    pausedRef.current = true;
     startX.current = e.pageX - scrollRef.current.offsetLeft;
     scrollLeft.current = scrollRef.current.scrollLeft;
     scrollRef.current.style.cursor = "grabbing";
@@ -200,23 +206,40 @@ const Home = () => {
     if (scrollRef.current) scrollRef.current.style.cursor = "grab";
   };
 
+  // Detecta la tarjeta cuyo centro está más cerca del centro del viewport
   const handleScroll = () => {
-    if (!scrollRef.current) return;
-    const { scrollLeft: sl, scrollWidth, clientWidth } = scrollRef.current;
-    const maxScroll = scrollWidth - clientWidth;
-    const index = Math.round((sl / maxScroll) * (benefits.length - 1));
-    setActiveDot(Math.min(index, benefits.length - 1));
+    const el = scrollRef.current;
+    if (!el) return;
+    const center = el.scrollLeft + el.clientWidth / 2;
+    let best = 0;
+    let bestDist = Infinity;
+    Array.from(el.children).forEach((card, i) => {
+      const cardCenter = card.offsetLeft + card.offsetWidth / 2;
+      const d = Math.abs(cardCenter - center);
+      if (d < bestDist) {
+        bestDist = d;
+        best = i;
+      }
+    });
+    activeDotRef.current = best;
+    setActiveDot(best);
   };
 
-  const scrollToDot = (i) => {
-    if (!scrollRef.current) return;
-    const { scrollWidth, clientWidth } = scrollRef.current;
-    const maxScroll = scrollWidth - clientWidth;
-    scrollRef.current.scrollTo({
-      left: (maxScroll / (benefits.length - 1)) * i,
+  // Centra la tarjeta i dentro del carrusel
+  const scrollToIndex = (i) => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const card = el.children[i];
+    if (!card) return;
+    el.scrollTo({
+      left: card.offsetLeft - (el.clientWidth - card.offsetWidth) / 2,
       behavior: "smooth",
     });
   };
+
+  const goPrev = () =>
+    scrollToIndex((activeDot - 1 + benefits.length) % benefits.length);
+  const goNext = () => scrollToIndex((activeDot + 1) % benefits.length);
 
   const scrollToSection = (id) => {
     const element = document.getElementById(id);
@@ -311,62 +334,40 @@ const Home = () => {
       {/* HERO */}
       <section className="hero-section" id="inicio">
         <Videocatgoriashome onLoaded={handleVideoLoaded} />
-        <div className="hero-overlay" />
+
         <div className="hero-content">
-          <div className="hero-badge">Precio exclusivo de lanzamiento</div>
           <h1 className="hero-title">
             Nutrición inteligente para tu mejor versión
           </h1>
           <p className="hero-subtitle">
-            Planes de comida 100% personalizados por IA. 5 comidas diarias,
-            delivery a tu puerta y seguimiento nutricional completo.
+            Ser fit nunca fue tan fácil. Con Rita, tu alimentación y
+            entrenamiento se adaptan a ti, no al revés.
           </p>
-          {/* COUNTDOWN TIMER */}
-          <div className="countdown-container">
-            <p className="countdown-label">🚀 Lanzamiento oficial en:</p>
-            <div className="countdown-grid">
-              <div className="countdown-item">
-                <span className="countdown-number">
-                  {String(timeLeft.days).padStart(2, "0")}
-                </span>
-                <span className="countdown-unit">Días</span>
-              </div>
-              <div className="countdown-separator">:</div>
-              <div className="countdown-item">
-                <span className="countdown-number">
-                  {String(timeLeft.hours).padStart(2, "0")}
-                </span>
-                <span className="countdown-unit">Horas</span>
-              </div>
-              <div className="countdown-separator">:</div>
-              <div className="countdown-item">
-                <span className="countdown-number">
-                  {String(timeLeft.minutes).padStart(2, "0")}
-                </span>
-                <span className="countdown-unit">Min</span>
-              </div>
-              <div className="countdown-separator">:</div>
-              <div className="countdown-item">
-                <span className="countdown-number">
-                  {String(timeLeft.seconds).padStart(2, "0")}
-                </span>
-                <span className="countdown-unit">Seg</span>
-              </div>
-            </div>
-          </div>
 
           <div className="hero-actions">
-            <button
-              className="btn btn-primary btn-lg"
-              onClick={handleTrialClick}
-            >
-              Prueba la IA Gratis
-            </button>
             <button
               className="btn btn-secondary btn-lg"
               onClick={() => scrollToSection("planes")}
             >
               Crear cuenta
+            </button>
+            <button
+              className="btn btn-secondary btn-lg"
+              onClick={() => scrollToSection("planes")}
+            >
+              Ver planes
+            </button>
+            <button
+              className="btn btn-secondary btn-lg"
+              onClick={() => scrollToSection("planes")}
+            >
+              Ver menu diario
+            </button>
+            <button
+              className="btn btn-secondary btn-lg"
+              onClick={() => scrollToSection("planes")}
+            >
+              Entrenador personal
             </button>
           </div>
         </div>
@@ -388,65 +389,82 @@ const Home = () => {
           </p>
         </div>
         <div
-          className="benefits-scroll"
-          ref={scrollRef}
-          style={{ cursor: "grab" }}
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseUp}
-          onScroll={handleScroll}
+          className="benefits-carousel"
+          onMouseEnter={() => (pausedRef.current = true)}
+          onMouseLeave={() => (pausedRef.current = false)}
+          onTouchStart={() => (pausedRef.current = true)}
+          onTouchEnd={() => (pausedRef.current = false)}
         >
-          {benefits.map((b, i) => (
-            <div
-              className={`benefit-card-flip ${flippedCard === i ? "flipped" : ""}`}
-              key={i}
-              onClick={() => setFlippedCard(flippedCard === i ? null : i)}
-            >
-              <div className="benefit-card-inner">
-                {/* FRONT */}
-                <div className="benefit-card benefit-card-front">
-                  <div className="benefit-media-wrapper">
-                    {b.type === "image" ? (
-                      <img className="benefit-icon" src={b.src} alt={b.title} />
-                    ) : (
-                      <video
-                        className="benefit-video"
-                        autoPlay
-                        loop
-                        muted
-                        playsInline
-                      >
-                        <source src={b.src} type="video/mp4" />
-                      </video>
-                    )}
+          <button
+            className="benefits-arrow prev"
+            onClick={goPrev}
+            aria-label="Beneficio anterior"
+          >
+            ‹
+          </button>
+          <div
+            className="benefits-scroll"
+            ref={scrollRef}
+            style={{ cursor: "grab" }}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseUp}
+            onScroll={handleScroll}
+          >
+            {benefits.map((b, i) => (
+              <div
+                className={`benefit-card-flip ${flippedCard === i ? "flipped" : ""} ${activeDot === i ? "is-active" : ""}`}
+                key={i}
+                onClick={() => setFlippedCard(flippedCard === i ? null : i)}
+              >
+                <div className="benefit-card-inner">
+                  {/* FRONT */}
+                  <div className="benefit-card benefit-card-front">
+                    <div className="benefit-media-wrapper">
+                      {b.type === "image" ? (
+                        <img
+                          className="benefit-icon"
+                          src={b.src}
+                          alt={b.title}
+                        />
+                      ) : (
+                        <video
+                          className="benefit-video"
+                          autoPlay
+                          loop
+                          muted
+                          playsInline
+                        >
+                          <source src={b.src} type="video/mp4" />
+                        </video>
+                      )}
+                    </div>
+                    <h3 className="benefit-title">{b.title}</h3>
+                    <p className="benefit-desc">{b.desc}</p>
+                    <span className="benefit-tap-hint">
+                      Toca para más info ↻
+                    </span>
                   </div>
-                  <h3 className="benefit-title">{b.title}</h3>
-                  <p className="benefit-desc">{b.desc}</p>
-                  <span className="benefit-tap-hint">Toca para más info ↻</span>
-                </div>
-                {/* BACK */}
-                <div className="benefit-card benefit-card-back">
-                  <span className="benefit-back-icon">
-                    {["🎯", "📊", "🚀", "💪", "📱"][i]}
-                  </span>
-                  <h3 className="benefit-title">{b.title}</h3>
-                  <p className="benefit-detail">{b.detail}</p>
-                  <button
-                    className="benefit-cta-btn"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      document
-                        .getElementById("planes")
-                        ?.scrollIntoView({ behavior: "smooth" });
-                    }}
-                  >
-                    {b.cta}
-                  </button>
+                  {/* BACK */}
+                  <div className="benefit-card benefit-card-back">
+                    <span className="benefit-back-icon">
+                      {["🎯", "📊", "🚀", "💪", "📱"][i]}
+                    </span>
+                    <h3 className="benefit-title">{b.title}</h3>
+                    <p className="benefit-detail">{b.detail}</p>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
+          <button
+            className="benefits-arrow next"
+            onClick={goNext}
+            aria-label="Siguiente beneficio"
+          >
+            ›
+          </button>
         </div>
         {/* DOTS */}
         <div className="benefits-dots">
@@ -454,35 +472,10 @@ const Home = () => {
             <button
               key={i}
               className={`benefits-dot ${activeDot === i ? "active" : ""}`}
-              onClick={() => scrollToDot(i)}
+              onClick={() => scrollToIndex(i)}
               aria-label={`Ir al beneficio ${i + 1}`}
             />
           ))}
-        </div>
-      </section>
-
-      {/* CTA BANNER - Transform your life */}
-      <section className="section" id="cta">
-        <div className="container">
-          <div className="cta-banner">
-            <div className="cta-banner-text">
-              <h2 className="cta-banner-title">
-                Transforma tu alimentación con inteligencia artificial
-              </h2>
-              <p className="cta-banner-desc">
-                Nuestra IA analiza tus objetivos, gustos y restricciones para
-                crear el menú perfecto. Pruébala ahora — es gratis.
-              </p>
-              <button className="btn btn-primary" onClick={handleTrialClick}>
-                Probar la IA Gratis →
-              </button>
-            </div>
-            <img
-              src="https://res.cloudinary.com/db8e98ggo/image/upload/v1772647027/Gemini_Generated_Image_thoxanthoxanthox_1_fbm7xu.png"
-              alt="Rita Fit IA"
-              className="cta-banner-img"
-            />
-          </div>
         </div>
       </section>
 
@@ -492,7 +485,7 @@ const Home = () => {
           <div className="section-header">
             <span className="section-badge">🚀 Cómo funciona</span>
             <h2 className="section-title">
-              Empieza a transformarte en 4 simples pasos
+              Empieza a transformar tu vida en 4 simples pasos
             </h2>
             <p className="section-subtitle">
               Sin complicaciones. En menos de 2 minutos tendrás tu plan de
@@ -532,7 +525,30 @@ const Home = () => {
           <Planos name={loquiero} />
         </div>
       </section>
-
+      {/* CTA BANNER - Transform your life */}
+      <section className="section" id="cta">
+        <div className="container">
+          <div className="cta-banner">
+            <div className="cta-banner-text">
+              <h2 className="cta-banner-title">
+                Transforma tu alimentación con inteligencia artificial
+              </h2>
+              <p className="cta-banner-desc">
+                Nuestra IA analiza tus objetivos, gustos y restricciones para
+                crear el menú perfecto. Pruébala ahora — es gratis.
+              </p>
+              <button className="btn btn-primary" onClick={handleTrialClick}>
+                Probar la IA Gratis →
+              </button>
+            </div>
+            <img
+              src="https://res.cloudinary.com/db8e98ggo/image/upload/v1772647027/Gemini_Generated_Image_thoxanthoxanthox_1_fbm7xu.png"
+              alt="Rita Fit IA"
+              className="cta-banner-img"
+            />
+          </div>
+        </div>
+      </section>
       {/* REVIEWS */}
       <section className="reviews-section" id="testimonios">
         <div className="container">

@@ -363,7 +363,6 @@ textarea {
   position: relative;
   width: 100%;
   min-height: 100vh;
-  background-color: rgb(119, 231, 14);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -403,8 +402,9 @@ textarea {
   position: relative;
   z-index: 2;
   text-align: center;
-  padding: 20px;
+  padding: 10px;
   max-width: 700px;
+  margin-top: -150px;
   animation: fadeInUp 0.8s ease both;
 }
 
@@ -441,9 +441,12 @@ textarea {
 
 .hero-actions {
   display: flex;
-  gap: 12px;
-  justify-content: center;
+  background-color: #dc262600;
   flex-wrap: wrap;
+  justify-content: space-around;
+  align-self: center;
+  gap: 10px;
+  cursor: pointer;
 }
 
 /* --- Countdown Timer --- */
@@ -516,6 +519,17 @@ textarea {
     gap: 4px;
   }
 }
+/* Celular (768px o menos) */
+@media (max-width: 368px) {
+  .hero-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(30px, 1fr));
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+    background-color: #05966800;
+  }
+}
 
 /* ============================================
    BUTTONS
@@ -552,6 +566,7 @@ textarea {
   background: rgba(255, 255, 255, 0.15);
   color: white;
   backdrop-filter: blur(12px);
+  width: 12.5rem;
   border: 1px solid rgba(255, 255, 255, 0.25);
 }
 
@@ -629,10 +644,6 @@ textarea {
 .section-dark {
   background: var(--secondary);
   color: var(--text-inverse);
-}
-
-.section-subtle {
-  background: var(--bg-subtle);
 }
 
 .section-gradient {
@@ -758,7 +769,11 @@ textarea {
 .benefits-section {
   padding: 0 0 48px;
   overflow: hidden;
-  padding-left: 10px;
+}
+
+/* Contenedor que ancla las flechas de navegación */
+.benefits-carousel {
+  position: relative;
 }
 
 .benefits-scroll {
@@ -766,28 +781,54 @@ textarea {
   gap: 20px;
   overflow-x: auto;
   overflow-y: hidden;
-  padding: 24px;
+  /* Padding lateral = mitad del ancho de la tarjeta, para poder centrar
+     la primera y la última en el efecto coverflow */
+  padding: 32px calc(50% - 140px);
   scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
   -ms-overflow-style: none;
   user-select: none;
-  margin-left: 8px;
 }
 
 .benefits-scroll::-webkit-scrollbar {
   display: none;
 }
 
-/* --- FLIP CARD CONTAINER --- */
+/* --- FLIP CARD CONTAINER (efecto coverflow / foco central) --- */
 .benefit-card-flip {
   flex: 0 0 280px;
-  scroll-snap-align: start;
+  scroll-snap-align: center;
   perspective: 900px;
   cursor: pointer;
   height: 370px;
-  -webkit-transform: translateZ(0);
-  transform: translateZ(0);
+  /* Estado por defecto = tarjeta lateral (más chica y atenuada) */
+  transform: scale(0.9);
+  opacity: 0.82;
+  transition:
+    transform 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.45s ease;
+  will-change: transform;
+}
+
+/* Tarjeta central = zoom y nitidez */
+.benefit-card-flip.is-active {
+  transform: scale(1.06);
+  opacity: 1;
+  z-index: 2;
+}
+
+.benefit-card-flip.is-active .benefit-card-front {
+  box-shadow:
+    0 1px 10px rgba(2, 12, 20, 0.322),
+    0 0 16px rgba(1, 151, 179, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+/* Al pasar el mouse, la lateral se ilumina un poco */
+.benefit-card-flip:hover {
+  opacity: 1;
 }
 
 .benefit-card-inner {
@@ -802,38 +843,81 @@ textarea {
   transform: rotateY(180deg);
 }
 
-/* --- FRONT & BACK shared --- */
+/* --- FRONT & BACK shared (vidrio oscuro premium) --- */
 .benefit-card {
   position: absolute;
   inset: 0;
+  overflow: hidden;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
-  border-radius: var(--radius-xl);
+  border-radius: var(--radius-2xl);
   padding: 32px 24px;
   text-align: center;
-  box-shadow: var(--shadow);
-  border: 1px solid var(--border-light);
+
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  transition: box-shadow 0.3s;
+  transition:
+    box-shadow 0.35s ease,
+    transform 0.35s ease;
   -webkit-font-smoothing: antialiased;
-  background-color: #017a93;
+}
+
+/* Contenido por encima de los pseudo-elementos decorativos */
+.benefit-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Sheen / gloss superior */
+.benefit-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(
+    120% 60% at 50% -10%,
+    rgba(255, 255, 255, 0.14),
+    transparent 60%
+  );
+}
+
+/* Borde con gradiente teal */
+.benefit-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  pointer-events: none;
+  background: linear-gradient(
+    145deg,
+    rgba(1, 151, 179, 0.65),
+    rgba(255, 255, 255, 0.06) 45%,
+    rgba(1, 151, 179, 0.25)
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
 }
 
 .benefit-card-front {
-  background: var(--bg);
+  background: linear-gradient(60deg, rgba(10, 102, 121, 0.95) 95%);
   -webkit-transform: translateZ(1px);
   transform: translateZ(1px);
 }
 
-.benefit-card-flip:hover .benefit-card-front {
-  box-shadow: var(--shadow-lg);
-}
-
 .benefit-card-back {
-  background: linear-gradient(135deg, var(--primary), #6c3ce0);
+  background: linear-gradient(
+    160deg,
+    rgba(56, 103, 129, 0.97) 0%,
+    rgba(1, 80, 96, 0.95) 55%,
+    rgba(15, 23, 42, 0.97) 100%
+  );
   -webkit-transform: rotateY(180deg) translateZ(1px);
   transform: rotateY(180deg) translateZ(1px);
   color: #fff;
@@ -843,10 +927,11 @@ textarea {
 .benefit-media-wrapper {
   width: 100px;
   height: 100px;
-  margin: 0 auto 16px;
-  border-radius: var(--radius-lg);
+  margin: 0 auto 18px;
+  border-radius: 50%;
   overflow: hidden;
-  background: rgba(0, 0, 0, 0.04);
+  background: rgba(255, 255, 255, 0.07);
+
   -webkit-transform: translateZ(0);
   transform: translateZ(0);
 }
@@ -866,9 +951,10 @@ textarea {
 }
 
 .benefit-title {
-  font-size: 1.063rem;
-  font-weight: 700;
-  color: var(--secondary);
+  font-size: 1.12rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: #fff;
   margin-bottom: 8px;
 }
 
@@ -878,16 +964,20 @@ textarea {
 
 .benefit-desc {
   font-size: 0.875rem;
-  color: var(--text-secondary);
+  color: rgba(255, 255, 255, 0.72);
   line-height: 1.5;
 }
 
 .benefit-tap-hint {
   display: inline-block;
   margin-top: 14px;
+  padding: 5px 12px;
+  border-radius: var(--radius-full);
   font-size: 0.75rem;
-  color: var(--primary);
-  opacity: 0.7;
+  font-weight: 600;
+  color: #7fe3f5;
+  background: rgba(1, 151, 179, 0.14);
+  border: 1px solid rgba(1, 151, 179, 0.3);
   animation: pulse-hint 2s ease-in-out infinite;
 }
 
@@ -918,27 +1008,30 @@ textarea {
 
 .benefit-cta-btn {
   display: inline-block;
-  padding: 10px 22px;
-  background: #fff;
-  color: var(--primary);
-  font-weight: 700;
+  padding: 11px 22px;
+  border: none;
+  cursor: pointer;
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  color: var(--secondary);
+  font-weight: 800;
   font-size: 0.85rem;
   border-radius: 50px;
   text-decoration: none;
   transition:
     transform 0.2s,
     box-shadow 0.2s;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 6px 20px rgba(255, 187, 0, 0.35);
 }
 
 .benefit-cta-btn:hover {
-  transform: scale(1.05);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 10px 28px rgba(255, 187, 0, 0.5);
 }
 
 /* --- DOTS --- */
 .benefits-dots {
   display: flex;
+  align-self: center;
   justify-content: center;
   gap: 10px;
   padding: 16px 0 0;
@@ -949,16 +1042,108 @@ textarea {
   height: 10px;
   border-radius: 50%;
   border: none;
-  background: var(--border-light);
+  background: var(--border);
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.3s ease;
   padding: 0;
 }
 
 .benefits-dot.active {
   background: var(--primary);
-  transform: scale(1.35);
-  box-shadow: 0 0 8px rgba(var(--primary-rgb, 108, 60, 224), 0.4);
+  width: 26px;
+  border-radius: 6px;
+  box-shadow: 0 0 10px rgba(1, 151, 179, 0.45);
+}
+
+/* --- FLECHAS DE NAVEGACIÓN --- */
+.benefits-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--primary);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-md);
+  font-size: 1.7rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 5;
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+
+.benefits-arrow.prev {
+  left: 10px;
+}
+
+.benefits-arrow.next {
+  right: 10px;
+}
+
+.benefits-arrow:hover {
+  background: #fff;
+  transform: translateY(-50%) scale(1.08);
+  box-shadow: var(--shadow-lg);
+}
+
+.benefits-arrow:active {
+  transform: translateY(-50%) scale(0.96);
+}
+
+/* --- RESPONSIVE del carrusel --- */
+@media (min-width: 769px) {
+  /* PC: tarjetas grandes, foco central más marcado */
+  .benefit-card-flip {
+    flex-basis: 340px;
+    height: 440px;
+    transform: scale(0.86);
+  }
+  .benefit-card-flip.is-active {
+    transform: scale(1.08);
+  }
+  .benefits-scroll {
+    padding-inline: calc(50% - 170px);
+  }
+}
+
+@media (max-width: 768px) {
+  /* Celular: una tarjeta a la vez, flechas más discretas */
+  .benefit-card-flip {
+    flex-basis: min(80vw, 320px);
+    height: 400px;
+    transform: scale(0.86);
+    opacity: 0.7;
+  }
+  .benefit-card-flip.is-active {
+    transform: scale(1);
+    opacity: 1;
+  }
+  .benefits-scroll {
+    padding-inline: calc(50% - min(40vw, 160px));
+    gap: 14px;
+  }
+  .benefits-arrow {
+    width: 38px;
+    height: 38px;
+    font-size: 1.4rem;
+    background: rgba(255, 255, 255, 0.82);
+  }
+  .benefits-arrow.prev {
+    left: 4px;
+  }
+  .benefits-arrow.next {
+    right: 4px;
+  }
 }
 
 /* ============================================

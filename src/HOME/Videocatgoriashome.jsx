@@ -7,11 +7,11 @@ const Videocatgoriashome = ({ onLoaded }) => {
     const checkScreenSize = () => {
       if (window.matchMedia("(max-width: 768px)").matches) {
         setVideoSrc(
-          "https://res.cloudinary.com/db8e98ggo/video/upload/v1744566093/rita_1_vxkc1w.mp4",
+          "https://res.cloudinary.com/db8e98ggo/video/upload/v1785004602/rita_751_x_1080_px_751_x_1080_px_1920_x_1080_px_cutf4q.mp4",
         );
       } else {
         setVideoSrc(
-          "https://res.cloudinary.com/db8e98ggo/video/upload/v1744566093/rita_1_vxkc1w.mp4",
+          "https://res.cloudinary.com/db8e98ggo/video/upload/v1785004602/rita_751_x_1080_px_751_x_1080_px_1920_x_1080_px_cutf4q.mp4",
         );
       }
     };

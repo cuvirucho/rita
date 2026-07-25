@@ -7,17 +7,17 @@ import Footer from "./Footer";
 
 const benefits = [
   {
-    type: "image",
-    src: "https://res.cloudinary.com/db8e98ggo/image/upload/v1736136883/PROSESANDO_18_svkkkf.gif",
+    type: "video",
+    src: "https://res.cloudinary.com/db8e98ggo/video/upload/v1743095590/Copia_de_Sin_t%C3%ADtulo_V%C3%ADdeo_qm0svk.mp4",
     title: "Comida Personalizada",
-    desc: "Crea tu menú personalizado con tus gustos y deja que nuestra IA optimice cada comida para ti.",
+    desc: "Crea tu menú personalizado con tus gustos y deja que nuestra IA optimice cada comida para ti. o disfruta de nuestro menú diario ya diseñado.",
     detail:
-      "Nuestra IA analiza tus preferencias, alergias y metas para diseñar cada platillo. Tú decides qué comer, nosotros lo hacemos perfecto.",
+      "Nuestra IA analiza tus preferencias, alergias y metas para diseñar cada platillo. Tú decides qué comer, nosotros lo hacemos perfecto.También puedes optar por nuestro menú diario ya diseñado, listo para disfrutar.",
     cta: "🔥 Empieza a personalizar tu menú hoy",
   },
   {
-    type: "image",
-    src: "https://res.cloudinary.com/db8e98ggo/image/upload/q_auto,w_200/v1736136676/PROSESANDO_17_kdybz5.gif",
+    type: "video",
+    src: "https://res.cloudinary.com/db8e98ggo/video/upload/v1785013544/rita_751_x_1080_px_751_x_1080_px_1920_x_1080_px_1_qt98kv.mp4",
     title: "Control Total",
     desc: "Mantén el control total sobre tu alimentación y progreso físico con nuestra APP.",
     detail:
@@ -25,17 +25,17 @@ const benefits = [
     cta: "📱 Controla tu progreso desde la app",
   },
   {
-    type: "image",
-    src: "https://res.cloudinary.com/db8e98ggo/image/upload/q_auto,w_200/v1735997330/PROSESANDO_12_xjsila.gif",
-    title: "Seguimiento Fit",
-    desc: "Monitorea tu evolución física con métricas reales y ajusta tu plan semanalmente con la IA para alcanzar tus objetivos más rápido.",
+    type: "video",
+    src: "https://res.cloudinary.com/db8e98ggo/video/upload/v1785014708/rita_751_x_1080_px_751_x_1080_px_1920_x_1080_px_4_vszgnm.mp4",
+    title: "Chefs expertos para ti",
+    desc: "Nuestros chefs expertos preparan cada comida con ingredientes frescos y de calidad, asegurando sabor y nutrición en cada bocado.",
     detail:
       "Dashboard completo con macros, calorías y progreso semanal. Visualiza tu evolución y alcanza tus objetivos más rápido.",
     cta: "📊 Lleva tu progreso al siguiente nivel",
   },
   {
     type: "video",
-    src: "https://res.cloudinary.com/db8e98ggo/video/upload/v1739459854/PROSESANDO_fpgklg.mp4",
+    src: "https://res.cloudinary.com/db8e98ggo/video/upload/v1785015051/rita_751_x_1080_px_751_x_1080_px_1920_x_1080_px_5_cob34v.mp4",
     title: "Delivery Gratis",
     desc: "Llevamos tu comida fit directamente a tu puerta. Pide desde la app sin costo de envío.",
     detail:
@@ -43,12 +43,12 @@ const benefits = [
     cta: "🚀 Recibe tu comida sin costo de envío",
   },
   {
-    type: "image",
-    src: "https://res.cloudinary.com/db8e98ggo/image/upload/q_auto,w_200/v1735948964/PROSESANDO_5_dtun5r.gif",
-    title: "IA de Entrenamiento",
-    desc: "Accede a rutinas personalizadas por IA para entrenar en casa o en el gym.",
+    type: "video",
+    src: "https://res.cloudinary.com/db8e98ggo/video/upload/v1785015781/rita_751_x_1080_px_751_x_1080_px_1920_x_1080_px_6_xhsnb0.mp4",
+    title: "Entrenador personal",
+    desc: "Accede a rutinas personalizadas por para entrenar en casa o en el gym.",
     detail:
-      "Rutinas adaptadas a tu nivel, equipo disponible y tiempo. La IA ajusta tu plan cada semana según tu progreso real.",
+      "Rutinas adaptadas a tu nivel, equipo disponible y tiempo. el entrenador ajusta tu plan cada semana según tu progreso real.",
     cta: "💪 Entrena inteligente, logra más",
   },
 ];
@@ -223,6 +223,8 @@ const Home = () => {
     });
     activeDotRef.current = best;
     setActiveDot(best);
+    // Si la tarjeta central cambió, des-voltea la que quedó fuera del centro
+    if (flippedCard !== null && flippedCard !== best) setFlippedCard(null);
   };
 
   // Centra la tarjeta i dentro del carrusel
@@ -281,6 +283,11 @@ const Home = () => {
     const timer = setInterval(() => setTimeLeft(getTimeLeft()), 1000);
     return () => clearInterval(timer);
   }, []);
+
+  // Mantiene la ref de la tarjeta volteada sincronizada con el estado
+  useEffect(() => {
+    flippedRef.current = flippedCard;
+  }, [flippedCard]);
 
   return (
     <>
@@ -416,7 +423,16 @@ const Home = () => {
               <div
                 className={`benefit-card-flip ${flippedCard === i ? "flipped" : ""} ${activeDot === i ? "is-active" : ""}`}
                 key={i}
-                onClick={() => setFlippedCard(flippedCard === i ? null : i)}
+                onClick={() => {
+                  if (activeDot === i) {
+                    // Ya es la resaltada → alternar el volteo
+                    setFlippedCard(flippedCard === i ? null : i);
+                  } else {
+                    // No está al centro → traerla al frente y resaltarla (sin voltear)
+                    setFlippedCard(null);
+                    scrollToIndex(i);
+                  }
+                }}
               >
                 <div className="benefit-card-inner">
                   {/* FRONT */}
@@ -515,6 +531,8 @@ const Home = () => {
         </div>
       </section>
 
+      {/* Menu diario */}
+      <section id="menu-diario"></section>
       {/* PLANS */}
       <section className="plans-section" id="planes">
         <div className="container">

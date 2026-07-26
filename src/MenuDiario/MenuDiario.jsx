@@ -45,8 +45,8 @@ function MenuDiario() {
     <div className="container">
       {/* Encabezado */}
       <div className="section-header">
-        <span className="section-badge">🍽️ Menú Diario</span>
-        <h2 className="section-title">Disfruta el menu de hoy </h2>
+        <span className="section-badge2">🍽️ Menú Diario</span>
+        <h2 className="section-title">Ordena el menu de hoy </h2>
         <p className="section-subtitle">
           Disfruta de nuestro menú del día con delivery gratis. Pide uno o todos
           los platos y descubre nuevos sabores, porque cada día preparamos

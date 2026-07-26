@@ -676,6 +676,20 @@ textarea {
   letter-spacing: 0.05em;
   margin-bottom: 16px;
 }
+.section-badge2 {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--primary-light);
+  color: var(--primary);
+  padding: 6px 16px;
+  border-radius: var(--radius-full);
+  font-size: 1.5rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 16px;
+}
 
 .section-title {
   font-size: clamp(1.75rem, 4vw, 2.75rem);
@@ -898,7 +912,7 @@ textarea {
     rgba(255, 255, 255, 0.06) 45%,
     rgba(1, 151, 179, 0.25)
   );
- 
+
   -webkit-mask-composite: xor;
   mask-composite: exclude;
 }
@@ -4975,7 +4989,9 @@ textarea {
   padding: 0;
   overflow: hidden;
   box-shadow: var(--shadow);
-  transition: transform var(--transition), box-shadow var(--transition);
+  transition:
+    transform var(--transition),
+    box-shadow var(--transition);
   animation: fadeInUp 0.5s ease both;
 }
 .md-card:hover {
@@ -5072,7 +5088,9 @@ textarea {
   font-size: 1.5rem;
   line-height: 1;
   color: var(--text-muted);
-  transition: transform var(--transition-slow), color var(--transition);
+  transition:
+    transform var(--transition-slow),
+    color var(--transition);
 }
 .md-card.is-open .md-card-chevron {
   transform: rotate(180deg);
@@ -5382,8 +5400,11 @@ textarea {
   box-shadow: var(--shadow-xs);
   cursor: pointer;
   font-family: var(--font);
-  transition: transform var(--transition), border-color var(--transition),
-    box-shadow var(--transition), background var(--transition);
+  transition:
+    transform var(--transition),
+    border-color var(--transition),
+    box-shadow var(--transition),
+    background var(--transition);
 }
 .orden-item:hover {
   border-color: var(--primary);
@@ -5547,12 +5568,18 @@ textarea {
   font-size: 1.1rem;
   font-weight: 800;
   color: #fff;
-  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--primary) 0%,
+    var(--primary-dark) 100%
+  );
   border: none;
   border-radius: var(--radius);
   cursor: pointer;
   letter-spacing: 0.3px;
-  transition: transform var(--transition), box-shadow var(--transition),
+  transition:
+    transform var(--transition),
+    box-shadow var(--transition),
     opacity var(--transition);
 }
 .orden-continuar:hover {

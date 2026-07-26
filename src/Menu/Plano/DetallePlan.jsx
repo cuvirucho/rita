@@ -95,21 +95,6 @@ const DetallePlan = () => {
 
   const beneficios = beneficiosExtra[plan.style] || beneficiosExtra.basic;
 
-  const testimonios = {
-    basic: {
-      nombre: "María G.",
-      texto:
-        "Desde que empecé con Rita Fit, mi alimentación cambió por completo. Ya no pierdo tiempo cocinando y me siento con más energía.",
-    },
-    premium: {
-      nombre: "Carlos R.",
-      texto:
-        "El plan Premium es increíble. La guía de entrenamiento junto con la comida personalizada me ayudó a bajar 8kg en 2 meses.",
-    },
-  };
-
-  const testimonio = testimonios[plan.style] || testimonios.basic;
-
   return (
     <>
       <div className="detalle-plan-page">
@@ -130,31 +115,19 @@ const DetallePlan = () => {
           className={`detalle-hero ${plan.style === "premium" ? "detalle-hero-premium" : "detalle-hero-basic"}`}
         >
           <div className="detalle-hero-content">
-            {plan.launch && (
-              <span className="detalle-badge detalle-badge-launch">
-                🚀 ACCESO ANTICIPADO — PRECIO DE LANZAMIENTO
-              </span>
-            )}
-            {plan.style === "premium" && !plan.launch && (
+            {plan.style === "premium" && (
               <span className="detalle-badge">⭐ Más Popular</span>
             )}
             <h1 className="detalle-plan-title">{plan.title}</h1>
             <p className="detalle-plan-subtitle">
-              {plan.launch
-                ? "Estás accediendo al precio exclusivo de lanzamiento. Solo disponible para los primeros 100 miembros."
-                : plan.style === "premium"
-                  ? "La experiencia completa para transformar tu vida"
-                  : "Todo lo que necesitas para empezar tu vida saludable"}
+              {plan.style === "premium"
+                ? "La experiencia completa para transformar tu vida"
+                : "Todo lo que necesitas para empezar tu vida saludable"}
             </p>
             <div className="detalle-precio-container">
-              {plan.launch && plan.originalPrice && (
-                <span className="detalle-precio-original">
-                  {plan.originalPrice}/mes
-                </span>
-              )}
               <span className="detalle-precio">{plan.prcieconiva}</span>
-              {plan.launch && (
-                <span className="detalle-precio-ahorro">50% OFF</span>
+              {plan.period && (
+                <span className="detalle-precio-period">{plan.period}</span>
               )}
             </div>
             <Link
@@ -164,13 +137,6 @@ const DetallePlan = () => {
             >
               {`Continuar el pago  ${plan.title}`}
             </Link>
-
-            {plan.launch && (
-              <p className="detalle-hero-urgency">
-                ⚡ Al completar los 100 lugares, el precio sube a{" "}
-                {plan.originalPrice}/mes
-              </p>
-            )}
           </div>
         </section>
 
@@ -211,67 +177,25 @@ const DetallePlan = () => {
           </div>
         </section>
 
-        {/* Beneficios detallados */}
-        <section className="detalle-beneficios">
-          <div className="detalle-beneficios-header">
-            <span className="detalle-beneficios-badge">
-              ✨ BENEFICIOS EXCLUSIVOS
-            </span>
-            <h2 className="detalle-seccion-titulo">
-              Beneficios únicos que transforman tu vida
-            </h2>
-            <p className="detalle-beneficios-subtitulo">
-              No encontrarás esto en ningún otro lugar. Cada beneficio está
-              pensado para que logres <strong>resultados reales</strong> sin
-              sacrificar sabor ni tu tiempo.
-            </p>
-          </div>
-
-          <div className="detalle-beneficios-grid">
-            {beneficios
-              .filter((b) => b.icon !== "👨‍🍳")
-              .map((b, i) => (
-                <div key={i} className="detalle-beneficio-card">
-                  <span className="detalle-beneficio-number">
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                  <div className="detalle-beneficio-icon-wrapper">
-                    <span className="detalle-beneficio-icon">{b.icon}</span>
-                  </div>
-                  <h3 className="detalle-beneficio-titulo">{b.titulo}</h3>
-                  <p className="detalle-beneficio-desc">{b.desc}</p>
-                </div>
-              ))}
-          </div>
-
-          {/* Chef highlight card */}
-          <div className="detalle-chef-highlight">
-            <div className="detalle-chef-highlight-inner">
-              <div className="detalle-chef-highlight-icon">👨‍🍳</div>
-              <div className="detalle-chef-highlight-content">
-                <span className="detalle-chef-tag">⭐ CALIDAD PREMIUM</span>
-                <h3>
-                  {plan.style === "premium"
-                    ? "Chefs Gourmet Dedicados"
-                    : "Preparado por Chefs Profesionales"}
-                </h3>
-                <p>
-                  {plan.style === "premium"
-                    ? "Tu comida es creada por chefs profesionales especializados en cocina saludable gourmet. Calidad de restaurante, en tu mesa cada día."
-                    : "Cada plato es elaborado por chefs con experiencia en alta cocina y nutrición, usando ingredientes frescos y técnicas profesionales."}
-                </p>
-              </div>
+        {/* Chef highlight card */}
+        <div className="detalle-chef-highlight">
+          <div className="detalle-chef-highlight-inner">
+            <div className="detalle-chef-highlight-icon">👨‍🍳</div>
+            <div className="detalle-chef-highlight-content">
+              <span className="detalle-chef-tag">⭐ CALIDAD PREMIUM</span>
+              <h3>
+                {plan.style === "premium"
+                  ? "Chefs Gourmet Dedicados"
+                  : "Preparado por Chefs Profesionales"}
+              </h3>
+              <p>
+                {plan.style === "premium"
+                  ? "Tu comida es creada por chefs profesionales especializados en cocina saludable gourmet. Calidad de restaurante, en tu mesa cada día."
+                  : "Cada plato es elaborado por chefs con experiencia en alta cocina y nutrición, usando ingredientes frescos y técnicas profesionales."}
+              </p>
             </div>
           </div>
-        </section>
-
-        {/* Testimonio */}
-        <section className="detalle-testimonio">
-          <div className="detalle-testimonio-card">
-            <p className="detalle-testimonio-texto">"{testimonio.texto}"</p>
-            <p className="detalle-testimonio-autor">— {testimonio.nombre}</p>
-          </div>
-        </section>
+        </div>
 
         {/* Por qué Rita Fit */}
         <section className="detalle-porque">
@@ -335,27 +259,12 @@ const DetallePlan = () => {
 
         {/* CTA final */}
         <section className="detalle-cta">
-          {plan.launch && (
-            <div className="detalle-cta-precompra">
-              <span className="detalle-cta-precompra-icon">🎟️</span>
-              <p>
-                <strong>Precompra — Acceso Anticipado</strong>
-              </p>
-              <p>
-                Estás obteniendo un precio reducido por ser de los primeros en
-                unirte. Este precio queda garantizado de por vida en tu cuenta.
-              </p>
-            </div>
-          )}
           <h2 className="detalle-cta-titulo">
-            {plan.launch
-              ? "¿Listo para asegurar tu lugar?"
-              : "¿Listo para transformar tu alimentación?"}
+            ¿Listo para transformar tu alimentación?
           </h2>
           <p className="detalle-cta-desc">
-            {plan.launch
-              ? "Únete ahora al precio de lanzamiento antes de que se agoten los lugares disponibles."
-              : "Únete hoy y comienza a disfrutar de comida saludable, deliciosa y personalizada."}
+            Únete hoy y comienza a disfrutar de comida saludable, deliciosa y
+            personalizada.
           </p>
           <Link
             className="detalle-cta-btn"
@@ -365,10 +274,7 @@ const DetallePlan = () => {
             {`Suscribirme al ${plan.title}`}
           </Link>
           <p className="detalle-cta-garantia">
-            🔒{" "}
-            {plan.launch
-              ? "Precio garantizado de por vida · Cancela cuando quieras"
-              : "Cancela cuando quieras · Sin compromisos"}
+            🔒 Cancela cuando quieras · Sin compromisos
           </p>
         </section>
       </div>

@@ -82,38 +82,27 @@ const Formulariopagos = ({ preferciausaro }) => {
   }, [plan]);
 
   const price = plan?.price || "$0";
-  const originalPrice = plan?.originalPrice || "";
   const title = plan?.title || "Plan";
-  const savings = originalPrice
-    ? `$${parseInt(originalPrice.replace("$", "")) - parseInt(price.replace("$", ""))}`
-    : null;
+  const displayPrice = plan?.prcieconiva || price;
+  const period = plan?.period || "";
 
   return (
     <div className={`pay-page ${visible ? "pay-page--visible" : ""}`}>
-      {/* Banner de preventa */}
-      <div className="pay-preventa-banner">
-        <span className="pay-preventa-icon">🔥</span>
-        <div className="pay-preventa-text">
-          <strong>¡Estás comprando en PREVENTA!</strong>
-          <span>Precio exclusivo por tiempo limitado — No te lo pierdas</span>
-        </div>
-      </div>
-
       <div className="pay-layout">
         {/* Resumen del plan */}
         <div className="pay-summary-card">
-          <div className="pay-badge-row">
-            <span className="pay-badge-preventa">🚀 PREVENTA</span>
-            {savings && <span className="pay-badge-off">50% OFF</span>}
-          </div>
-
           <h2 className="pay-plan-name">{title}</h2>
+
+          <div className="pay-summary-price">
+            <span className="pay-summary-amount">{displayPrice}</span>
+            {period && <span className="pay-summary-period">{period}</span>}
+          </div>
 
           <div className="pay-guarantee">
             <span>🛡️</span>
             <p>
-              Precio garantizado de por vida. Tu tarifa no subirá aunque
-              aumentemos los precios después del lanzamiento.
+              Pago 100% seguro. Cancela cuando quieras, sin compromisos ni
+              cargos ocultos.
             </p>
           </div>
         </div>
@@ -126,21 +115,16 @@ const Formulariopagos = ({ preferciausaro }) => {
           </div>
 
           <div className="pay-order-line">
-            <span>{title}</span>
-            <span className="pay-order-price">
-              {plan?.originalPrice || price}
+            <span>
+              {title}
+              {period ? ` ${period}` : ""}
             </span>
+            <span className="pay-order-price">{displayPrice}</span>
           </div>
-          {originalPrice && (
-            <div className="pay-order-line pay-order-discount">
-              <span>Descuento preventa</span>
-              <span className="pay-order-savings">-{savings}</span>
-            </div>
-          )}
           <div className="pay-order-divider" />
           <div className="pay-order-line pay-order-total">
             <span>Total hoy</span>
-            <span>{plan?.prcieconiva || price}</span>
+            <span>{displayPrice}</span>
           </div>
 
           {loading && (
@@ -175,10 +159,6 @@ const Formulariopagos = ({ preferciausaro }) => {
               </p>
             </div>
           </div>
-
-          <p className="pay-urgency">
-            🔥 Quedan pocos lugares a este precio. ¡Asegura el tuyo hoy!
-          </p>
         </div>
       </div>
     </div>

@@ -540,12 +540,16 @@ const Home = () => {
       <section className="plans-section" id="planes">
         <div className="container">
           <div className="section-header">
-            <span className="section-badge">🚀 Acceso Anticipado</span>
-            <h2 className="section-title">Precio exclusivo de lanzamiento</h2>
+            <span className="section-badge">🚀Planes personalisados </span>
+            <h2 className="section-title">
+              Disfruta de nuestros planes perosnalisdos a tu mediad tus gustos y
+              tu objetivo{" "}
+            </h2>
           </div>
           <Planos name={loquiero} />
         </div>
       </section>
+
       {/* CTA BANNER - Transform your life */}
       <section className="section" id="cta">
         <div className="container">
@@ -570,6 +574,7 @@ const Home = () => {
           </div>
         </div>
       </section>
+
       {/* REVIEWS */}
       <section className="reviews-section" id="testimonios">
         <div className="container">

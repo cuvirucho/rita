@@ -37,7 +37,7 @@ const planData = [
     ],
     pricing: {
       semanal: { price: "$59", prcieconiva: "$70", period: "/ semana" },
-      mensual: { price: "$207", prcieconiva: "$245", period: "/ mes" },
+      mensual: { price: "$206", prcieconiva: "$245", period: "/ mes" },
     },
   },
 ];

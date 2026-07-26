@@ -5,6 +5,7 @@ import Reviews from "./Reseñas/Reviews";
 import Planos from "../Menu/Plano/Planos";
 import Footer from "./Footer";
 import MenuDiario from "../MenuDiario/MenuDiario.jsx";
+import AuthPanel from "../Auth/AuthPanel";
 
 const benefits = [
   {
@@ -355,7 +356,7 @@ const Home = () => {
           <div className="hero-actions">
             <button
               className="btn btn-secondary btn-lg"
-              onClick={() => scrollToSection("planes")}
+              onClick={() => scrollToSection("acceder")}
             >
               Crear cuenta
             </button>
@@ -572,6 +573,20 @@ const Home = () => {
               className="cta-banner-img"
             />
           </div>
+        </div>
+      </section>
+      {/* crear cuenta  */}
+      <section className="auth-section" id="acceder">
+        <div className="container">
+          <div className="section-header">
+            <span className="section-badge">🔐 Tu cuenta</span>
+            <h2 className="section-title">Únete a Rita Fit</h2>
+            <p className="section-subtitle">
+              Crea tu cuenta gratis o inicia sesión para acceder a tu plan
+              personalizado.
+            </p>
+          </div>
+          <AuthPanel />
         </div>
       </section>
 

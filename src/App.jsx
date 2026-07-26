@@ -8,6 +8,8 @@ import DetallePlan from "./Menu/Plano/DetallePlan";
 import Verific from "./Verificarcobro/Verific";
 import GeoGate from "./GeoGate/GeoGate";
 import OrdenDiaria from "./OrdenDiaria/OrdenDiaria";
+import { AuthProvider, useAuth } from "./Auth/AuthContext";
+import UsuarioHome from "./UsuarioHome/UsuarioHome";
 
 const MAX_FREE_TRIALS = 3;
 const TRIAL_KEY = "rita_ia_trials";
@@ -20,32 +22,49 @@ const TrialGate = ({ children }) => {
   return children;
 };
 
+// En la raíz: si hay usuario autenticado se muestra UsuarioHome; si no, Home.
+const RootScreen = () => {
+  const { user, cargando } = useAuth();
+
+  if (cargando) {
+    return (
+      <div className="auth-loading">
+        <div className="auth-loading-spinner" />
+      </div>
+    );
+  }
+
+  return user ? <UsuarioHome /> : <Home />;
+};
+
 function App() {
   const [preferencias, setPreferencias] = useState(null);
 
   return (
     <GeoGate>
-      <HashRouter>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route
-            path="/Formulario"
-            element={
-              <TrialGate>
-                <Formo setPreferencias={setPreferencias} />
-              </TrialGate>
-            }
-          />
-          <Route
-            path="/menu"
-            element={<MenuDinamico preferencias={preferencias} />}
-          />
-          <Route path="/orden-diaria" element={<OrdenDiaria />} />
-          <Route path="/detales" element={<DetallePlan />} />
-          <Route path="/verificarcobro" element={<Verific />} />
-          <Route path="/Formulariopagos" element={<Formulariopagos />} />
-        </Routes>
-      </HashRouter>
+      <AuthProvider>
+        <HashRouter>
+          <Routes>
+            <Route path="/" element={<RootScreen />} />
+            <Route
+              path="/Formulario"
+              element={
+                <TrialGate>
+                  <Formo setPreferencias={setPreferencias} />
+                </TrialGate>
+              }
+            />
+            <Route
+              path="/menu"
+              element={<MenuDinamico preferencias={preferencias} />}
+            />
+            <Route path="/orden-diaria" element={<OrdenDiaria />} />
+            <Route path="/detales" element={<DetallePlan />} />
+            <Route path="/verificarcobro" element={<Verific />} />
+            <Route path="/Formulariopagos" element={<Formulariopagos />} />
+          </Routes>
+        </HashRouter>
+      </AuthProvider>
     </GeoGate>
   );
 }

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
-const planData = [
+export const planData = [
   {
     title: "Plan Starter",
     style: "basic",
@@ -26,8 +26,9 @@ const planData = [
     features: [
       "5 comidas diarias",
       "100 comidas al mes",
-      "Guía de entrenamiento con un entredor personal",
+      "IA de nutrición personalizada",
       "Entrega a domicilio (3 ubicaciónes)",
+      "Guía de entrenamiento con un entrenador personal",
       "Club de beneficios exclusivos",
       "Soporte preferencial por WhatsApp",
       "Prioridad en entregas",
@@ -57,7 +58,7 @@ const getMonthlySaving = (pricing) => {
   return { amount, percent };
 };
 
-const Planos = () => {
+const Planos = ({ ctaLabel } = {}) => {
   const [modalidad, setModalidad] = useState("semanal");
 
   // Mejor % de ahorro entre todos los planes, para el micro-badge del selector
@@ -161,7 +162,7 @@ const Planos = () => {
                 to="/detales"
                 state={{ plan: planPayload }}
               >
-                Elegir {plan.title}
+                {ctaLabel || `Elegir ${plan.title}`}
               </Link>
 
               <p className="plan-card-note">

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import menuDiario from "./menuDiario";
+import { useAuth } from "../Auth/AuthContext";
 
 const OBJETIVOS = [
   { key: "ganar_musculo", label: "Ganar masa muscular", icono: "💪" },
@@ -19,9 +20,12 @@ function porcentajeMacro(valor, macros) {
 
 function MenuDiario() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [objetivo, setObjetivo] = useState("ganar_musculo");
   // Índices de las tarjetas abiertas (acordeones independientes, cerradas por defecto).
   const [abiertas, setAbiertas] = useState(() => new Set());
+  // Modal de aviso cuando alguien sin sesión intenta ordenar.
+  const [modalLogin, setModalLogin] = useState(false);
   const comidas = menuDiario[objetivo] || [];
 
   const cambiarObjetivo = (key) => {
@@ -231,11 +235,15 @@ function MenuDiario() {
                   <button
                     type="button"
                     className="btn btn-primary btn-lg btn-full"
-                    onClick={() =>
+                    onClick={() => {
+                      if (!user) {
+                        setModalLogin(true);
+                        return;
+                      }
                       navigate("/orden-diaria", {
                         state: { objetivo, tipo: comida.tipo },
-                      })
-                    }
+                      });
+                    }}
                   >
                     Ordenar ahora
                   </button>
@@ -245,6 +253,38 @@ function MenuDiario() {
           );
         })}
       </div>
+
+      {modalLogin && (
+        <div className="trial-modal-overlay" onClick={() => setModalLogin(false)}>
+          <div className="trial-modal" onClick={(e) => e.stopPropagation()}>
+            <button
+              type="button"
+              className="trial-modal-close"
+              onClick={() => setModalLogin(false)}
+            >
+              ✕
+            </button>
+            <span className="trial-modal-icon">🔐</span>
+            <h2 className="trial-modal-title">Inicia sesión para continuar</h2>
+            <p className="trial-modal-desc">
+              Para hacer tu pedido del día necesitas tener una cuenta o iniciar
+              sesión en Rita Fit.
+            </p>
+            <button
+              type="button"
+              className="btn btn-primary btn-lg"
+              onClick={() => {
+                setModalLogin(false);
+                document
+                  .getElementById("acceder")
+                  ?.scrollIntoView({ behavior: "smooth" });
+              }}
+            >
+              Iniciar sesión / Crear cuenta
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

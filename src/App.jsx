@@ -10,6 +10,7 @@ import GeoGate from "./GeoGate/GeoGate";
 import OrdenDiaria from "./OrdenDiaria/OrdenDiaria";
 import { AuthProvider, useAuth } from "./Auth/AuthContext";
 import UsuarioHome from "./UsuarioHome/UsuarioHome";
+import EntrenadoresPersonales from "./Entrenadores/EntrenadoresPersonales";
 
 const MAX_FREE_TRIALS = 3;
 const TRIAL_KEY = "rita_ia_trials";
@@ -20,6 +21,22 @@ const TrialGate = ({ children }) => {
     return <Navigate to="/" replace />;
   }
   return children;
+};
+
+// Protege rutas que requieren sesión iniciada. Si no hay usuario, redirige al
+// Home (donde está el formulario de acceso / crear cuenta).
+const RutaPrivada = ({ children }) => {
+  const { user, cargando } = useAuth();
+
+  if (cargando) {
+    return (
+      <div className="auth-loading">
+        <div className="auth-loading-spinner" />
+      </div>
+    );
+  }
+
+  return user ? children : <Navigate to="/" replace />;
 };
 
 // En la raíz: si hay usuario autenticado se muestra UsuarioHome; si no, Home.
@@ -58,7 +75,15 @@ function App() {
               path="/menu"
               element={<MenuDinamico preferencias={preferencias} />}
             />
-            <Route path="/orden-diaria" element={<OrdenDiaria />} />
+            <Route
+              path="/orden-diaria"
+              element={
+                <RutaPrivada>
+                  <OrdenDiaria />
+                </RutaPrivada>
+              }
+            />
+            <Route path="/entrenadores" element={<EntrenadoresPersonales />} />
             <Route path="/detales" element={<DetallePlan />} />
             <Route path="/verificarcobro" element={<Verific />} />
             <Route path="/Formulariopagos" element={<Formulariopagos />} />

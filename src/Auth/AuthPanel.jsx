@@ -89,12 +89,12 @@ const AuthPanel = () => {
 
       <div className="auth-header">
         <h2 className="auth-title">
-          {esRegistro ? "Crea tu cuenta" : "Bienvenido de nuevo"}
+          {esRegistro ? "Crea tu cuenta" : "Bienvenido a Rita fit"}
         </h2>
         <p className="auth-subtitle">
           {esRegistro
             ? "Regístrate gratis y empieza a comer mejor con Rita Fit."
-            : "Inicia sesión para continuar con tu plan."}
+            : "Inicia sesión a tu vida fit y saludable."}
         </p>
       </div>
 
@@ -182,7 +182,9 @@ const AuthPanel = () => {
             type="button"
             className="auth-input-toggle"
             onClick={() => setVerPassword((v) => !v)}
-            aria-label={verPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+            aria-label={
+              verPassword ? "Ocultar contraseña" : "Mostrar contraseña"
+            }
           >
             {verPassword ? "🙈" : "👁️"}
           </button>

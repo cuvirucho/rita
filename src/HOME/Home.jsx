@@ -537,14 +537,91 @@ const Home = () => {
       <section className="menu-diario-section" id="menu-diario">
         <MenuDiario />
       </section>
+
+      {/*Entrenador*/}
+      <section className="section entrenador-teaser" id="entrenadores">
+        <div className="container">
+          <div className="entrenador-teaser-card">
+            <span
+              className="entrenador-teaser-glow entrenador-teaser-glow--a"
+              aria-hidden="true"
+            />
+            <span
+              className="entrenador-teaser-glow entrenador-teaser-glow--b"
+              aria-hidden="true"
+            />
+
+            <div className="entrenador-teaser-body">
+              <div className="entrenador-teaser-header">
+                <span className="section-badge">💪 Entrenamiento personal</span>
+                <h2 className="section-title">
+                  En Rita también tienes un entrenador personal
+                </h2>
+                <p className="section-subtitle">
+                  Combina tu alimentación con rutinas guiadas por un
+                  profesional. Un entrenador personal te ayuda a mantener la
+                  motivación, prevenir lesiones y alcanzar tus objetivos de
+                  salud y bienestar mucho más rápido. Disponible por hora, por
+                  semana o por mes.
+                </p>
+              </div>
+
+              <ul className="entrenador-teaser-list">
+                <li className="entrenador-teaser-feature">
+                  <span className="entrenador-teaser-check" aria-hidden="true">
+                    ✓
+                  </span>
+                  <span>Rutinas adaptadas a tu nivel y objetivos</span>
+                </li>
+                <li className="entrenador-teaser-feature">
+                  <span className="entrenador-teaser-check" aria-hidden="true">
+                    ✓
+                  </span>
+                  <span>Seguimiento y ajustes constantes</span>
+                </li>
+                <li className="entrenador-teaser-feature">
+                  <span className="entrenador-teaser-check" aria-hidden="true">
+                    ✓
+                  </span>
+                  <span>Motivación y acompañamiento real</span>
+                </li>
+              </ul>
+
+              <button
+                className="btn btn-primary btn-lg entrenador-teaser-btn"
+                onClick={() => navigate("/entrenadores")}
+              >
+                Más información
+                <span className="entrenador-teaser-arrow" aria-hidden="true">
+                  →
+                </span>
+              </button>
+
+              <ul className="entrenador-teaser-sellos">
+                <li className="entrenadores-sello">
+                  <span aria-hidden="true">✅</span> Profesionales verificados
+                </li>
+                <li className="entrenadores-sello">
+                  <span aria-hidden="true">🔒</span> Pago seguro por
+                  trasferencia
+                </li>
+                <li className="entrenadores-sello">
+                  <span aria-hidden="true">🔄</span> Sin permanencia
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* PLANS */}
       <section className="plans-section" id="planes">
         <div className="container">
           <div className="section-header">
             <span className="section-badge">🚀Planes personalisados </span>
             <h2 className="section-title">
-              Disfruta de nuestros planes perosnalisdos a tu mediad tus gustos y
-              tu objetivo{" "}
+              Disfruta de nuestros planes perosonalisados a tu medida tus gustos
+              y tu objetivo{" "}
             </h2>
           </div>
           <Planos name={loquiero} />
@@ -580,27 +657,13 @@ const Home = () => {
         <div className="container">
           <div className="section-header">
             <span className="section-badge">🔐 Tu cuenta</span>
-            <h2 className="section-title">Únete a Rita Fit</h2>
+            <h2 className="section-title">Únete a Rita Fit gratis</h2>
             <p className="section-subtitle">
               Crea tu cuenta gratis o inicia sesión para acceder a tu plan
               personalizado.
             </p>
           </div>
           <AuthPanel />
-        </div>
-      </section>
-
-      {/* REVIEWS */}
-      <section className="reviews-section" id="testimonios">
-        <div className="container">
-          <div className="section-header">
-            <span className="section-badge">💬 Testimonios</span>
-            <h2 className="section-title">Lo que dicen nuestros clientes</h2>
-            <p className="section-subtitle">
-              transforma tu alimentación con Rita Fit.
-            </p>
-          </div>
-          <Reviews />
         </div>
       </section>
 

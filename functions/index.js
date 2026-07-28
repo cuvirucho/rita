@@ -2,7 +2,7 @@ const { onRequest } = require("firebase-functions/v2/https");
 const admin = require("firebase-admin");
 const express = require("express");
 const cors = require("cors");
-const { GoogleGenerativeAI } = require("@google/generative-ai");
+const Anthropic = require("@anthropic-ai/sdk");
 const fetch = require("node-fetch");
 const { v4: uuidv4 } = require("uuid");
 require("dotenv").config();
@@ -20,8 +20,7 @@ const STORE_ID = process.env.STORE_ID;
 
 /*ia*/
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-3-flash-preview" });
+const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 // CORS
 app.use(
@@ -369,14 +368,22 @@ IMPORTANTE:
 - NO explicaciones
 - SOLO JSON válido
   `;
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
+    const message = await anthropic.messages.create({
+      model: "claude-haiku-4-5",
+      max_tokens: 16000,
+      system:
+        "Eres un nutricionista profesional. Responde EXCLUSIVAMENTE con un JSON válido y bien " +
+        "formado, sin markdown, sin comentarios y sin texto adicional.",
+      messages: [{ role: "user", content: prompt }],
+    });
 
-    if (!response || !response.candidates?.length) {
+    // El SDK devuelve content como array de bloques; tomar el bloque de texto.
+    const textResponse =
+      message.content.find((b) => b.type === "text")?.text ?? "";
+
+    if (!textResponse) {
       return res.status(500).json({ error: "La IA no devolvió respuesta" });
     }
-
-    const textResponse = response.candidates[0].content.parts[0].text;
 
     const cleaned = repararJSON(textResponse);
 

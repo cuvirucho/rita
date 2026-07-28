@@ -218,6 +218,60 @@ app.post("/confirm", async (req, res) => {
 app.post("/generarMenu", async (req, res) => {
   try {
     const { preferencias } = req.body;
+    const plan = req.body.plan ?? preferencias.plan ?? "free"; // valor por defecto si no se proporciona
+    // El userId puede venir de primer nivel o anidado dentro de preferencias
+    // (así lo envía hoy el flujo de Rita: preferencias.userId).
+    const userId = req.body.userId ?? preferencias?.userId;
+
+    if (!userId) {
+      return res.status(400).json({ error: "Faltan datos" });
+    }
+
+    // Validar que el usuario exista en UsuariosActivos (campo uid, creado en el
+    // registro). Si no se encuentra, no se genera el menú.
+    const snapshot = await db
+      .collection("UsuariosActivos")
+      .where("uid", "==", userId)
+      .limit(1)
+      .get();
+
+    if (snapshot.empty) {
+      return res.status(404).json({ error: "Usuario no encontrado" });
+    }
+
+    // Ingredientes disponibles en la bodega (documento global gestionado en
+    // Firestore). Se reduce a { nombre, costoUnitario } para el prompt.
+    let ingredientesBodega = [];
+    const bodegaSnap = await db.collection("bodega").doc("mi_bodega").get();
+    if (bodegaSnap.exists) {
+      const dataBodega = bodegaSnap.data();
+      if (dataBodega.ingredientes?.length > 0) {
+        ingredientesBodega = dataBodega.ingredientes.map((i) => ({
+          nombre: i.nombre,
+          costoUnitario: i.costoPorUnidad,
+        }));
+      }
+    }
+
+    // Cuando hay bodega, la IA queda restringida a esos ingredientes con un tope
+    // de costo; si está vacía se mantiene el comportamiento anterior ($50 ref.).
+    const hayBodega = ingredientesBodega.length > 0;
+    const bloqueBodega = hayBodega
+      ? `\nBODEGA (ingredientes disponibles — usa SOLO estos, no agregues otros):\n${JSON.stringify(
+          ingredientesBodega,
+        )}\n`
+      : "";
+    const reglaCosto = hayBodega
+      ? "- El costo total de las comidas NO debe superar $30 semanales .\n- Usa únicamente ingredientes de la bodega."
+      : "-  usa 50 dólares como referencia";
+
+    // Los datos pueden llegar como objeto (perfil construido por Rita) o como
+    // string. Se serializan para que lleguen legibles al prompt (antes se
+    // interpolaba el objeto y se convertía en "[object Object]").
+    const datos =
+      typeof preferencias === "string"
+        ? preferencias
+        : JSON.stringify(preferencias, null, 2);
 
     const prompt = `
 Genera un menú gourmet de 5 días completamente personalizado.
@@ -225,17 +279,19 @@ Genera un menú gourmet de 5 días completamente personalizado.
 PREFERENCIAS:
 - Alimentos que le gustan: usa datos de preferencias para incluir solo alimentos que le gusten al usuario
 - Alimentos que NO le gustan: usa datos de preferencias para excluir alimentos que no le gusten al usuario  
-DATOS DEL USUARIO: ${preferencias}
-
+DATOS DEL USUARIO: ${datos}
+${bloqueBodega}
 REQUISITOS:
 - Eres un nutricionista profesional.
-- Menú para 5 días
-- 5 comidas por día: desayuno, snack1, almuerzo, snack2 y cena
+- Menú para 5 días no mas solo 5 dias de lunes a viernes
+- segun el plan del usuario tine activo : ${plan} si el plan free o el plan starter tienen  3 comidas que son desayuno almuerso ,cena y un snack o bebida  pero si el plan es premium tienen  3 comidas que son desayuno almuerso ,cena y un snack una bebida  
 - Cada plato debe tener un nombre gourmet
 - Incluir una descripción atractiva (máx 50 palabras)
 - Incluir ingredientes con cantidades exactas
 - Incluir calorías, vitaminas, proteínas y minerales
-- El costo  total de las 5 comidas NO debe superar los 50 dolares semanalmente
+${reglaCosto}
+- Respeta las alergias, enfermedades y restricciones indicadas: nunca incluyas un alimento prohibido
+- Ten en cuenta el nivel de actividad física
 Devuelve el menú en JSON con este formato:
 Tu respuesta debe ser **EXCLUSIVAMENTE** un JSON válido, sin texto adicional.
 NO agregues comentarios, explicaciones ni advertencias. Solo devuelve el JSON.
@@ -259,7 +315,7 @@ Devuelve SOLO JSON válido sin texto adicional.
 Estructura obligatoria
 Formato JSON obligatorio:
 {
-  "dia1": {
+  "dia": {
     "desayuno": {
       "nombre": "nombre del plato", 
       "descripcion": "descripcion del plato", 
@@ -281,7 +337,7 @@ Formato JSON obligatorio:
         "mineral1": "cantidad"
       }
     },
-    "snack1": {
+    "snack": {
       "nombre": "nombre del plato",
        "descripcion": "descripcion del plato", 
       "ingredientes": {
@@ -321,7 +377,7 @@ Formato JSON obligatorio:
         "mineral1": "cantidad"
       }
     },
-    "snack2": {
+    "bebida": {
       "nombre": "nombre del plato",
        "descripcion": "descripcion del plato", 
       "ingredientes": {
@@ -365,8 +421,10 @@ Formato JSON obligatorio:
 }
 IMPORTANTE:
 - NO markdown
+- SOLO JSON DE LOS DIAS CON EL FORMATO INDICADO
 - NO explicaciones
 - SOLO JSON válido
+
   `;
     const message = await anthropic.messages.create({
       model: "claude-haiku-4-5",
@@ -384,6 +442,9 @@ IMPORTANTE:
     if (!textResponse) {
       return res.status(500).json({ error: "La IA no devolvió respuesta" });
     }
+    console.log(prompt);
+
+    console.log(textResponse);
 
     const cleaned = repararJSON(textResponse);
 
@@ -394,6 +455,121 @@ IMPORTANTE:
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Error generando menú" });
+  }
+});
+
+/* ============================================================
+   RITA — Chat conversacional (nutricionista virtual)
+   Conversa con el usuario, decide dinámicamente cada pregunta y,
+   cuando tiene información suficiente, llama a la herramienta
+   "guardar_perfil" para cerrar la conversación con el perfil listo.
+   ============================================================ */
+
+const RITA_SYSTEM = `Eres Rita, una nutricionista virtual cálida, profesional y motivadora.
+Hablas en español con un tono cercano, humano y natural, como si conversaras por WhatsApp.
+Tu ÚNICO objetivo es conocer al usuario para diseñarle un menú alimenticio personalizado.
+
+Reglas de la conversación:
+- Preséntate brevemente en tu primer mensaje y haz SOLO una pregunta.
+- Haz UNA sola pregunta por mensaje. Nunca envíes una lista de preguntas ni parezcas un formulario.
+- Antes de cada nueva pregunta, comenta con calidez y de forma breve la respuesta anterior
+  (por ejemplo: "¡Excelente objetivo! 💪", "Perfecto, eso me ayudará mucho.",
+  "Entiendo, evitaremos esos alimentos."). Usa emojis con moderación.
+- Decide dinámicamente la siguiente pregunta según lo que el usuario ya te contó; adáptate a sus
+  respuestas (si es vegetariano, profundiza en proteínas vegetales; si quiere masa muscular,
+  pregunta por entrenamiento o consumo de proteína; etc.). Cada conversación puede ser distinta.
+- Debes averiguar de forma progresiva: objetivo, edad, peso, estatura, nivel de actividad física,
+  enfermedades o alergias, alimentos favoritos, alimentos que no le gustan y preferencias alimenticias. Añade cualquier otra pregunta que
+  consideres útil para un mejor menú. (NO preguntes cuántas comidas al día: eso lo define su plan.)
+- No te desvíes hacia temas ajenos a la nutrición ni alargues la conversación innecesariamente.
+- Nunca preguntes indefinidamente. En cuanto tengas información suficiente para un menú de alta
+  calidad, DEJA de preguntar y LLAMA a la herramienta "guardar_perfil" con todos los datos
+  recopilados. Acompáñala de un mensaje cálido de cierre.`;
+
+const guardarPerfilTool = {
+  name: "guardar_perfil",
+  description:
+    "Guarda el perfil completo del usuario. Llámala SOLO cuando ya tengas información suficiente " +
+    "para diseñar un menú de alta calidad; a partir de ese momento no se harán más preguntas.",
+  input_schema: {
+    type: "object",
+    properties: {
+      name: {
+        type: "string",
+        description: "nombre del usuario si lo mencionó",
+      },
+      goal: {
+        type: "string",
+        description: "objetivo principal (ej. bajar peso, ganar músculo)",
+      },
+      age: { type: "number", description: "edad en años" },
+      weight: { type: "number", description: "peso en kg" },
+      height: { type: "number", description: "estatura en cm" },
+      activity: { type: "string", description: "nivel de actividad física" },
+      allergies: { type: "string", description: "enfermedades o alergias" },
+      likes: { type: "string", description: "alimentos favoritos" },
+      dislikes: { type: "string", description: "alimentos que no le gustan" },
+      preferences: {
+        type: "string",
+        description: "preferencias alimenticias (vegetariano, keto, etc.)",
+      },
+      notes: {
+        type: "string",
+        description: "cualquier otro dato relevante para el menú",
+      },
+    },
+    required: ["goal"],
+  },
+};
+
+const RITA_CIERRE =
+  "Perfecto. Ya tengo toda la información que necesito. Ahora voy a diseñar un menú " +
+  "completamente personalizado para ti.";
+
+app.post("/ritaChat", async (req, res) => {
+  try {
+    const { messages } = req.body;
+
+    // El array de mensajes ES la memoria de la conversación; llega completo del
+    // cliente en cada turno (backend stateless). Si viene vacío, se siembra un
+    // turno inicial para que Rita genere su saludo y primera pregunta.
+    const convo =
+      Array.isArray(messages) && messages.length > 0
+        ? messages
+        : [
+            {
+              role: "user",
+              content: "Hola, quiero crear mi menú personalizado.",
+            },
+          ];
+
+    const message = await anthropic.messages.create({
+      model: "claude-haiku-4-5",
+      max_tokens: 1024,
+      system: RITA_SYSTEM,
+      tools: [guardarPerfilTool],
+      messages: convo,
+    });
+
+    const toolUse = message.content.find((b) => b.type === "tool_use");
+    const text = message.content
+      .filter((b) => b.type === "text")
+      .map((b) => b.text)
+      .join("\n")
+      .trim();
+
+    if (toolUse) {
+      return res.json({
+        done: true,
+        profile: toolUse.input,
+        message: text || RITA_CIERRE,
+      });
+    }
+
+    return res.json({ done: false, message: text });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Error en la conversación con Rita" });
   }
 });
 

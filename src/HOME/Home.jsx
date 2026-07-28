@@ -628,30 +628,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* CTA BANNER - Transform your life */}
-      <section className="section" id="cta">
-        <div className="container">
-          <div className="cta-banner">
-            <div className="cta-banner-text">
-              <h2 className="cta-banner-title">
-                Transforma tu alimentación con inteligencia artificial
-              </h2>
-              <p className="cta-banner-desc">
-                Nuestra IA analiza tus objetivos, gustos y restricciones para
-                crear el menú perfecto. Pruébala ahora — es gratis.
-              </p>
-              <button className="btn btn-primary" onClick={handleTrialClick}>
-                Probar la IA Gratis →
-              </button>
-            </div>
-            <img
-              src="https://res.cloudinary.com/db8e98ggo/image/upload/v1772647027/Gemini_Generated_Image_thoxanthoxanthox_1_fbm7xu.png"
-              alt="Rita Fit IA"
-              className="cta-banner-img"
-            />
-          </div>
-        </div>
-      </section>
       {/* crear cuenta  */}
       <section className="auth-section" id="acceder">
         <div className="container">

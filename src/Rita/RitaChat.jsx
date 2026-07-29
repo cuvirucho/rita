@@ -220,6 +220,7 @@ const RitaChat = ({ perfil, user, onCerrar }) => {
         profile={profile}
         plan={plan}
         onReiniciar={reiniciar}
+        esFree={esFree}
       />
     );
   }

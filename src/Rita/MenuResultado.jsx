@@ -18,8 +18,16 @@ const MEAL_LABELS = {
   cena: "Cena",
 };
 
-const MenuResultado = ({ menu, profile, plan = "starter", onReiniciar }) => {
-  const dias = menu ? Object.keys(menu) : [];
+const MenuResultado = ({
+  menu,
+  esFree,
+  profile,
+  plan = "starter",
+  onReiniciar,
+}) => {
+  const dias = menu
+    ? Object.keys(menu).filter((dia) => dia !== "resumen_semanal")
+    : [];
   const [selectedDay, setSelectedDay] = useState(dias[0] || "dia1");
 
   if (!menu || dias.length === 0) {
@@ -50,7 +58,8 @@ const MenuResultado = ({ menu, profile, plan = "starter", onReiniciar }) => {
   const diaActual = menu[selectedDay] || {};
   // Solo las comidas del plan que además existan en la respuesta de la IA.
   const comidas = comidasDelPlan.filter((meal) => diaActual[meal]);
-  console.log(comidas);
+  const resumenSemanal = menu?.resumen_semanal;
+  console.log(menu);
 
   return (
     <div className="rita-menu">
@@ -132,7 +141,27 @@ const MenuResultado = ({ menu, profile, plan = "starter", onReiniciar }) => {
         })}
       </div>
 
-      {onReiniciar && (
+      {resumenSemanal && (
+        <div className="resumen-semanal">
+          <h3>Resumen Semanal</h3>
+
+          <p>{resumenSemanal.objetivo}</p>
+          <p>
+            {" "}
+            promedio calorias diarias:{" "}
+            {resumenSemanal.promedio_calorias_diarias}
+          </p>
+          <p>
+            {" "}
+            promedio proteínas diarias:{" "}
+            {resumenSemanal.promedio_proteinas_diarias}
+          </p>
+        </div>
+      )}
+
+      {/*nuevo menu solo si no es free*/}
+
+      {!esFree && (
         <div className="rita-menu-actions">
           <button
             type="button"

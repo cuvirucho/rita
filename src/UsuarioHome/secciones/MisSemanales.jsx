@@ -8,7 +8,7 @@ const MisSemanales = () => {
   // Si ya hay un menú guardado, abre RitaChat directo para mostrarlo (persiste
   // tras refrescar o salir de la sección).
   const [iniciado, setIniciado] = useState(() => hasMenu());
-
+  const [contador, setContador] = useState(0);
   if (iniciado) {
     return (
       <div className="usuario-seccion">
@@ -37,8 +37,8 @@ const MisSemanales = () => {
           Conversa con Rita y crea tu menú personalizado.
         </h3>
         <p className="usuario-empty-text">
-          Rita, tu nutricionista virtual, te hará algunas preguntas para conocerte
-          y diseñar un plan alimenticio hecho a tu medida.
+          Rita, tu nutricionista virtual, te hará algunas preguntas para
+          conocerte y diseñar un plan alimenticio hecho a tu medida.
         </p>
         <button
           type="button"

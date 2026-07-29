@@ -6342,7 +6342,9 @@ textarea {
   font-weight: 800;
   cursor: pointer;
   box-shadow: 0 8px 22px var(--accent-glow);
-  transition: transform var(--transition), background var(--transition),
+  transition:
+    transform var(--transition),
+    background var(--transition),
     box-shadow var(--transition);
 }
 
@@ -6811,6 +6813,7 @@ textarea {
   height: 100%;
   object-fit: cover;
   display: block;
+  object-position: 0px 0px;
   transition: transform var(--transition-slow);
 }
 

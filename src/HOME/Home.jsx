@@ -630,7 +630,7 @@ const Home = () => {
 
       {/* crear cuenta  */}
       <section className="auth-section" id="acceder">
-        <div className="container">
+        <div className="container" id="cta">
           <div className="section-header">
             <span className="section-badge">🔐 Tu cuenta</span>
             <h2 className="section-title">Únete a Rita Fit gratis</h2>

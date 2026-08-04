@@ -2279,6 +2279,118 @@ textarea {
   color: var(--text-secondary);
   max-width: 400px;
 }
+.resumen-semanal-card {
+  background: #fff;
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.08);
+  margin-top: 20px;
+  border: 1px solid #ececec;
+}
+
+.resumen-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.resumen-header h3 {
+  margin: 0;
+  font-size: 1.35rem;
+  color: #222;
+}
+
+.resumen-header span {
+  background: #f4f4f4;
+  padding: 6px 12px;
+  border-radius: 30px;
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.objetivo-box {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: linear-gradient(135deg, #017a93, #023638);
+  color: #fff;
+  border-radius: 16px;
+  padding: 18px;
+  margin-bottom: 20px;
+}
+
+.objetivo-box .icono {
+  font-size: 2rem;
+}
+
+.objetivo-box small {
+  opacity: 0.8;
+  display: block;
+}
+
+.objetivo-box p {
+  margin: 4px 0 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.resumen-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 18px;
+}
+
+.resumen-item {
+  background: #fafafa;
+  border-radius: 18px;
+  padding: 22px;
+  text-align: center;
+  transition: 0.3s;
+  border: 1px solid #ececec;
+}
+
+.resumen-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+}
+
+.resumen-item .emoji {
+  font-size: 2rem;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.resumen-item small {
+  color: #777;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.resumen-item h2 {
+  margin: 0;
+  font-size: 2rem;
+  color: #017a93;
+  font-weight: 700;
+}
+
+.resumen-item span {
+  color: #888;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+  .resumen-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .objetivo-box {
+    flex-direction: column;
+    text-align: center;
+  }
+}
 
 /* ============================================
    PAGOS / FORMULARIO DE PAGO

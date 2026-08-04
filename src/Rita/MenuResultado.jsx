@@ -60,14 +60,26 @@ const MenuResultado = ({
   const comidas = comidasDelPlan.filter((meal) => diaActual[meal]);
   const resumenSemanal = menu?.resumen_semanal;
   console.log(menu);
+  const calorias =
+    resumenSemanal.promedio_calorias_diarias ??
+    resumenSemanal.calorias_diarias_promedio ??
+    resumenSemanal.promedioCaloriasDiarias ??
+    resumenSemanal.calorias_promedio ??
+    resumenSemanal.promedioCalorias ??
+    "No disponible";
 
+  const proteinas =
+    resumenSemanal.promedio_proteinas_diarias ??
+    resumenSemanal.promedioProteinasDiarias ??
+    resumenSemanal.proteinas_promedio ??
+    resumenSemanal.proteinas_diarias_promedio ??
+    resumenSemanal.promedioProteinas ??
+    "No disponible";
   return (
     <div className="rita-menu">
       <div className="menu-header">
         <h1 className="menu-header-title">Tu Plan de Comidas</h1>
-        {profile?.name && (
-          <div className="menu-header-badge">¡Hola {profile.name}! 🎉</div>
-        )}
+
         <p className="menu-header-desc">
           Este menú fue diseñado por Rita especialmente para ayudarte a alcanzar
           tu meta
@@ -142,20 +154,34 @@ const MenuResultado = ({
       </div>
 
       {resumenSemanal && (
-        <div className="resumen-semanal">
-          <h3>Resumen Semanal</h3>
+        <div className="resumen-semanal-card">
+          <div className="resumen-header">
+            <h3>📊 Resumen Semanal</h3>
+          </div>
 
-          <p>{resumenSemanal.objetivo}</p>
-          <p>
-            {" "}
-            promedio calorias diarias:{" "}
-            {resumenSemanal.promedio_calorias_diarias}
-          </p>
-          <p>
-            {" "}
-            promedio proteínas diarias:{" "}
-            {resumenSemanal.promedio_proteinas_diarias}
-          </p>
+          <div className="objetivo-box">
+            <span className="icono">🎯</span>
+            <div>
+              <small>Objetivo</small>
+              <p>{resumenSemanal.objetivo}</p>
+            </div>
+          </div>
+
+          <div className="resumen-grid">
+            <div className="resumen-item">
+              <span className="emoji">🔥</span>
+              <small>Calorías</small>
+              <h2>{calorias}</h2>
+              <span>kcal / día</span>
+            </div>
+
+            <div className="resumen-item">
+              <span className="emoji">💪</span>
+              <small>Proteínas</small>
+              <h2>{proteinas}</h2>
+              <span>g / día</span>
+            </div>
+          </div>
         </div>
       )}
 
@@ -171,6 +197,16 @@ const MenuResultado = ({
             <span className="usuario-empty-btn-icon">✨</span>
             Crear otro menú
           </button>
+        </div>
+      )}
+
+      {esFree && (
+        <div className="rita-menu-actions">
+          <p className="usuario-empty-btn">
+            <span className="usuario-empty-btn-icon">✨</span>
+            Activa tu plan a startet o premium para que esta comida llegue a
+            domicilio y puedas crear más menús con una mejor personalización
+          </p>
         </div>
       )}
     </div>

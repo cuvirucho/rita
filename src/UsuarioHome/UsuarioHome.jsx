@@ -5,10 +5,12 @@ import MisSemanales from "./secciones/MisSemanales";
 import MisConsumos from "./secciones/MisConsumos";
 import Entrenador from "./secciones/Entrenador";
 import Perfil from "./secciones/Perfil";
+import Delivery from "./secciones/Delivery.jsx";
 
 const SECCIONES = [
   { id: "menu", label: "Menú Diario", icono: "🍽️" },
   { id: "semanales", label: "Menu personalizado", icono: "📅" },
+  { id: "delivery", label: "Delivery", icono: "🛵" },
   { id: "consumos", label: "Mis Consumos", icono: "📊" },
   { id: "entrenador", label: "Entrenador", icono: "💪" },
   { id: "perfil", label: "Perfil", icono: "👤" },
@@ -81,6 +83,12 @@ const UsuarioHome = () => {
         return (
           <div className="container">
             <Entrenador />
+          </div>
+        );
+      case "delivery":
+        return (
+          <div className="container">
+            <Delivery />
           </div>
         );
       case "perfil":

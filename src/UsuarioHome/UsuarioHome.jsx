@@ -8,8 +8,8 @@ import Perfil from "./secciones/Perfil";
 import Delivery from "./secciones/Delivery.jsx";
 
 const SECCIONES = [
-  { id: "menu", label: "Menú Diario", icono: "🍽️" },
-  { id: "semanales", label: "Menu personalizado", icono: "📅" },
+  { id: "semanales", label: "Plan de Comidas", icono: "📅" },
+  { id: "menu", label: "Rita menú", icono: "🍽️" },
   { id: "delivery", label: "Delivery", icono: "🛵" },
   { id: "consumos", label: "Mis Consumos", icono: "📊" },
   { id: "entrenador", label: "Entrenador", icono: "💪" },
@@ -18,7 +18,7 @@ const SECCIONES = [
 
 const UsuarioHome = () => {
   const { user, perfil } = useAuth();
-  const [seccionActiva, setSeccionActiva] = useState("menu");
+  const [seccionActiva, setSeccionActiva] = useState("semanales");
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrollPlanes, setScrollPlanes] = useState(false);
 

@@ -310,6 +310,11 @@ Cada comida debe tener:
 "proteinas" como objeto con clave "total"
 "minerales" como objeto con tipo y cantidad
 
+En "resumen_semanal":
+"objetivo" el objetivo del usuario en una frase corta (ej. "Ganar masa muscular")
+Los "_promedio" son el promedio DIARIO como número, sin unidades ni texto:
+escribe 2400, no "2400 kcal" ni "aprox. 2400". Calorías en kcal y el resto en gramos.
+
 FORMATO:
 Devuelve SOLO JSON válido sin texto adicional.
 Estructura obligatoria
@@ -417,8 +422,17 @@ Formato JSON obligatorio:
         "mineral1": "cantidad"
       }
     }
-  }
+    },
+"resumen_semanal": {
+  "objetivo": "valor",
+  "calorias_promedio": "valor",
+  "proteinas_promedio": "valor",
+  "carbohidratos_promedio": "valor",
+  "grasas_promedio": "valor",
+  "fibra_promedio": "valor"
 }
+
+    }
 IMPORTANTE:
 - NO markdown
 - SOLO JSON DE LOS DIAS CON EL FORMATO INDICADO
@@ -447,6 +461,12 @@ IMPORTANTE:
     console.log(textResponse);
 
     const cleaned = repararJSON(textResponse);
+    const usuarioDoc = snapshot.docs[0];
+
+    await usuarioDoc.ref.update({
+      menuCreado: cleaned,
+      menuCreadoFecha: admin.firestore.FieldValue.serverTimestamp(),
+    });
 
     res.json({
       success: true,

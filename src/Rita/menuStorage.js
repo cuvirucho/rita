@@ -4,6 +4,20 @@
 // snake_case con prefijo "rita_" (como "rita_ia_trials").
 const MENU_KEY = "rita_menu";
 
+// Comidas del menú actual que el usuario ya pidió (Rita/ModalOrdenar.jsx).
+// Mapa "dia1:almuerzo" → detalle. Se guarda el detalle y no un booleano para
+// poder pintar "Llega mañana a las 9:00". Campos del detalle:
+//   hora, paraManana, tipo, etiqueta → texto de la tarjeta
+//   ts                              → cuándo se hizo el pedido
+//   entregaId                       → id del documento de `entregas`. TODAS las
+//     comidas de un mismo envío comparten el mismo id: es lo que permite contar
+//     ENTREGAS (no platos) para el cupo del plan y cancelar el envío completo.
+//   programadaParaMs                → hora de entrega en ms, para decidir si
+//     todavía queda margen de cancelación sin releer Firestore.
+// Los pedidos guardados antes de que existieran los dos últimos campos siguen
+// leyéndose: se degradan a `ts` para contar y no ofrecen cancelar.
+const PEDIDOS_KEY = "rita_pedidos";
+
 export const loadMenu = () => {
   try {
     const raw = localStorage.getItem(MENU_KEY);
@@ -19,6 +33,10 @@ export const saveMenu = (data) => {
   } catch {
     /* almacenamiento no disponible: se ignora */
   }
+  // Menú nuevo, pedidos a cero: las claves son "diaN:comida" y en el menú
+  // nuevo el "día 1" ya es otra comida, así que arrastrarlas marcaría platos
+  // que nadie pidió.
+  clearPedidos();
 };
 
 export const clearMenu = () => {
@@ -27,6 +45,7 @@ export const clearMenu = () => {
   } catch {
     /* ignore */
   }
+  clearPedidos();
 };
 
 export const hasMenu = () => {
@@ -36,3 +55,67 @@ export const hasMenu = () => {
     return false;
   }
 };
+
+/* ------------------------------------------------------------------ */
+/* Pedidos ya realizados del menú actual                               */
+/* ------------------------------------------------------------------ */
+
+export const loadPedidos = () => {
+  try {
+    const raw = localStorage.getItem(PEDIDOS_KEY);
+    const datos = raw ? JSON.parse(raw) : null;
+    // Un JSON válido puede ser null, un array o un número: solo sirve un
+    // objeto plano, cualquier otra cosa se descarta.
+    if (!datos || typeof datos !== "object" || Array.isArray(datos)) return {};
+    return datos;
+  } catch {
+    return {};
+  }
+};
+
+export const savePedidos = (mapa) => {
+  try {
+    localStorage.setItem(PEDIDOS_KEY, JSON.stringify(mapa));
+  } catch {
+    /* almacenamiento no disponible: se ignora */
+  }
+};
+
+export const clearPedidos = () => {
+  try {
+    localStorage.removeItem(PEDIDOS_KEY);
+  } catch {
+    /* ignore */
+  }
+};
+
+// Clave estable de una comida dentro del menú actual. Vive aquí para que
+// quien escribe y quien lee usen exactamente el mismo formato.
+export const clavePedido = (dia, meal) => `${dia}:${meal}`;
+
+/**
+ * Pedidos de un día concreto: { comida: detalle }.
+ *
+ * El cupo de entregas es por día, así que el modal necesita saber qué falta por
+ * pedir y cuántas entregas se han usado ya en ESE día. Se filtra por prefijo en
+ * vez de recorrer las comidas del menú para que no dependa del plan.
+ */
+export const pedidosDeDia = (pedidos, dia) => {
+  const prefijo = `${dia}:`;
+  const salida = {};
+  Object.entries(pedidos || {}).forEach(([clave, detalle]) => {
+    if (clave.startsWith(prefijo)) salida[clave.slice(prefijo.length)] = detalle;
+  });
+  return salida;
+};
+
+/**
+ * Cuántas entregas distintas se han usado ya, a partir de los pedidos de un día.
+ *
+ * Cuenta `entregaId` únicos, no comidas: un envío con tres platos gasta una sola
+ * entrega. `ts` es el respaldo para los pedidos anteriores a `entregaId`.
+ */
+export const entregasUsadas = (pedidosDia) =>
+  new Set(
+    Object.values(pedidosDia || {}).map((p) => p?.entregaId ?? p?.ts),
+  ).size;

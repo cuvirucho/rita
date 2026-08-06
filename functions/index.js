@@ -140,8 +140,8 @@ app.post("/confirm", async (req, res) => {
       if (!querySnapshot.empty) {
         const orderDoc = querySnapshot.docs[0];
         const orderData = orderDoc.data();
-        console.log("Datos de la orden:", orderData);
-        console.log("Datos de la transacción:", data);
+        // console.log("Datos de la orden:", orderData);
+        // console.log("Datos de la transacción:", data);
 
         // Verificar si ya existe un usuario activo con el mismo email
         const email = data.email ? data.email.trim().toLowerCase() : null;
@@ -154,9 +154,9 @@ app.post("/confirm", async (req, res) => {
 
         if (!existingQuery.empty) {
           existingUserDoc = existingQuery.docs[0];
-          console.log(existingUserDoc);
+          //  console.log(existingUserDoc);
         }
-        console.log(existingUserDoc);
+        // console.log(existingUserDoc);
 
         if (existingUserDoc) {
           // Usuario ya existe: solo actualizar el plan/cart y datos del nuevo pago
@@ -196,7 +196,7 @@ app.post("/confirm", async (req, res) => {
           );
           data.renovacion = false;
           const textemail = await sendemailwelcome.text();
-          console.log("Respuesta envarcorreo:", textemail);
+          // console.log("Respuesta envarcorreo:", textemail);
         }
       } else {
         console.warn(
@@ -468,9 +468,9 @@ IMPORTANTE:
     if (!textResponse) {
       return res.status(500).json({ error: "La IA no devolvió respuesta" });
     }
-    console.log(prompt);
+    //console.log(prompt);
 
-    console.log(textResponse);
+    //console.log(textResponse);
 
     const cleaned = repararJSON(textResponse);
 
@@ -646,7 +646,7 @@ IMPORTANTE:
       return res.status(500).json({ error: "La IA no devolvió respuesta" });
     }
 
-    console.log(textResponse);
+    // console.log(textResponse);
 
     const cleaned = repararJSON(textResponse);
 
@@ -654,12 +654,15 @@ IMPORTANTE:
     // con un JSON irreparable, y un plato a medias (sin nombre) rompería la
     // tarjeta del menú si el usuario lo guardara.
     if (!cleaned?.plato?.nombre) {
-      return res.status(500).json({ error: "La IA devolvió un plato inválido" });
+      return res
+        .status(500)
+        .json({ error: "La IA devolvió un plato inválido" });
     }
 
     res.json({
       success: true,
-      mensaje: cleaned.mensaje || "Te preparé otra opción, dime qué te parece 😊",
+      mensaje:
+        cleaned.mensaje || "Te preparé otra opción, dime qué te parece 😊",
       plato: cleaned.plato,
     });
   } catch (error) {
@@ -827,7 +830,7 @@ app.post("/Verificaremail", async (req, res) => {
 
     querySnapshot.forEach((doc) => {
       const data = doc.data();
-      console.log(data);
+      // console.log(data);
 
       // 🔥 ignorar el mismo usuario
       if (data.clientTransactionId !== userId) {
@@ -911,13 +914,14 @@ app.post("/updateEmail", async (req, res) => {
 
 /*bajar el plan a starter*/
 app.post("/downgradePlan", async (req, res) => {
-  console.log("entro en downgrade plan");
+  // console.log("entro en downgrade plan");
 
   try {
+    s;
     const { userId } = req.body;
 
     if (!userId) {
-      console.log("faltan datos");
+      // console.log("faltan datos");
       return res.status(400).json({ error: "Faltan datos" });
     }
 

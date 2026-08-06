@@ -1264,7 +1264,7 @@ export default function Verific() {
         },
       );
       const data = await resp.json();
-      // // console.log(data, "Respuesta de verificación de nuevo email");
+      // console.log(data, "Respuesta de verificación de nuevo email");
 
       if (!data.success) {
         setEmailError("Este correo también está en uso. Intenta con otro.");
@@ -1303,7 +1303,7 @@ export default function Verific() {
         );
 
         const data = await resp.json();
-        console.log(data);
+        //   console.log(data);
 
         if (data.transactionStatus === "Approved" && data.amount === 4200) {
           setEstado("premium");

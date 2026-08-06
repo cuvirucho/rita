@@ -14,7 +14,7 @@ import ModalReservar from "./ModalReservar";
 const ListaEntrenadores = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  console.log(user);
+  // console.log(user);
 
   const [entrenadores, setEntrenadores] = useState([]);
   const [cargando, setCargando] = useState(true);
@@ -30,7 +30,7 @@ const ListaEntrenadores = () => {
         const snap = await getDocs(
           query(collection(db, "entrenadores"), where("activo", "==", true)),
         );
-        console.log(snap.docs);
+        // console.log(snap.docs);
 
         if (!montado) return;
         const lista = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
@@ -41,7 +41,7 @@ const ListaEntrenadores = () => {
         setEntrenadores(lista);
       } catch {
         if (montado) setError(true);
-        console.log(error);
+        // console.log(error);
       } finally {
         if (montado) setCargando(false);
       }

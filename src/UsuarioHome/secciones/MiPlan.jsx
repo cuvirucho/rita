@@ -51,7 +51,7 @@ const encontrarPlan = (plan) => {
 const MiPlan = () => {
   const { perfil } = useAuth();
   const plan = perfil?.plan || "free";
-  console.log(perfil);
+  // console.log(perfil);
 
   // --- Caso free: invitar a suscribirse ---
   if (plan === "free") {

@@ -41,7 +41,7 @@ const Nutricion = () => {
 const NutricionPanel = ({ user, plan }) => {
   const { estado, guardado } = useMenuGuardado(user?.uid);
   const menu = guardado?.menu ?? null;
-  console.log(menu);
+  //console.log(menu);
 
   const comidasDelPlan = MEAL_ORDER[plan] || MEAL_ORDER.starter;
   const { marcas, alternar, reiniciar, sincronizado } = useConsumo(

@@ -24,6 +24,39 @@ export const sendRitaMessage = async (messages) => {
 };
 
 /**
+ * Pide a Rita otro plato para una comida concreta a partir del feedback del
+ * usuario. El backend NO guarda nada: devuelve una propuesta y el menú solo
+ * cambia cuando el usuario la acepta.
+ *
+ * `currentMeal` es el plato sobre el que hay que trabajar — la última propuesta
+ * si ya hubo una, no siempre el plato original, para que los cambios se
+ * acumulen turno a turno.
+ *
+ * @param {{ userId: string, mealType: string, currentMeal: object,
+ *           feedback: string, historial: Array<{from: "user"|"rita", text: string}> }} datos
+ * @returns {Promise<{ success: boolean, mensaje: string, plato: object }>}
+ */
+export const regenerarPlato = async ({
+  userId,
+  mealType,
+  currentMeal,
+  feedback,
+  historial,
+}) => {
+  const resp = await fetch(`${API_BASE}/regenerarPlato`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ userId, mealType, currentMeal, feedback, historial }),
+  });
+
+  if (!resp.ok) {
+    throw new Error(`regenerarPlato respondió ${resp.status}`);
+  }
+
+  return resp.json();
+};
+
+/**
  * Deriva el plan del usuario ("premium" | "starter") a partir de su perfil.
  * Se revisan varios campos porque el plan puede guardarse como `perfil.plan`
  * (ej. "premium"/"basic") o dentro de `perfil.cart` (ej. "Plan Premium").

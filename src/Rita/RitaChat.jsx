@@ -3,7 +3,14 @@ import { sendRitaMessage, planDeUsuario } from "./ritaApi";
 import { generarMenu } from "../Menu/Genradoria";
 import MenuResultado from "./MenuResultado";
 import Planos from "../Menu/Plano/Planos";
-import { loadMenu, saveMenu, clearMenu } from "./menuStorage";
+import {
+  esMenuValido,
+  loadMenu,
+  saveMenu,
+  clearMenu,
+  updatePlatoLocal,
+} from "./menuStorage";
+import { guardarPlatoRemoto } from "./menuRemoto";
 
 const RITA_AVATAR =
   "https://res.cloudinary.com/db8e98ggo/image/upload/v1773700632/logoderita_1_o7wzjd.png";
@@ -21,27 +28,9 @@ const MAX_FREE_TRIALS = 2;
 let bubbleSeq = 0;
 const nextId = () => `b${bubbleSeq++}`;
 
-// Revela el texto progresivamente (efecto "escribiendo"). Para mensajes largos
-// acelera para no hacerse eterno.
-const TypewriterText = ({ text, onTick }) => {
-  const [visible, setVisible] = useState("");
-
-  useEffect(() => {
-    let i = 0;
-    const step = text.length > 160 ? 3 : 1;
-    const id = setInterval(() => {
-      i += step;
-      setVisible(text.slice(0, i));
-      if (onTick) onTick();
-      if (i >= text.length) clearInterval(id);
-    }, 18);
-    return () => clearInterval(id);
-  }, [text, onTick]);
-
-  return <>{visible}</>;
-};
-
-const RitaChat = ({ perfil, user, onCerrar }) => {
+// `menuInicial` es el menú ya resuelto por useMenuGuardado (localStorage o
+// Firestore). Llega como prop y no se busca aquí para no repetir la consulta.
+const RitaChat = ({ perfil, user, onCerrar, menuInicial }) => {
   const [display, setDisplay] = useState([]); // burbujas visibles
   const [input, setInput] = useState("");
   const [escribiendo, setEscribiendo] = useState(false); // "Rita está escribiendo…"
@@ -109,10 +98,16 @@ const RitaChat = ({ perfil, user, onCerrar }) => {
     if (iniciadoRef.current) return;
     iniciadoRef.current = true;
 
-    // Si ya hay un menú persistido, se muestra directo sin rehacer el chat
-    // (no consume una prueba gratis: no pasa por finalizar).
-    const guardado = loadMenu();
-    if (guardado?.menu) {
+    // Si ya hay un menú se muestra directo sin rehacer el chat: no consume una
+    // prueba gratis porque no pasa por finalizar.
+    // localStorage manda sobre `menuInicial` porque la prop es la foto del menú
+    // que hizo la sección al montarse: si desde aquí se generó otro menú, esa
+    // foto ya es vieja. `menuInicial` cubre el caso contrario — que el
+    // navegador no deje escribir en localStorage y el menú solo esté en
+    // Firestore.
+    const local = loadMenu();
+    const guardado = esMenuValido(local?.menu) ? local : menuInicial;
+    if (esMenuValido(guardado?.menu)) {
       setMenu(guardado.menu);
       setProfile(guardado.profile || null);
       setFase("menu");
@@ -146,13 +141,12 @@ const RitaChat = ({ perfil, user, onCerrar }) => {
 
   // Cierre de la conversación -> generación del menú (respeta el límite free).
   const finalizar = async (perfilRita) => {
-    if (esFree) {
-      const count = parseInt(localStorage.getItem(TRIAL_KEY) || "0", 10);
-      if (count >= MAX_FREE_TRIALS) {
-        setFase("limite");
-        return;
-      }
-      localStorage.setItem(TRIAL_KEY, String(count + 1));
+    const usadas = esFree
+      ? parseInt(localStorage.getItem(TRIAL_KEY) || "0", 10)
+      : 0;
+    if (esFree && usadas >= MAX_FREE_TRIALS) {
+      setFase("limite");
+      return;
     }
 
     const datos = {
@@ -168,11 +162,35 @@ const RitaChat = ({ perfil, user, onCerrar }) => {
       setMenu(nuevoMenu);
       // Persiste solo cuando la generación fue exitosa.
       saveMenu({ menu: nuevoMenu, profile: datos });
+      // La prueba se cuenta al entregar el menú, no al pedirlo: si falla la red
+      // o la IA, el usuario no pierde una de sus dos muestras gratis a cambio
+      // de nada.
+      if (esFree) localStorage.setItem(TRIAL_KEY, String(usadas + 1));
     } catch {
       setMenu(null);
     }
     setFase("menu");
   };
+
+  // El usuario aceptó en el chat de edición el plato que le propuso Rita.
+  // La actualización vive aquí y no en MenuResultado porque este componente es
+  // el dueño del estado `menu` y de su persistencia.
+  const actualizarPlato = useCallback(
+    (dia, meal, plato) => {
+      setMenu((prev) =>
+        prev ? { ...prev, [dia]: { ...prev[dia], [meal]: plato } } : prev,
+      );
+      // Fuera del updater: en StrictMode se ejecuta dos veces, y estas dos
+      // escrituras no son idempotentes de balde (una es una petición de red).
+      // `updatePlatoLocal` en vez de `saveMenu` porque este borra los pedidos y
+      // aquí el menú sigue siendo el mismo.
+      updatePlatoLocal(dia, meal, plato);
+      // Sin await ni manejo de error: si Firestore falla el usuario ya ve su
+      // plato nuevo, solo se queda sin respaldo.
+      guardarPlatoRemoto(user?.uid, dia, meal, plato);
+    },
+    [user?.uid],
+  );
 
   const reiniciar = () => {
     // "Crear otro menú": borra el guardado para generar uno nuevo con la IA.
@@ -219,7 +237,9 @@ const RitaChat = ({ perfil, user, onCerrar }) => {
         menu={menu}
         profile={profile}
         plan={plan}
+        userId={user?.uid}
         onReiniciar={reiniciar}
+        onPlatoActualizado={actualizarPlato}
         esFree={esFree}
       />
     );

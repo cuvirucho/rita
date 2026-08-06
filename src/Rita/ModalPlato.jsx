@@ -41,9 +41,11 @@ const ModalPlato = ({
   label,
   details,
   pedido,
+  puedeEditar,
   onCerrar,
   onOrdenar,
   onCancelar,
+  onEditar,
 }) => {
   useEffect(() => {
     const onKey = (e) => {
@@ -192,10 +194,19 @@ const ModalPlato = ({
                 🛵 Ordenar
               </button>
             )}
-            {/* Placeholder: por ahora no hace nada. */}
-            <button type="button" className="btn btn-outline">
-              ✏️ Editar
-            </button>
+            {/* Una comida ya pedida no se edita: `entregas` guarda una COPIA
+                del plato, así que cambiarlo aquí dejaría al usuario mirando un
+                plato distinto del que le va a llegar. Para cambiarlo hay que
+                cancelar el pedido primero. */}
+            {puedeEditar && !pedido && (
+              <button
+                type="button"
+                className="btn btn-outline"
+                onClick={onEditar}
+              >
+                ✏️ Editar
+              </button>
+            )}
           </div>
         </div>
       </div>

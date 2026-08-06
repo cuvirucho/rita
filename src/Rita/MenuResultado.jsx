@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useState } from "react";
 import CarruselMetricas from "./CarruselMetricas";
 import ModalCancelar from "./ModalCancelar";
+import ModalEditarPlato from "./ModalEditarPlato";
 import ModalOrdenar from "./ModalOrdenar";
 import ModalPlato from "./ModalPlato";
 import {
@@ -134,7 +135,9 @@ const MenuResultado = ({
   esFree,
   profile,
   plan = "starter",
+  userId,
   onReiniciar,
+  onPlatoActualizado,
 }) => {
   const dias = menu
     ? Object.keys(menu).filter((dia) => dia !== "resumen_semanal")
@@ -146,12 +149,20 @@ const MenuResultado = ({
   const [ordenando, setOrdenando] = useState(null);
   // Comida cuyo pedido se está cancelando (null = modal cerrado).
   const [cancelando, setCancelando] = useState(null);
+  // Comida que se está cambiando con Rita (null = modal cerrado).
+  const [editando, setEditando] = useState(null);
   // Comidas ya pedidas de ESTE menú; menuStorage las borra al generar otro.
   const [pedidos, setPedidos] = useState(loadPedidos);
   // Estables: los modales las usan como dependencia del listener de Escape.
   const cerrarDetalle = useCallback(() => setDetalle(null), []);
   const cerrarOrden = useCallback(() => setOrdenando(null), []);
   const cerrarCancelar = useCallback(() => setCancelando(null), []);
+  const cerrarEditar = useCallback(() => setEditando(null), []);
+
+  // Editar cuesta una llamada a la IA, así que queda fuera del plan free — que
+  // tampoco puede crear otro menú. Sin `onPlatoActualizado` no habría dónde
+  // guardar el plato nuevo, así que tampoco se ofrece.
+  const puedeEditar = !esFree && !!onPlatoActualizado;
 
   // El modal avisa con TODAS las comidas del envío (la principal y los extras).
   const registrarPedido = useCallback(
@@ -245,6 +256,7 @@ const MenuResultado = ({
   const cambiarDia = (day) => {
     setSelectedDay(day);
     setDetalle(null); // el detalle abierto ya no pertenece a este día
+    setEditando(null); // ídem: se guardaría el plato en el día equivocado
   };
 
   return (
@@ -394,6 +406,25 @@ const MenuResultado = ({
             setDetalle(null);
             setCancelando(detalle);
           }}
+          puedeEditar={puedeEditar}
+          onEditar={() => {
+            setDetalle(null);
+            setEditando(detalle);
+          }}
+        />
+      )}
+
+      {editando && diaActual[editando] && (
+        <ModalEditarPlato
+          icono={MEAL_ICONS[editando] || "🍽️"}
+          label={MEAL_LABELS[editando] || editando}
+          mealType={editando}
+          details={diaActual[editando]}
+          userId={userId}
+          onCerrar={cerrarEditar}
+          // Solo aplica el cambio: el modal se queda abierto enseñando la
+          // confirmación y se cierra él mismo pasados un par de segundos.
+          onGuardar={(plato) => onPlatoActualizado(selectedDay, editando, plato)}
         />
       )}
 

@@ -18,6 +18,23 @@ const MENU_KEY = "rita_menu";
 // leyéndose: se degradan a `ts` para contar y no ofrecen cancelar.
 const PEDIDOS_KEY = "rita_pedidos";
 
+/**
+ * ¿Este menú se puede mostrar?
+ *
+ * Un menú servible es un objeto con al menos un día; `resumen_semanal` no
+ * cuenta porque no es un día. Hace falta comprobarlo antes de dar por bueno un
+ * menú guardado: si no, basura contaría como "ya tiene menú" y dejaría al
+ * usuario atrapado en una pantalla vacía sin poder crear uno nuevo. Los dos
+ * casos reales son `null` (el backend lo escribía en Firestore cuando la IA
+ * devolvía un JSON irreparable) y `undefined` (lo que devolvía el fetch cuando
+ * la API respondía con error y nadie miraba el status).
+ */
+export const esMenuValido = (menu) =>
+  !!menu &&
+  typeof menu === "object" &&
+  !Array.isArray(menu) &&
+  Object.keys(menu).some((clave) => clave !== "resumen_semanal");
+
 export const loadMenu = () => {
   try {
     const raw = localStorage.getItem(MENU_KEY);
@@ -39,6 +56,36 @@ export const saveMenu = (data) => {
   clearPedidos();
 };
 
+/**
+ * Reemplaza UN plato del menú guardado, dejando el resto intacto.
+ *
+ * No usa `saveMenu` a propósito: aquel borra los pedidos, y aquí el menú sigue
+ * siendo el mismo. Las claves "diaN:comida" siguen apuntando a las mismas
+ * comidas, así que borrarlas marcaría como no pedidos platos que el usuario sí
+ * pidió (y le devolvería cupo de entregas que ya gastó).
+ *
+ * Si en local no hay un menú servible no hace nada: no tendría sentido crear
+ * uno con un solo plato.
+ */
+export const updatePlatoLocal = (dia, meal, plato) => {
+  const actual = loadMenu();
+  if (!esMenuValido(actual?.menu)) return;
+
+  const siguiente = {
+    ...actual,
+    menu: {
+      ...actual.menu,
+      [dia]: { ...actual.menu[dia], [meal]: plato },
+    },
+  };
+
+  try {
+    localStorage.setItem(MENU_KEY, JSON.stringify(siguiente));
+  } catch {
+    /* almacenamiento no disponible: se ignora */
+  }
+};
+
 export const clearMenu = () => {
   try {
     localStorage.removeItem(MENU_KEY);
@@ -48,13 +95,9 @@ export const clearMenu = () => {
   clearPedidos();
 };
 
-export const hasMenu = () => {
-  try {
-    return !!localStorage.getItem(MENU_KEY);
-  } catch {
-    return false;
-  }
-};
+// Mira el contenido y no solo la presencia de la clave: un `{"menu":null}`
+// guardado por una generación fallida existe, pero no es un menú.
+export const hasMenu = () => esMenuValido(loadMenu()?.menu);
 
 /* ------------------------------------------------------------------ */
 /* Pedidos ya realizados del menú actual                               */

@@ -1,21 +1,39 @@
 import { useState } from "react";
 import { useAuth } from "../../Auth/AuthContext";
 import RitaChat from "../../Rita/RitaChat";
-import { hasMenu } from "../../Rita/menuStorage";
+import { useMenuGuardado } from "../../Rita/useMenuGuardado";
 
 const MisSemanales = () => {
   const { user, perfil } = useAuth();
-  // Si ya hay un menú guardado, abre RitaChat directo para mostrarlo (persiste
-  // tras refrescar o salir de la sección).
-  const [iniciado, setIniciado] = useState(() => hasMenu());
-  const [contador, setContador] = useState(0);
-  if (iniciado) {
+  // Busca el menú del usuario en localStorage y, si ahí no hay, en Firestore.
+  const { estado, guardado } = useMenuGuardado(user?.uid);
+  const [abierto, setAbierto] = useState(false); // pulsó "Crear menú con IA"
+  const [cerrado, setCerrado] = useState(false); // pulsó la ✕ del chat
+
+  // Si ya hay un menú guardado se abre RitaChat directo para mostrarlo. Se
+  // deriva en el render en vez de en un efecto para que no se vea un frame del
+  // estado vacío; `cerrado` es lo que deja funcionar la ✕ aun teniendo menú.
+  const mostrarChat = abierto || (!!guardado && !cerrado);
+
+  if (estado === "resolviendo") {
+    return (
+      <div className="usuario-seccion">
+        <span className="delivery-skel delivery-skel--card" />
+      </div>
+    );
+  }
+
+  if (mostrarChat) {
     return (
       <div className="usuario-seccion">
         <RitaChat
           user={user}
           perfil={perfil}
-          onCerrar={() => setIniciado(false)}
+          menuInicial={guardado}
+          onCerrar={() => {
+            setAbierto(false);
+            setCerrado(true);
+          }}
         />
       </div>
     );
@@ -43,7 +61,10 @@ const MisSemanales = () => {
         <button
           type="button"
           className="usuario-empty-btn"
-          onClick={() => setIniciado(true)}
+          onClick={() => {
+            setCerrado(false);
+            setAbierto(true);
+          }}
         >
           <span className="usuario-empty-btn-icon">✨</span>
           Crear menú con IA

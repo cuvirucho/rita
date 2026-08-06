@@ -25,9 +25,15 @@ const MenuDinamico = ({ preferencias }) => {
       return;
     }
     const cargarMenu = async () => {
-      const nuevoMenu = await generarMenu(preferencias);
-      setMenu(nuevoMenu);
-      setCargando(false);
+      // generarMenu lanza cuando la API responde con error; sin el catch la
+      // página se quedaría cargando para siempre.
+      try {
+        setMenu(await generarMenu(preferencias));
+      } catch {
+        setMenu(null);
+      } finally {
+        setCargando(false);
+      }
     };
     cargarMenu();
   }, []);
@@ -135,7 +141,7 @@ const MenuDinamico = ({ preferencias }) => {
             </div>
           </section>
         </>
-      ) : (
+      ) : cargando ? (
         <div className="loading-container">
           <video className="loading-video" autoPlay loop muted playsInline>
             <source
@@ -145,6 +151,18 @@ const MenuDinamico = ({ preferencias }) => {
           </video>
           <p className="loading-text">
             Nuestra IA de nutrición está creando algo especial para ti...
+          </p>
+        </div>
+      ) : (
+        // Antes se quedaba el vídeo de carga girando para siempre cuando la
+        // generación fallaba, porque solo se miraba `menu`.
+        <div className="usuario-empty">
+          <span className="usuario-empty-icon">😕</span>
+          <h3 className="usuario-empty-title">
+            No pudimos generar tu menú esta vez.
+          </h3>
+          <p className="usuario-empty-text">
+            Vuelve a intentarlo en unos minutos.
           </p>
         </div>
       )}

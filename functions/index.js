@@ -215,10 +215,34 @@ app.post("/confirm", async (req, res) => {
 
 /*crador de menupruen*/
 
+/**
+ * Ingredientes disponibles en la bodega (documento global gestionado en
+ * Firestore), reducidos a { nombre, costoUnitario } para el prompt.
+ *
+ * Vive fuera de los endpoints porque lo usan tanto /generarMenu como
+ * /regenerarPlato: la restricción de ingredientes tiene que ser la misma en el
+ * menú completo y en el plato que se regenera, o el usuario podría cambiar un
+ * plato por otro que la cocina no puede preparar.
+ */
+const cargarIngredientesBodega = async () => {
+  const bodegaSnap = await db.collection("bodega").doc("mi_bodega").get();
+  if (!bodegaSnap.exists) return [];
+
+  const { ingredientes } = bodegaSnap.data();
+  if (!ingredientes?.length) return [];
+
+  return ingredientes.map((i) => ({
+    nombre: i.nombre,
+    costoUnitario: i.costoPorUnidad,
+  }));
+};
+
 app.post("/generarMenu", async (req, res) => {
   try {
     const { preferencias } = req.body;
-    const plan = req.body.plan ?? preferencias.plan ?? "free"; // valor por defecto si no se proporciona
+    // Opcional en las dos: sin `?.` un body sin `preferencias` reventaba aquí
+    // con un TypeError y devolvía un 500 en vez del 400 "Faltan datos".
+    const plan = req.body.plan ?? preferencias?.plan ?? "free"; // valor por defecto si no se proporciona
     // El userId puede venir de primer nivel o anidado dentro de preferencias
     // (así lo envía hoy el flujo de Rita: preferencias.userId).
     const userId = req.body.userId ?? preferencias?.userId;
@@ -239,19 +263,7 @@ app.post("/generarMenu", async (req, res) => {
       return res.status(404).json({ error: "Usuario no encontrado" });
     }
 
-    // Ingredientes disponibles en la bodega (documento global gestionado en
-    // Firestore). Se reduce a { nombre, costoUnitario } para el prompt.
-    let ingredientesBodega = [];
-    const bodegaSnap = await db.collection("bodega").doc("mi_bodega").get();
-    if (bodegaSnap.exists) {
-      const dataBodega = bodegaSnap.data();
-      if (dataBodega.ingredientes?.length > 0) {
-        ingredientesBodega = dataBodega.ingredientes.map((i) => ({
-          nombre: i.nombre,
-          costoUnitario: i.costoPorUnidad,
-        }));
-      }
-    }
+    const ingredientesBodega = await cargarIngredientesBodega();
 
     // Cuando hay bodega, la IA queda restringida a esos ingredientes con un tope
     // de costo; si está vacía se mantiene el comportamiento anterior ($50 ref.).
@@ -461,10 +473,24 @@ IMPORTANTE:
     console.log(textResponse);
 
     const cleaned = repararJSON(textResponse);
+
+    // `repararJSON` devuelve null si el JSON de la IA no se pudo arreglar. Se
+    // corta aquí, ANTES del update: si no, se guardaba ese null en Firestore
+    // (respondiendo success: true) y se destruía el menú bueno que el usuario
+    // ya tenía guardado, que es justo el que la app recupera cuando el
+    // navegador se queda sin localStorage.
+    if (!cleaned || typeof cleaned !== "object") {
+      return res.status(500).json({ error: "La IA devolvió un menú inválido" });
+    }
+
     const usuarioDoc = snapshot.docs[0];
 
     await usuarioDoc.ref.update({
       menuCreado: cleaned,
+      // El perfil se guarda junto al menú para poder restaurarlo desde
+      // Firestore: la pantalla del menú lo usa para nombrar el objetivo.
+      menuCreadoPerfil:
+        preferencias && typeof preferencias === "object" ? preferencias : null,
       menuCreadoFecha: admin.firestore.FieldValue.serverTimestamp(),
     });
 
@@ -475,6 +501,170 @@ IMPORTANTE:
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Error generando menú" });
+  }
+});
+
+/* ============================================================
+   REGENERAR UN PLATO SUELTO
+   El usuario abre el chat de edición desde el detalle de una comida
+   (Rita/ModalEditarPlato.jsx), cuenta qué no le gusta y la IA
+   devuelve OTRO plato del mismo tipo.
+
+   A diferencia de /generarMenu, este endpoint NO escribe en
+   Firestore: el plato viaja al cliente como propuesta y solo se
+   guarda si el usuario pulsa "Guardar plato". Esa escritura la hace
+   el cliente con el SDK (menuRemoto.js), que sí pasa por las reglas
+   de seguridad — aquí no hay forma de verificar que el `userId` del
+   body sea de quien llama.
+   ============================================================ */
+
+app.post("/regenerarPlato", async (req, res) => {
+  try {
+    const { userId, mealType, currentMeal, feedback, historial } = req.body;
+
+    if (!userId || !mealType || !currentMeal) {
+      return res.status(400).json({ error: "Faltan datos" });
+    }
+
+    // Misma búsqueda que /generarMenu (campo `uid`, no el id del documento)
+    // para que los dos endpoints acepten exactamente los mismos usuarios.
+    const snapshot = await db
+      .collection("UsuariosActivos")
+      .where("uid", "==", userId)
+      .limit(1)
+      .get();
+
+    if (snapshot.empty) {
+      return res.status(404).json({ error: "Usuario no encontrado" });
+    }
+
+    const ingredientesBodega = await cargarIngredientesBodega();
+    const hayBodega = ingredientesBodega.length > 0;
+    const bloqueBodega = hayBodega
+      ? `\nBODEGA (ingredientes disponibles — usa SOLO estos, no agregues otros):\n${JSON.stringify(
+          ingredientesBodega,
+        )}\n`
+      : "";
+    // El tope de /generarMenu es semanal y aquí solo se cambia un plato, así
+    // que la regla se queda en la restricción de ingredientes.
+    const reglaCosto = hayBodega
+      ? "- Usa únicamente ingredientes de la bodega.\n- Mantén un costo similar al del plato actual."
+      : "- Mantén un costo similar al del plato actual.";
+
+    // El perfil que se guardó junto al menú: es lo que mantiene las alergias y
+    // el objetivo del usuario vigentes en el plato nuevo. Sin él la IA solo
+    // conoce el plato actual y podría colar un alimento prohibido.
+    const { menuCreadoPerfil } = snapshot.docs[0].data();
+    const perfilTexto = menuCreadoPerfil
+      ? JSON.stringify(menuCreadoPerfil, null, 2)
+      : "No disponible.";
+
+    // Los turnos previos van como texto dentro del prompt y no como `messages`
+    // de la API: así no hay que garantizar la alternancia user/assistant que
+    // esa forma exige. Solo los últimos turnos, que es lo que da contexto.
+    const historialTexto = Array.isArray(historial)
+      ? historial
+          .slice(-8)
+          .filter((t) => t?.text)
+          .map((t) => `${t.from === "user" ? "usuario" : "Rita"}: ${t.text}`)
+          .join("\n")
+      : "";
+
+    const prompt = `
+Eres Rita, nutricionista virtual. El usuario quiere CAMBIAR un plato de su menú.
+Responde con calidez, en español, con tono cercano de WhatsApp.
+
+PLATO ACTUAL (${mealType}):
+${JSON.stringify(currentMeal, null, 2)}
+
+PERFIL DEL USUARIO (respeta SIEMPRE sus alergias y restricciones):
+${perfilTexto}
+${bloqueBodega}
+CONVERSACIÓN PREVIA:
+${historialTexto || "Ninguna, es el primer mensaje."}
+
+LO QUE PIDE AHORA EL USUARIO:
+${feedback || "Quiere otra opción distinta."}
+
+REGLAS:
+- Si rechaza el plato o un ingrediente: cámbialo de verdad, no devuelvas lo mismo.
+- Si el comentario es positivo o pide un ajuste menor: conserva al menos un ingrediente o la idea del plato.
+- El plato nuevo debe seguir siendo del tipo de comida: ${mealType}.
+- Nunca incluyas un alimento prohibido por alergias o restricciones del perfil.
+${reglaCosto}
+- "mensaje": una o dos frases explicando qué cambiaste. Sin markdown.
+- "nombre": un nombre gourmet y apetecible.
+- "descripcion": atractiva y que se entienda qué es, máximo 50 palabras.
+- "calorias" como número, sin comillas ni unidades.
+- "ingredientes" como objeto con ingredientes y cantidades exactas.
+- "vitaminas" como objeto con tipos y porcentaje.
+- "proteinas" como objeto con clave "total".
+- "minerales" como objeto con tipo y cantidad.
+
+FORMATO (SOLO JSON válido, sin markdown, sin explicaciones):
+{
+  "mensaje": "texto corto para el chat",
+  "plato": {
+    "nombre": "nombre del plato",
+    "descripcion": "descripcion del plato",
+    "ingredientes": {
+      "ingrediente1": "cantidad",
+      "ingrediente2": "cantidad"
+    },
+    "calorias": 0,
+    "vitaminas": {
+      "vitamina1": "porcentaje"
+    },
+    "proteinas": {
+      "total": 0
+    },
+    "minerales": {
+      "mineral1": "cantidad"
+    }
+  }
+}
+
+IMPORTANTE:
+- NO markdown
+- NO explicaciones
+- SOLO JSON válido
+`;
+
+    const message = await anthropic.messages.create({
+      model: "claude-haiku-4-5",
+      max_tokens: 2000,
+      system:
+        "Eres una nutricionista profesional. Responde EXCLUSIVAMENTE con un JSON válido y bien " +
+        "formado, sin markdown, sin comentarios y sin texto adicional.",
+      messages: [{ role: "user", content: prompt }],
+    });
+
+    const textResponse =
+      message.content.find((b) => b.type === "text")?.text ?? "";
+
+    if (!textResponse) {
+      return res.status(500).json({ error: "La IA no devolvió respuesta" });
+    }
+
+    console.log(textResponse);
+
+    const cleaned = repararJSON(textResponse);
+
+    // Mismo motivo que el guard de /generarMenu: `repararJSON` devuelve null
+    // con un JSON irreparable, y un plato a medias (sin nombre) rompería la
+    // tarjeta del menú si el usuario lo guardara.
+    if (!cleaned?.plato?.nombre) {
+      return res.status(500).json({ error: "La IA devolvió un plato inválido" });
+    }
+
+    res.json({
+      success: true,
+      mensaje: cleaned.mensaje || "Te preparé otra opción, dime qué te parece 😊",
+      plato: cleaned.plato,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Error regenerando el plato" });
   }
 });
 

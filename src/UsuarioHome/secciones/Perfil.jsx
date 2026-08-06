@@ -2,6 +2,7 @@ import { signOut } from "firebase/auth";
 import { auth } from "../../FIRBAS/Firebase";
 import { useAuth } from "../../Auth/AuthContext";
 import MiPlan from "./MiPlan";
+import { planUsuario, NOMBRE_PLAN } from "./deliveryUtils";
 
 const formatearFecha = (fechaRegistro) => {
   try {
@@ -26,7 +27,8 @@ const Perfil = () => {
   const nombre = perfil?.nombre || user?.displayName || "—";
   const correo = perfil?.correo || user?.email || "—";
   const telefono = perfil?.telefono || "—";
-  const plan = perfil?.plan || "free";
+  // Normalizado: quien pagó por Payphone no tiene `perfil.plan`, solo `cart`.
+  const plan = planUsuario(perfil);
   const fecha = formatearFecha(perfil?.fechaRegistro);
   const inicial = (nombre !== "—" ? nombre : correo).charAt(0).toUpperCase();
 
@@ -56,7 +58,7 @@ const Perfil = () => {
           <div className="usuario-perfil-hero-info">
             <h3 className="usuario-perfil-nombre">{nombre}</h3>
             <span className={`usuario-plan-badge usuario-plan-badge--${plan}`}>
-              Plan {plan === "free" ? "Free" : plan}
+              Plan {NOMBRE_PLAN[plan]}
             </span>
           </div>
         </div>

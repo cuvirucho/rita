@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { sendRitaMessage, planDeUsuario } from "./ritaApi";
 import { generarMenu } from "../Menu/Genradoria";
 import MenuResultado from "./MenuResultado";
-import Planos from "../Menu/Plano/Planos";
+import TypewriterText from "./TypewriterText";
 import {
   esMenuValido,
   loadMenu,
@@ -22,20 +22,22 @@ const SEED_USER = {
   content: "Hola, quiero crear mi menú personalizado.",
 };
 
-const TRIAL_KEY = "rita_ia_trials";
-const MAX_FREE_TRIALS = 2;
-
 let bubbleSeq = 0;
 const nextId = () => `b${bubbleSeq++}`;
 
 // `menuInicial` es el menú ya resuelto por useMenuGuardado (localStorage o
 // Firestore). Llega como prop y no se busca aquí para no repetir la consulta.
+//
+// Aquí no hay ninguna comprobación de plan: el chat es exclusivo de Starter y
+// Premium y la puerta está en UsuarioHome/secciones/MisSemanales.jsx, antes de
+// montar este componente. Si algún día se monta desde otro sitio, ese sitio es
+// el responsable de repetir el corte.
 const RitaChat = ({ perfil, user, onCerrar, menuInicial }) => {
   const [display, setDisplay] = useState([]); // burbujas visibles
   const [input, setInput] = useState("");
   const [escribiendo, setEscribiendo] = useState(false); // "Rita está escribiendo…"
   const [bloqueado, setBloqueado] = useState(false); // input deshabilitado
-  const [fase, setFase] = useState("chat"); // chat | generando | menu | limite
+  const [fase, setFase] = useState("chat"); // chat | generando | menu
   const [menu, setMenu] = useState(null);
   const [profile, setProfile] = useState(null);
   const [respondidas, setRespondidas] = useState(0);
@@ -46,7 +48,6 @@ const RitaChat = ({ perfil, user, onCerrar, menuInicial }) => {
   const iniciadoRef = useRef(false);
 
   const plan = planDeUsuario(perfil);
-  const esFree = !perfil?.plan || perfil.plan === "free";
 
   // Estable entre renders para no reiniciar el typewriter de burbujas ya escritas
   // cuando llega un mensaje nuevo (solo lee el ref del contenedor).
@@ -139,16 +140,8 @@ const RitaChat = ({ perfil, user, onCerrar, menuInicial }) => {
     }
   };
 
-  // Cierre de la conversación -> generación del menú (respeta el límite free).
+  // Cierre de la conversación -> generación del menú.
   const finalizar = async (perfilRita) => {
-    const usadas = esFree
-      ? parseInt(localStorage.getItem(TRIAL_KEY) || "0", 10)
-      : 0;
-    if (esFree && usadas >= MAX_FREE_TRIALS) {
-      setFase("limite");
-      return;
-    }
-
     const datos = {
       ...perfilRita,
       name: perfilRita?.name || perfil?.nombre || user?.displayName || "",
@@ -162,10 +155,6 @@ const RitaChat = ({ perfil, user, onCerrar, menuInicial }) => {
       setMenu(nuevoMenu);
       // Persiste solo cuando la generación fue exitosa.
       saveMenu({ menu: nuevoMenu, profile: datos });
-      // La prueba se cuenta al entregar el menú, no al pedirlo: si falla la red
-      // o la IA, el usuario no pierde una de sus dos muestras gratis a cambio
-      // de nada.
-      if (esFree) localStorage.setItem(TRIAL_KEY, String(usadas + 1));
     } catch {
       setMenu(null);
     }
@@ -240,27 +229,7 @@ const RitaChat = ({ perfil, user, onCerrar, menuInicial }) => {
         userId={user?.uid}
         onReiniciar={reiniciar}
         onPlatoActualizado={actualizarPlato}
-        esFree={esFree}
       />
-    );
-  }
-
-  // --- Fase: límite de pruebas gratis alcanzado ---
-  if (fase === "limite") {
-    return (
-      <div className="rita-limite">
-        <div className="usuario-seccion-head">
-          <span className="usuario-seccion-badge">✨ Suscríbete</span>
-          <h2 className="usuario-seccion-title">
-            Alcanzaste tus menús de muestra gratis
-          </h2>
-          <p className="usuario-seccion-sub">
-            Suscríbete para que Rita diseñe tus menús personalizados cada
-            semana, sin límites y con entrega a domicilio.
-          </p>
-        </div>
-        <Planos ctaLabel="Suscribirse" />
-      </div>
     );
   }
 

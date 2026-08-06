@@ -45,7 +45,6 @@ const valorMetrica = (resumen, alias) => {
 
 const MenuResultado = ({
   menu,
-  esFree,
   profile,
   plan = "starter",
   userId,
@@ -72,10 +71,10 @@ const MenuResultado = ({
   const cerrarCancelar = useCallback(() => setCancelando(null), []);
   const cerrarEditar = useCallback(() => setEditando(null), []);
 
-  // Editar cuesta una llamada a la IA, así que queda fuera del plan free — que
-  // tampoco puede crear otro menú. Sin `onPlatoActualizado` no habría dónde
-  // guardar el plato nuevo, así que tampoco se ofrece.
-  const puedeEditar = !esFree && !!onPlatoActualizado;
+  // Sin `onPlatoActualizado` no habría dónde guardar el plato nuevo, así que
+  // tampoco se ofrece cambiarlo. (El plan Free ya no llega hasta aquí: el chat
+  // y su menú son de Starter y Premium, ver MisSemanales.jsx.)
+  const puedeEditar = !!onPlatoActualizado;
 
   // El modal avisa con TODAS las comidas del envío (la principal y los extras).
   const registrarPedido = useCallback(
@@ -276,30 +275,16 @@ const MenuResultado = ({
         </div>
       )}
 
-      {/*nuevo menu solo si no es free*/}
-
-      {!esFree && (
-        <div className="rita-menu-actions">
-          <button
-            type="button"
-            className="usuario-empty-btn"
-            onClick={onReiniciar}
-          >
-            <span className="usuario-empty-btn-icon">✨</span>
-            Crear otro menú
-          </button>
-        </div>
-      )}
-
-      {esFree && (
-        <div className="rita-menu-actions">
-          <p className="usuario-empty-btn">
-            <span className="usuario-empty-btn-icon">✨</span>
-            Activa tu plan a startet o premium para que esta comida llegue a
-            domicilio y puedas crear más menús con una mejor personalización
-          </p>
-        </div>
-      )}
+      <div className="rita-menu-actions">
+        <button
+          type="button"
+          className="usuario-empty-btn"
+          onClick={onReiniciar}
+        >
+          <span className="usuario-empty-btn-icon">✨</span>
+          Crear otro menú
+        </button>
+      </div>
 
       {detalle && diaActual[detalle] && (
         <ModalPlato

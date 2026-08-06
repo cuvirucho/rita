@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "../../Auth/AuthContext";
 import Planos, { planData } from "../../Menu/Plano/Planos.jsx";
+import { planUsuario } from "./deliveryUtils";
 
 // Normaliza cualquier fecha (Firestore Timestamp | Date | string ISO) a Date | null
 const toDate = (valor) => {
@@ -50,8 +51,9 @@ const encontrarPlan = (plan) => {
 
 const MiPlan = () => {
   const { perfil } = useAuth();
-  const plan = perfil?.plan || "free";
-  // console.log(perfil);
+  // Normalizado: quien pagó por Payphone no tiene `perfil.plan`, solo `cart`.
+  // encontrarPlan() sigue casando: "premium" por `style` y "starter" por título.
+  const plan = planUsuario(perfil);
 
   // --- Caso free: invitar a suscribirse ---
   if (plan === "free") {

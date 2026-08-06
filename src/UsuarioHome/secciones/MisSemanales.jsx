@@ -1,10 +1,33 @@
 import { useState } from "react";
 import { useAuth } from "../../Auth/AuthContext";
 import RitaChat from "../../Rita/RitaChat";
+import RitaBloqueado from "../../Rita/RitaBloqueado";
 import { useMenuGuardado } from "../../Rita/useMenuGuardado";
+import { planUsuario } from "./deliveryUtils";
 
-const MisSemanales = () => {
+/**
+ * Sección "Plan de Comidas".
+ *
+ * El chat de Rita es exclusivo de Starter y Premium. El corte del plan Free va
+ * ANTES de cualquier hook de datos (mismo criterio que Nutricion.jsx): así el
+ * usuario gratuito no dispara ni una lectura de Firestore ni del menú guardado.
+ * Los hooks del panel se llaman siempre porque este return está por encima de
+ * todos ellos y `plan` no cambia dentro de un montaje.
+ *
+ * `planUsuario` y no `perfil?.plan === "free"`: es el único normalizador que ve
+ * a los usuarios que pagaron por Payphone, cuyo plan solo consta en `cart`.
+ */
+const MisSemanales = ({ onMenuDiario }) => {
   const { user, perfil } = useAuth();
+
+  if (planUsuario(perfil) === "free") {
+    return <RitaBloqueado onMenuDiario={onMenuDiario} />;
+  }
+
+  return <SemanalesPanel user={user} perfil={perfil} />;
+};
+
+const SemanalesPanel = ({ user, perfil }) => {
   // Busca el menú del usuario en localStorage y, si ahí no hay, en Firestore.
   const { estado, guardado } = useMenuGuardado(user?.uid);
   const [abierto, setAbierto] = useState(false); // pulsó "Crear menú con IA"

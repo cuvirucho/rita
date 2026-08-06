@@ -6,6 +6,7 @@ import Nutricion from "./secciones/Nutricion";
 import Entrenador from "./secciones/Entrenador";
 import Perfil from "./secciones/Perfil";
 import Delivery from "./secciones/Delivery.jsx";
+import { planUsuario } from "./secciones/deliveryUtils";
 
 const SECCIONES = [
   { id: "semanales", label: "Plan de Comidas", icono: "📅" },
@@ -17,6 +18,15 @@ const SECCIONES = [
   { id: "entrenador", label: "Entrenador", icono: "💪" },
   { id: "perfil", label: "Perfil", icono: "👤" },
 ];
+
+// Secciones que ya montan su propia pantalla de bloqueo con los planes dentro.
+// El banner de upsell se omite en ellas para no apilar dos ofertas seguidas.
+const SECCIONES_CON_PLANES = new Set([
+  "perfil",
+  "consumos",
+  "semanales",
+  "delivery",
+]);
 
 const UsuarioHome = () => {
   const { user, perfil } = useAuth();
@@ -72,7 +82,9 @@ const UsuarioHome = () => {
       case "semanales":
         return (
           <div className="container">
-            <MisSemanales />
+            {/* El plan Free no entra al chat de Rita: desde su pantalla de
+                bloqueo se le ofrece el menú del día, que sí está abierto. */}
+            <MisSemanales onMenuDiario={() => irASeccion("menu")} />
           </div>
         );
       case "consumos":
@@ -163,11 +175,10 @@ const UsuarioHome = () => {
           {renderSeccion()}
         </div>
         {/* Banner de upsell: invita a mejorar el plan (solo usuarios free).
-            Se omite en las secciones que ya traen su propia pantalla de
-            bloqueo con planes, para no apilar dos ofertas seguidas. */}
-        {perfil?.plan === "free" &&
-          seccionActiva !== "perfil" &&
-          seccionActiva !== "consumos" && (
+            `planUsuario` y no `perfil?.plan`: quien pagó por Payphone tiene el
+            plan solo en `cart` y estaba viendo ofertas que ya había comprado. */}
+        {planUsuario(perfil) === "free" &&
+          !SECCIONES_CON_PLANES.has(seccionActiva) && (
           <aside className="usuario-upsell">
             <span className="usuario-upsell-glow" aria-hidden="true" />
             <div className="usuario-upsell-text">

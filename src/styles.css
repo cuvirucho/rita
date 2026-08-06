@@ -6390,6 +6390,11 @@ textarea {
   color: var(--text-secondary);
 }
 
+.usuario-plan-badge--starter {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: var(--text-inverse);
+}
+
 .usuario-plan-badge--premium {
   background: linear-gradient(135deg, var(--accent), #ff9500);
   color: var(--secondary);
@@ -7757,8 +7762,162 @@ textarea {
   margin: 24px 0 8px;
 }
 
-.rita-limite {
+/* ---------- Chat bloqueado (plan Free) ---------- */
+/* Rita/RitaBloqueado.jsx. Misma receta que .nutri-lock* y .delivery-lock*:
+   el panel insinuado y el mensaje se apilan en la MISMA celda de grid, nunca
+   con `position: absolute`. Con posición absoluta la altura la fijaría solo el
+   panel de fondo y `overflow: hidden` recortaría el texto y los botones en
+   móvil. Apilados en grid, el contenedor mide lo que el hijo más alto. */
+.rita-lock {
+  display: grid;
+  margin-top: 24px;
+  border-radius: var(--radius-2xl);
+  overflow: hidden;
+  border: 1px solid var(--border);
   animation: fadeIn 300ms ease both;
+}
+
+.rita-lock-preview,
+.rita-lock-overlay {
+  grid-area: 1 / 1;
+}
+
+/* Conversación de mentira con las clases reales del chat (.rita-bubble*):
+   texto fijo, cero peticiones. Se estira hasta la altura del mensaje. */
+.rita-lock-preview {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 12px;
+  padding: 40px 24px;
+  background: var(--bg-subtle);
+  filter: blur(3px);
+  opacity: 0.55;
+}
+
+/* `position: relative` (y no absolute) para que su altura cuente: es lo que
+   hace crecer al contenedor cuando el texto ocupa más en pantallas estrechas.
+   Sigue siendo el contexto de posicionamiento del resplandor. */
+.rita-lock-overlay {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 36px 26px;
+  text-align: center;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.9),
+    rgba(255, 255, 255, 0.97)
+  );
+}
+
+.rita-lock-glow {
+  position: absolute;
+  top: -60px;
+  right: -50px;
+  width: 240px;
+  height: 240px;
+  border-radius: var(--radius-full);
+  background: radial-gradient(circle, var(--primary-glow), transparent 70%);
+  pointer-events: none;
+}
+
+.rita-lock-candado {
+  font-size: 2.1rem;
+}
+
+.rita-lock-badge {
+  padding: 6px 15px;
+  background: var(--secondary);
+  border-radius: var(--radius-full);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #fff;
+}
+
+.rita-lock-titulo {
+  max-width: 520px;
+  font-size: clamp(1.25rem, 3.2vw, 1.75rem);
+  font-weight: 800;
+  line-height: 1.25;
+  color: var(--secondary);
+}
+
+.rita-lock-texto {
+  max-width: 560px;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.rita-lock-perks {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.rita-lock-perks li {
+  padding: 7px 13px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.rita-lock-acciones {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.rita-lock-cta {
+  padding: 14px 30px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  border: none;
+  border-radius: var(--radius-full);
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--secondary);
+  cursor: pointer;
+  box-shadow: var(--shadow-md);
+  transition:
+    transform var(--transition),
+    box-shadow var(--transition);
+}
+
+.rita-lock-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Salida secundaria (menú del día): no debe competir con el CTA de pago. */
+.rita-lock-cta--menu {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--secondary);
+  box-shadow: var(--shadow-xs);
+}
+
+.rita-lock-cta--menu:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.rita-planes {
+  margin-top: 40px;
+  scroll-margin-top: 90px;
 }
 
 @media (max-width: 640px) {
@@ -7768,6 +7927,23 @@ textarea {
   }
   .rita-bubble {
     max-width: 85%;
+  }
+  .rita-lock-preview {
+    padding: 28px 16px;
+  }
+  .rita-lock-overlay {
+    padding: 30px 18px;
+  }
+  .rita-lock-acciones {
+    width: 100%;
+    flex-direction: column;
+  }
+  .rita-lock-cta {
+    width: 100%;
+    padding: 14px 20px;
+  }
+  .rita-lock-perks li {
+    font-size: 0.7rem;
   }
 }
 

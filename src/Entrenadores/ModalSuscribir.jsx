@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { abrirWhatsApp } from "./whatsapp";
+import { abrirWhatsApp } from "../lib/whatsapp";
 import { calcAhorro, formatearPrecio } from "./precios";
 
 // Planes disponibles: cada uno mapea al campo de precio del entrenador y a la

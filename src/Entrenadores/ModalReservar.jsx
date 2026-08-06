@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { abrirWhatsApp } from "./whatsapp";
+import { abrirWhatsApp } from "../lib/whatsapp";
 
 // Fecha mínima seleccionable: hoy (formato YYYY-MM-DD para el input date).
 const hoyISO = () => new Date().toISOString().split("T")[0];

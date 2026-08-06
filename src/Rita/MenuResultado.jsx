@@ -10,125 +10,38 @@ import {
   pedidosDeDia,
   savePedidos,
 } from "./menuStorage";
+// Orden y etiquetas de comidas y días. Viven en comidas.js porque la sección
+// de Nutrición usa exactamente los mismos valores.
+import {
+  MEAL_ICONS,
+  MEAL_LABELS,
+  MEAL_ORDER,
+  diasDeMenu,
+  etiquetaDeDia,
+} from "./comidas";
+// Lectura del `resumen_semanal`: normalización de claves y tabla de alias con
+// las variantes antiguas. Vive en Nutrición porque allí también se usa, y dos
+// copias de la tabla de alias acabarían desincronizadas.
+import { ALIAS_RESUMEN, normalizarResumen } from "../Nutricion/objetivosNutricion";
+import { aNumero } from "../Nutricion/nutricionCore";
 
-// Orden y etiquetas de comidas según el plan. El backend genera hasta 5 comidas
-// (desayuno, snack1, almuerzo, snack2, cena); aquí se muestra el subconjunto que
-// corresponde al plan del usuario:
-//   - starter / free (muestra): 3 comidas
-//   - premium: 5 comidas
-const MEAL_ORDER = {
-  starter: ["desayuno", "almuerzo", "cena", "snack"],
-  premium: ["desayuno", "snack", "almuerzo", "bebida", "cena"],
-};
+// Promedios diarios del resumen semanal.
+const METRICAS = [
+  { emoji: "🔥", label: "Calorías", unidad: "kcal / día", alias: ALIAS_RESUMEN.calorias },
+  { emoji: "💪", label: "Proteínas", unidad: "g / día", alias: ALIAS_RESUMEN.proteinas },
+  { emoji: "🍞", label: "Carbohidratos", unidad: "g / día", alias: ALIAS_RESUMEN.carbohidratos },
+  { emoji: "🥑", label: "Grasas", unidad: "g / día", alias: ALIAS_RESUMEN.grasas },
+  { emoji: "🌾", label: "Fibra", unidad: "g / día", alias: ALIAS_RESUMEN.fibra },
+];
 
-const MEAL_LABELS = {
-  desayuno: "Desayuno",
-  snack: "Snack día",
-  almuerzo: "Almuerzo",
-  bebida: "Bebida",
-  cena: "Cena",
-};
-
-// Equivalente al campo `icono` que MenuDiario lee de sus datos estáticos: la IA
-// no devuelve emoji, así que se deriva del tipo de comida.
-const MEAL_ICONS = {
-  desayuno: "🍳",
-  snack: "🥜",
-  almuerzo: "🍽️",
-  bebida: "🥤",
-  cena: "🌙",
-};
-
-// La IA no respeta siempre el nombre exacto de la clave: cuela espacios (el
-// prompt llegó a pedir "calorias_promedio " con uno al final), mayúsculas o una
-// variante del nombre. Se normaliza el objeto una vez y luego se busca por
-// alias, en lugar de encadenar un `??` por cada variante.
-const normalizarResumen = (resumen) => {
-  if (!resumen || typeof resumen !== "object") return {};
-  const plano = {};
-  Object.entries(resumen).forEach(([clave, valor]) => {
-    plano[clave.trim().toLowerCase()] = valor;
-  });
-  return plano;
-};
-
-// Los promedios llegan como número o como texto ("2400", "2400 kcal"): la
-// unidad la pone la tarjeta, así que se conserva solo la parte numérica.
+// Primer alias con un número utilizable.
 const valorMetrica = (resumen, alias) => {
   for (const clave of alias) {
-    const bruto = resumen[clave];
-    if (bruto == null || bruto === "") continue;
-    if (typeof bruto === "number") return bruto;
-    const num = String(bruto).match(/-?\d+(?:[.,]\d+)?/);
-    if (num) return num[0].replace(",", ".");
+    const num = aNumero(resumen[clave]);
+    if (num != null) return num;
   }
   return null;
 };
-
-// Promedios diarios del resumen semanal. Los alias van en minúscula y sin
-// espacios porque `normalizarResumen` ya deja las claves así. Se mantienen las
-// variantes antiguas: hay menús guardados en localStorage con esos nombres.
-const METRICAS = [
-  {
-    emoji: "🔥",
-    label: "Calorías",
-    unidad: "kcal / día",
-    alias: [
-      "calorias_promedio",
-      "promedio_calorias_diarias",
-      "calorias_diarias_promedio",
-      "promediocaloriasdiarias",
-      "promediocalorias",
-    ],
-  },
-  {
-    emoji: "💪",
-    label: "Proteínas",
-    unidad: "g / día",
-    alias: [
-      "proteinas_promedio",
-      "promedio_proteinas_diarias",
-      "proteinas_diarias_promedio",
-      "proteina_diaria_promedio",
-      "promedioproteinasdiarias",
-      "promedioproteinas",
-    ],
-  },
-  {
-    emoji: "🍞",
-    label: "Carbohidratos",
-    unidad: "g / día",
-    alias: [
-      "carbohidratos_promedio",
-      "promedio_carbohidratos_diarios",
-      "carbohidratos_diarios_promedio",
-      "promediocarbohidratos",
-      "carbos_promedio",
-    ],
-  },
-  {
-    emoji: "🥑",
-    label: "Grasas",
-    unidad: "g / día",
-    alias: [
-      "grasas_promedio",
-      "promedio_grasas_diarias",
-      "grasas_diarias_promedio",
-      "promediograsas",
-    ],
-  },
-  {
-    emoji: "🌾",
-    label: "Fibra",
-    unidad: "g / día",
-    alias: [
-      "fibra_promedio",
-      "promedio_fibra_diaria",
-      "fibra_diaria_promedio",
-      "promediofibra",
-    ],
-  },
-];
 
 const MenuResultado = ({
   menu,
@@ -139,9 +52,9 @@ const MenuResultado = ({
   onReiniciar,
   onPlatoActualizado,
 }) => {
-  const dias = menu
-    ? Object.keys(menu).filter((dia) => dia !== "resumen_semanal")
-    : [];
+  // Ordenados por el día real que nombran: la IA los devuelve desordenados
+  // (un menú llegó como lunes, jueves, viernes, martes, miercoles).
+  const dias = diasDeMenu(menu);
   const [selectedDay, setSelectedDay] = useState(dias[0] || "dia1");
   // Comida cuyo detalle se está mostrando (null = modal cerrado).
   const [detalle, setDetalle] = useState(null);
@@ -243,7 +156,7 @@ const MenuResultado = ({
   // Solo las comidas del plan que además existan en la respuesta de la IA.
   const comidas = comidasDelPlan.filter((meal) => diaActual[meal]);
   const indiceDia = dias.indexOf(selectedDay);
-  const diaLabel = `Día ${indiceDia >= 0 ? indiceDia + 1 : 1}`;
+  const diaLabel = etiquetaDeDia(selectedDay, indiceDia >= 0 ? indiceDia : 0);
 
   // Las comidas del día en el formato que consume el modal de pedido.
   const comidasModal = comidas.map((meal) => ({
@@ -285,7 +198,7 @@ const MenuResultado = ({
             className={`menu-day-btn ${selectedDay === day ? "active" : ""}`}
             onClick={() => cambiarDia(day)}
           >
-            Día {index + 1}
+            {etiquetaDeDia(day, index)}
           </button>
         ))}
       </div>

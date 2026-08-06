@@ -37,6 +37,16 @@ export const planDelivery = (perfil) => {
   return "free";
 };
 
+/**
+ * Mismo normalizador con un nombre que no chirría fuera de Delivery.
+ *
+ * Es el único del proyecto que distingue "free" de verdad: `planDeUsuario`
+ * (Rita/ritaApi.js) nunca lo devuelve a propósito, y las comprobaciones sueltas
+ * `perfil?.plan === "free"` que hay por ahí no ven a los usuarios que pagaron
+ * por Payphone, cuyo plan solo consta en `cart.nombre`.
+ */
+export const planUsuario = planDelivery;
+
 // Ubicaciones que permite cada plan (tal como se anuncian en Menu/Plano/Planos.jsx).
 export const LIMITE_DIRECCIONES = { free: 0, starter: 2, premium: 3 };
 

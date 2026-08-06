@@ -2452,6 +2452,15 @@ textarea {
   .resumen-pista {
     scroll-behavior: auto;
   }
+  /* Nutrición: los anillos y las barras se pintan ya en su valor final en vez
+     de animarse hasta él. El estilo en línea que los anima lleva la
+     transición, de ahí el !important. */
+  .nutri-anillo-arco,
+  .nutri-barra-fill,
+  .nutri-dia-barra-fill,
+  .nutri-semana-barra-fill {
+    transition: none !important;
+  }
 }
 
 .resumen-item {
@@ -5605,91 +5614,18 @@ textarea {
   box-shadow: none;
 }
 
-/* Modal método de pago (reusa keyframes trialFadeIn / trialSlideUp) */
-.orden-modal-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-  background: rgba(15, 23, 42, 0.7);
-  backdrop-filter: blur(6px);
-  animation: trialFadeIn 0.25s ease;
-}
-.orden-modal {
-  position: relative;
-  width: 100%;
-  max-width: 420px;
-  padding: 44px 28px 32px;
-  background: var(--bg);
-  border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-xl);
-  text-align: center;
-  animation: trialSlideUp 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.orden-modal-close {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  background: var(--bg-muted);
-  border: none;
-  border-radius: var(--radius-full);
+/* Aviso tras abrir WhatsApp, con el enlace de respaldo si lo bloquearon */
+.orden-enviado {
+  margin-top: 14px;
+  font-size: 0.9rem;
+  line-height: 1.5;
   color: var(--text-secondary);
-  cursor: pointer;
-  transition: var(--transition-fast);
+  text-align: center;
 }
-.orden-modal-close:hover {
-  background: var(--border);
-  color: var(--text);
-}
-.orden-modal-title {
-  font-size: 1.4rem;
-  font-weight: 800;
-  color: var(--secondary);
-  margin-bottom: 24px;
-  line-height: 1.3;
-}
-.orden-pay-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
-}
-.orden-pay-btn {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 24px 12px;
-  background: var(--bg-subtle);
-  border: 2px solid var(--border);
-  border-radius: var(--radius-lg);
-  font-family: var(--font);
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--secondary);
-  cursor: pointer;
-  transition: all var(--transition);
-}
-.orden-pay-btn:hover {
-  border-color: var(--primary);
+.orden-enviado a {
   color: var(--primary);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow);
-}
-.orden-pay-btn:active {
-  transform: translateY(0) scale(0.97);
-}
-.orden-pay-icon {
-  font-size: 2rem;
+  font-weight: 700;
+  text-decoration: underline;
 }
 
 /* Responsive */
@@ -5717,12 +5653,6 @@ textarea {
   .orden-item-icon {
     width: 42px;
     height: 42px;
-    font-size: 1.25rem;
-  }
-  .orden-modal {
-    padding: 40px 20px 26px;
-  }
-  .orden-modal-title {
     font-size: 1.25rem;
   }
 }
@@ -9940,5 +9870,1447 @@ textarea {
   }
   .entrega-paso-label {
     font-size: 0.62rem;
+  }
+}
+
+/* ============================================================
+   ==== NUTRICIÓN — panel de seguimiento nutricional ====
+   Sección "consumos" (UsuarioHome). Reutiliza el shell
+   .usuario-seccion*, el modal .trial-modal* y la convención de
+   barras de .md-macro-*; lo propio va con prefijo nutri-.
+   ============================================================ */
+
+/* El modal de nutrientes se monta con un portal en <body>, fuera de
+   .nutri-panel, así que la paleta se declara también en su shell o sus
+   variables quedarían sin resolver. */
+.nutri-panel,
+.trial-modal--nutri {
+  /* Semáforo: 🟢 dentro del objetivo, 🟡 cerca del límite, 🔴 exceso o
+     déficit. Se declaran una vez y cada estado elige cuál usa, para no
+     repetir el literal en veinte reglas. */
+  --nutri-ok: #16a34a;
+  --nutri-medio: #f59e0b;
+  --nutri-alerta: #0197b3;
+  --nutri-prote: #0197b3;
+  --nutri-carbo: #ffbb00;
+  --nutri-grasa: #7c3aed;
+  --estado: var(--text-muted);
+}
+
+/* Los estados se enganchan a los elementos que los usan y no a un `.is-*`
+   suelto: así no se escapa el significado a cualquier otro sitio del CSS que
+   ya use esos nombres de estado. */
+.nutri-anillo.is-optimo,
+.nutri-barra-row.is-optimo,
+.nutri-tabla-fila.is-optimo {
+  --estado: var(--nutri-ok);
+}
+.nutri-anillo.is-medio,
+.nutri-anillo.is-alto,
+.nutri-barra-row.is-medio,
+.nutri-barra-row.is-alto,
+.nutri-tabla-fila.is-medio,
+.nutri-tabla-fila.is-alto {
+  --estado: var(--nutri-medio);
+}
+.nutri-anillo.is-bajo,
+.nutri-anillo.is-exceso,
+.nutri-barra-row.is-bajo,
+.nutri-barra-row.is-exceso,
+.nutri-tabla-fila.is-bajo,
+.nutri-tabla-fila.is-exceso {
+  --estado: var(--nutri-alerta);
+}
+.nutri-anillo.is-sindatos,
+.nutri-barra-row.is-sindatos {
+  --estado: var(--text-muted);
+}
+
+/* ---------- Bloques ---------- */
+
+.nutri-bloque {
+  margin-top: 28px;
+  padding: 26px 24px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+}
+
+.nutri-bloque-head {
+  margin-bottom: 20px;
+}
+
+.nutri-bloque-titulo {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.nutri-bloque-sub {
+  margin-top: 5px;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.nutri-skeleton {
+  display: grid;
+  gap: 18px;
+  margin-top: 24px;
+}
+
+.nutri-sync {
+  margin-top: 16px;
+  padding: 11px 16px;
+  border-radius: var(--radius);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.nutri-sync--offline {
+  background: var(--accent-light);
+  border: 1px solid var(--accent);
+  color: #8a6100;
+}
+
+/* ---------- Selector de días ---------- */
+
+.nutri-dias-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 22px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding-bottom: 2px;
+}
+.nutri-dias-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.nutri-dia-btn {
+  position: relative;
+  flex: 1 0 auto;
+  min-width: 76px;
+  padding: 11px 16px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  cursor: pointer;
+  scroll-snap-align: start;
+  transition: all var(--transition);
+}
+
+.nutri-dia-btn:hover {
+  border-color: var(--primary-light);
+  color: var(--primary-dark);
+}
+
+.nutri-dia-btn.active {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 4px 12px var(--primary-glow);
+}
+
+.nutri-dia-btn.is-completo::after {
+  content: "✓";
+  margin-left: 6px;
+  font-size: 0.78rem;
+  color: var(--nutri-ok);
+}
+.nutri-dia-btn.active.is-completo::after {
+  color: #fff;
+}
+
+/* Punto que marca el día de hoy. */
+.nutri-dia-btn-punto {
+  position: absolute;
+  top: 6px;
+  right: 10px;
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-full);
+  background: var(--accent);
+}
+
+.nutri-nota-finde,
+.nutri-nota-media,
+.nutri-planificado {
+  margin-top: 12px;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+/* ---------- Anillos ---------- */
+
+/* El `min(...)` es lo que impide que la pista desborde: cuando el mínimo no
+   cabe, la columna encoge en vez de salirse. Sin él, `body { overflow-x:
+   hidden }` recortaría el exceso en silencio, sin ni siquiera dar scroll.
+   Mismo patrón que .entrenadores-grid. */
+.nutri-anillos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(140px, 100%), 1fr));
+  gap: 16px;
+}
+
+/* Solo hay dos anillos —calorías y proteínas, lo único que el menú trae por
+   plato—. En pantalla ancha se agrupan en una banda centrada: sueltos en
+   1150 px quedaban como dos islas con un vacío enorme en medio. */
+.nutri-anillos--dos {
+  grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr));
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 18px;
+  background: var(--bg-muted);
+  border-radius: var(--radius-lg);
+}
+
+/* Dentro de la banda los anillos van en blanco: con el fondo suave que llevan
+   por defecto se fundirían con ella y se perdería la tarjeta. */
+.nutri-anillos--dos .nutri-anillo {
+  background: var(--bg);
+  border-color: var(--border);
+}
+
+.nutri-anillo {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 14px 8px 12px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  transition:
+    transform var(--transition),
+    box-shadow var(--transition);
+}
+
+.nutri-anillo:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-sm);
+}
+
+.nutri-anillo-caja {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 100%;
+}
+
+.nutri-anillo-svg {
+  max-width: 100%;
+  height: auto;
+}
+
+.nutri-anillo-fondo {
+  stroke: var(--border);
+}
+
+.nutri-anillo-arco {
+  stroke: var(--estado);
+}
+
+.nutri-anillo-centro {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  line-height: 1.15;
+  pointer-events: none;
+}
+
+.nutri-anillo-icono {
+  font-size: 1rem;
+}
+
+.nutri-anillo-valor {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.nutri-anillo-meta {
+  max-width: 92px;
+  font-size: 0.62rem;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.nutri-anillo-label {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-top: 10px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.nutri-anillo-pct {
+  font-size: 0.74rem;
+  font-weight: 800;
+  color: var(--estado);
+}
+
+/* ---------- Barras de nutriente ---------- */
+
+.nutri-barras {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 26px;
+}
+
+.nutri-barra-row {
+  display: grid;
+  grid-template-columns: 22px minmax(96px, 1.1fr) minmax(110px, 1fr) minmax(
+      70px,
+      1.6fr
+    ) 46px;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.82rem;
+}
+
+.nutri-barra-icono {
+  font-size: 0.95rem;
+}
+
+.nutri-barra-nombre {
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.nutri-barra-cifra {
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.nutri-barra-meta {
+  color: var(--text-muted);
+  font-size: 0.76rem;
+}
+
+/* Mismas medidas que .md-macro-bar: barras y anillos son un solo sistema. */
+.nutri-barra {
+  display: block;
+  width: 100%;
+  height: 8px;
+  background: var(--border);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+/* Un nutriente que el menú no compara con ninguna meta (los minerales vienen
+   en mg y sin objetivo) no lleva barra: una barra vacía se leería como 0 %. */
+.nutri-barra-nometa {
+  font-size: 0.68rem;
+  font-style: italic;
+  color: var(--text-muted);
+  text-align: right;
+}
+
+.nutri-barra-row--sinmeta {
+  grid-template-columns: 22px minmax(96px, 1.4fr) minmax(110px, 1fr) auto;
+}
+
+.nutri-barra-fill {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-full);
+  background: var(--estado);
+}
+
+.nutri-barra-pct {
+  text-align: right;
+  font-weight: 800;
+  font-size: 0.78rem;
+  color: var(--estado);
+}
+
+.nutri-barra-row--compacta {
+  grid-template-columns: 20px 1fr auto;
+  grid-template-areas:
+    "icono nombre cifra"
+    "barra barra  pct";
+  gap: 4px 8px;
+  font-size: 0.76rem;
+}
+.nutri-barra-row--compacta .nutri-barra-icono {
+  grid-area: icono;
+}
+.nutri-barra-row--compacta .nutri-barra-nombre {
+  grid-area: nombre;
+}
+.nutri-barra-row--compacta .nutri-barra-cifra {
+  grid-area: cifra;
+  text-align: right;
+}
+.nutri-barra-row--compacta .nutri-barra {
+  grid-area: barra;
+}
+.nutri-barra-row--compacta .nutri-barra-pct {
+  grid-area: pct;
+  display: none;
+}
+
+/* ---------- Vitaminas y minerales ---------- */
+
+.nutri-micros-wrap {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
+  gap: 24px;
+  margin-top: 28px;
+}
+
+.nutri-micros-titulo {
+  margin-bottom: 12px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.nutri-micros-titulo--semana {
+  margin-top: 26px;
+}
+
+.nutri-micros-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  background: var(--bg-subtle);
+  border-radius: var(--radius-lg);
+}
+
+/* ---------- Contexto y avisos ---------- */
+
+.nutri-contexto {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-top: 26px;
+  padding: 16px 18px;
+  background: var(--primary-light);
+  border-radius: var(--radius-lg);
+}
+
+.nutri-contexto-icono {
+  font-size: 1.3rem;
+  line-height: 1;
+}
+
+.nutri-contexto-titulo {
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: var(--secondary);
+}
+
+.nutri-contexto-texto {
+  margin-top: 4px;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+/* ---------- Promedios declarados por el menú ---------- */
+
+.nutri-promedios {
+  margin-top: 28px;
+  padding: 18px 20px;
+  background: var(--bg-subtle);
+  border-radius: var(--radius-lg);
+}
+
+.nutri-promedios-sub {
+  margin: -6px 0 14px;
+  font-size: 0.76rem;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+.nutri-promedios-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr));
+  gap: 12px;
+}
+
+.nutri-promedio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 14px 10px;
+  background: var(--bg);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius);
+  text-align: center;
+}
+
+.nutri-promedio-icono {
+  font-size: 1.15rem;
+}
+
+.nutri-promedio-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.nutri-promedio-valor {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.nutri-micros-vacio,
+.nutri-micros-pie {
+  margin-top: 10px;
+  font-size: 0.74rem;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+/* ---------- Plan semanal ---------- */
+
+.nutri-dias-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+  gap: 18px;
+}
+
+/* Es un <details>: `display: block` y no flex, porque en flex el mecanismo de
+   plegado se comporta de forma distinta según el navegador.
+   Van sobre .nutri-bloque, que también es blanco: sin una sombra de verdad las
+   tarjetas se leían planas, solo separadas por su filete. */
+.nutri-dia-card {
+  display: block;
+  padding: 18px 18px 14px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  transition:
+    transform var(--transition),
+    border-color var(--transition),
+    box-shadow var(--transition);
+}
+
+/* Solo donde hay puntero de verdad: en táctil el :hover se queda pegado
+   después de tocar y la tarjeta se quedaba levantada. */
+@media (hover: hover) {
+  .nutri-dia-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+}
+
+/* ---- Cabecera plegable ---- */
+
+.nutri-dia-summary {
+  cursor: pointer;
+  /* Fuera el triángulo del navegador: se usa .nutri-dia-flecha, que gira. */
+  list-style: none;
+}
+
+.nutri-dia-summary::-webkit-details-marker {
+  display: none;
+}
+
+.nutri-dia-summary:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 4px;
+  border-radius: var(--radius-sm);
+}
+
+.nutri-dia-flecha {
+  flex-shrink: 0;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  transition: transform var(--transition);
+}
+
+.nutri-dia-card[open] .nutri-dia-flecha {
+  transform: rotate(180deg);
+}
+
+.nutri-dia-card.is-hoy {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-glow);
+}
+
+.nutri-dia-card.is-completo {
+  background: linear-gradient(180deg, rgba(22, 163, 74, 0.05), transparent 60%);
+  border-color: rgba(22, 163, 74, 0.35);
+}
+
+/* Todo son <span> porque viven dentro de un <summary>, cuyo modelo de
+   contenido es contenido de frase: hay que darles display a mano. */
+.nutri-dia-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.nutri-dia-titulo {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.nutri-dia-nombre {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.nutri-dia-hoy {
+  padding: 2px 8px;
+  background: var(--accent);
+  border-radius: var(--radius-full);
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--secondary);
+}
+
+.nutri-dia-sub {
+  display: block;
+  margin-top: 3px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.nutri-dia-check {
+  flex-shrink: 0;
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: var(--text-secondary);
+}
+
+.nutri-dia-barra {
+  display: block;
+  width: 100%;
+  height: 5px;
+  margin: 12px 0 14px;
+  background: var(--border);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.nutri-dia-barra-fill {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-full);
+  background: linear-gradient(90deg, var(--primary), var(--nutri-ok));
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nutri-comidas {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* `position: relative` no es decorativo: es el bloque contenedor de la casilla
+   real, que va posicionada en absoluto. Sin él acababa colgando del documento,
+   y en iOS enfocar un input así puede provocar un salto de scroll al pulsar la
+   etiqueta. */
+.nutri-comida {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: var(--radius);
+  transition: background var(--transition);
+}
+
+@media (hover: hover) {
+  .nutri-comida:hover {
+    background: var(--bg-subtle);
+  }
+}
+
+/* La casilla real queda visualmente oculta pero sigue siendo la que recibe el
+   foco y el Espacio: el cuadrado que se ve es .nutri-comida-caja. */
+.nutri-comida-check {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.nutri-comida-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+  padding: 9px 8px;
+  cursor: pointer;
+}
+
+.nutri-comida-caja {
+  flex-shrink: 0;
+  position: relative;
+  width: 21px;
+  height: 21px;
+  background: var(--bg);
+  border: 2px solid var(--border);
+  border-radius: 7px;
+  transition: all var(--transition-fast);
+}
+
+.nutri-comida-caja::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 6px;
+  width: 5px;
+  height: 10px;
+  border: solid #fff;
+  border-width: 0 2.5px 2.5px 0;
+  transform: rotate(45deg) scale(0);
+  transition: transform var(--transition-fast);
+}
+
+.nutri-comida-check:checked + .nutri-comida-label .nutri-comida-caja {
+  background: var(--nutri-ok);
+  border-color: var(--nutri-ok);
+}
+
+.nutri-comida-check:checked + .nutri-comida-label .nutri-comida-caja::after {
+  transform: rotate(45deg) scale(1);
+}
+
+.nutri-comida-check:focus-visible + .nutri-comida-label .nutri-comida-caja {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.nutri-comida-icono {
+  flex-shrink: 0;
+  font-size: 1.05rem;
+}
+
+.nutri-comida-texto {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.nutri-comida-tipo {
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.nutri-comida-nombre {
+  font-size: 0.83rem;
+  font-weight: 600;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nutri-comida-kcal {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--primary-dark);
+  line-height: 1.1;
+}
+
+.nutri-comida-kcal small {
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.nutri-comida.is-consumida .nutri-comida-nombre {
+  color: var(--text-muted);
+  text-decoration: line-through;
+}
+
+.nutri-comida-ver {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  margin-right: 4px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+@media (hover: hover) {
+  .nutri-comida-ver:hover {
+    background: var(--primary-light);
+    border-color: var(--primary-light);
+    transform: scale(1.08);
+  }
+}
+
+.nutri-dia-vacio,
+.nutri-dia-pie {
+  margin-top: 12px;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.nutri-dia-pie {
+  padding-top: 10px;
+  border-top: 1px solid var(--border-light);
+}
+
+/* ---------- Estadísticas de la semana ---------- */
+
+.nutri-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(148px, 100%), 1fr));
+  gap: 14px;
+}
+
+.nutri-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 20px 14px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  text-align: center;
+  transition:
+    transform var(--transition),
+    box-shadow var(--transition);
+}
+
+.nutri-stat:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-sm);
+}
+
+.nutri-stat-icono {
+  font-size: 1.4rem;
+}
+
+.nutri-stat-valor {
+  font-size: 1.7rem;
+  font-weight: 800;
+  line-height: 1.1;
+  color: var(--text);
+}
+
+.nutri-stat-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.nutri-stat--completado .nutri-stat-valor {
+  color: var(--primary-dark);
+}
+.nutri-stat--hechas .nutri-stat-valor {
+  color: var(--nutri-ok);
+}
+.nutri-stat--pendientes .nutri-stat-valor {
+  color: var(--text-secondary);
+}
+.nutri-stat--racha .nutri-stat-valor {
+  color: #ea580c;
+}
+
+.nutri-semana-barra {
+  display: block;
+  width: 100%;
+  height: 10px;
+  margin-top: 18px;
+  background: var(--border);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.nutri-semana-barra-fill {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-full);
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  transition: width 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nutri-semana-vacia {
+  margin-top: 22px;
+  padding: 18px;
+  background: var(--bg-subtle);
+  border-radius: var(--radius-lg);
+  font-size: 0.83rem;
+  line-height: 1.55;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.nutri-reiniciar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border-light);
+}
+
+.nutri-reiniciar-btn {
+  background: none;
+  border: none;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color var(--transition-fast);
+}
+
+.nutri-reiniciar-btn:hover {
+  color: var(--nutri-alerta);
+}
+
+.nutri-reiniciar-pregunta {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.nutri-reiniciar-si {
+  border-color: var(--nutri-alerta);
+  color: var(--nutri-alerta);
+}
+
+/* ---------- Modal de nutrientes ---------- */
+
+.trial-modal--nutri {
+  max-width: 600px;
+  text-align: left;
+  max-height: min(88vh, 820px);
+  overflow-y: auto;
+  padding-top: 32px;
+}
+
+.nutri-modal-body {
+  gap: 20px;
+}
+
+.nutri-modal-marcar {
+  width: 100%;
+  margin-top: 16px;
+  padding: 12px;
+  background: var(--nutri-ok);
+  border: none;
+  border-radius: var(--radius);
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #fff;
+  cursor: pointer;
+  transition: filter var(--transition-fast);
+}
+
+.nutri-modal-marcar:hover {
+  filter: brightness(1.08);
+}
+
+.nutri-modal-marcar.is-consumida {
+  background: var(--bg-muted);
+  color: var(--text-secondary);
+}
+
+.nutri-tabla {
+  display: flex;
+  flex-direction: column;
+}
+
+.nutri-tabla-fila {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--border-light);
+  font-size: 0.82rem;
+}
+
+.nutri-tabla-fila:last-child {
+  border-bottom: none;
+}
+
+.nutri-tabla-nombre {
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.nutri-tabla-valor {
+  font-weight: 700;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.nutri-tabla-valor small {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+/* ---------- Pantalla bloqueada (plan Free) ---------- */
+
+/* El panel insinuado y el mensaje de bloqueo se apilan en la MISMA celda de
+   grid, no con posición absoluta. Con `position: absolute` la altura la fijaba
+   solo el panel de fondo (~271 px en móvil) mientras el mensaje medía ~600 px,
+   así que `overflow: hidden` recortaba medio texto y el botón de mejorar plan
+   entero. Apilados en grid, el contenedor mide lo que el hijo más alto. */
+.nutri-lock {
+  display: grid;
+  margin-top: 24px;
+  border-radius: var(--radius-2xl);
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.nutri-lock-preview,
+.nutri-lock-overlay {
+  grid-area: 1 / 1;
+}
+
+/* Panel insinuado: 100 % CSS y SVG estático, cero peticiones y cero datos.
+   Se estira hasta la altura del mensaje (es la celda entera) y centra su
+   contenido para que los anillos falsos queden detrás del texto. */
+.nutri-lock-preview {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 26px;
+  padding: 40px 32px;
+  background: var(--bg-subtle);
+  filter: blur(3px);
+  opacity: 0.55;
+}
+
+.nutri-lock-anillos {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+}
+
+.nutri-lock-anillo {
+  width: 88px;
+  height: 88px;
+}
+
+.nutri-lock-anillo circle:first-child {
+  stroke: var(--border);
+}
+.nutri-lock-anillo circle:last-child {
+  stroke: var(--primary);
+}
+.nutri-lock-anillo:nth-child(2) circle:last-child {
+  stroke: var(--accent);
+}
+.nutri-lock-anillo:nth-child(3) circle:last-child {
+  stroke: #7c3aed;
+}
+
+.nutri-lock-barras {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 420px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.nutri-lock-barra {
+  display: block;
+  width: 100%;
+  height: 9px;
+  background: var(--border);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.nutri-lock-barra span {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-full);
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+}
+
+/* `position: relative` (y no absolute) para que su altura cuente: es lo que
+   hace crecer al contenedor cuando el texto ocupa más en pantallas estrechas.
+   Sigue siendo el contexto de posicionamiento del resplandor. */
+.nutri-lock-overlay {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 36px 26px;
+  text-align: center;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.9),
+    rgba(255, 255, 255, 0.97)
+  );
+}
+
+.nutri-lock-glow {
+  position: absolute;
+  top: -60px;
+  right: -50px;
+  width: 240px;
+  height: 240px;
+  border-radius: var(--radius-full);
+  background: radial-gradient(circle, var(--primary-glow), transparent 70%);
+  pointer-events: none;
+}
+
+.nutri-lock-candado {
+  font-size: 2.1rem;
+}
+
+.nutri-lock-badge {
+  padding: 6px 15px;
+  background: var(--secondary);
+  border-radius: var(--radius-full);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #fff;
+}
+
+.nutri-lock-titulo {
+  max-width: 520px;
+  font-size: clamp(1.25rem, 3.2vw, 1.75rem);
+  font-weight: 800;
+  line-height: 1.25;
+  color: var(--secondary);
+}
+
+.nutri-lock-texto {
+  max-width: 560px;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.nutri-lock-perks {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.nutri-lock-perks li {
+  padding: 7px 13px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.nutri-lock-cta {
+  margin-top: 10px;
+  padding: 14px 30px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  border: none;
+  border-radius: var(--radius-full);
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--secondary);
+  cursor: pointer;
+  box-shadow: var(--shadow-md);
+  transition:
+    transform var(--transition),
+    box-shadow var(--transition);
+}
+
+.nutri-lock-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.nutri-planes {
+  margin-top: 40px;
+  scroll-margin-top: 90px;
+}
+
+/* ---------- Tarjetas de estadística heredadas ---------- */
+/* Estos modificadores los emitía la antigua sección "Mis Consumos" sin que
+   existiera ninguna regla para ellos. Se definen ahora por si vuelven a
+   usarse desde .usuario-stats-grid. */
+
+.usuario-stat-card--cal {
+  border-left: 3px solid #ef4444;
+}
+.usuario-stat-card--prote {
+  border-left: 3px solid var(--primary);
+}
+.usuario-stat-card--carbo {
+  border-left: 3px solid var(--accent);
+}
+.usuario-stat-card--grasa {
+  border-left: 3px solid #7c3aed;
+}
+.usuario-stat-card--vit {
+  border-left: 3px solid #f97316;
+}
+.usuario-stat-card--min {
+  border-left: 3px solid #64748b;
+}
+.usuario-stat-card--macro {
+  border-left: 3px solid var(--secondary);
+}
+.usuario-stat-card--micro {
+  border-left: 3px solid #16a34a;
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 900px) {
+  .nutri-anillos {
+    grid-template-columns: repeat(auto-fit, minmax(min(130px, 100%), 1fr));
+  }
+  .nutri-barra-row {
+    grid-template-columns: 20px minmax(80px, 1fr) auto;
+    grid-template-areas:
+      "icono nombre cifra"
+      "barra barra  pct";
+    gap: 5px 8px;
+  }
+  .nutri-barra-row .nutri-barra-icono {
+    grid-area: icono;
+  }
+  .nutri-barra-row .nutri-barra-nombre {
+    grid-area: nombre;
+  }
+  .nutri-barra-row .nutri-barra-cifra {
+    grid-area: cifra;
+    text-align: right;
+  }
+  .nutri-barra-row .nutri-barra {
+    grid-area: barra;
+  }
+  .nutri-barra-row .nutri-barra-pct {
+    grid-area: pct;
+    display: none;
+  }
+  /* Las filas sin meta (los minerales, que el menú da en mg y sin objetivo)
+     no tienen barra ni porcentaje: si heredaran las áreas de arriba, su
+     "acumulado" se auto-colocaría en una fila implícita y descuadraría. */
+  .nutri-barra-row--sinmeta {
+    grid-template-areas: "icono nombre cifra";
+  }
+  .nutri-barra-row--sinmeta .nutri-barra-nometa {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .nutri-bloque {
+    padding: 20px 16px;
+  }
+  .nutri-dias-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .nutri-micros-wrap {
+    grid-template-columns: 1fr;
+  }
+  .nutri-anillos--dos {
+    padding: 14px 10px;
+  }
+  .nutri-dia-card {
+    padding: 14px 14px 10px;
+  }
+
+  /* La fila de comida pasa a DOS líneas.
+     En una sola, al nombre del plato le quedaban 84 px —unos diez caracteres—
+     y "Tostadas Integrales con Aguacate y Tomate" se leía "Tostadas I…".
+     `display: contents` sobre el envoltorio del texto sube el tipo y el nombre
+     a esta misma rejilla, y el nombre puede ocupar entonces las dos columnas
+     de la derecha (unos 134 px en dos líneas). */
+  .nutri-comida-label {
+    display: grid;
+    grid-template-columns: auto auto 1fr auto;
+    grid-template-areas:
+      "caja icono tipo   kcal"
+      "caja icono nombre nombre";
+    column-gap: 8px;
+    row-gap: 1px;
+    align-items: center;
+  }
+  .nutri-comida-caja {
+    grid-area: caja;
+  }
+  .nutri-comida-icono {
+    grid-area: icono;
+  }
+  .nutri-comida-texto {
+    display: contents;
+  }
+  .nutri-comida-tipo {
+    grid-area: tipo;
+    align-self: end;
+  }
+  .nutri-comida-nombre {
+    grid-area: nombre;
+    align-self: start;
+    /* Dos líneas y corta; antes era nowrap + ellipsis en una sola. */
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.3;
+  }
+  .nutri-comida-kcal {
+    grid-area: kcal;
+    flex-direction: row;
+    align-items: baseline;
+    align-self: end;
+    gap: 3px;
+  }
+}
+
+@media (max-width: 600px) {
+  .nutri-anillos {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  .nutri-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  /* Apiladas en una columna ocupaban demasiado alto para lo poco que dicen. */
+  .nutri-promedios-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Los cinco días caben de sobra con etiquetas de tres letras: se dejan de
+     estirar a 76 px para que no haya que arrastrar la tira y se vean todos. */
+  .nutri-dias-tabs {
+    gap: 6px;
+    overflow-x: visible;
+  }
+  .nutri-dia-btn {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 10px 4px;
+    font-size: 0.78rem;
+  }
+  .nutri-dia-btn.is-completo::after {
+    margin-left: 3px;
+  }
+
+  /* Objetivo táctil: 32 px se falla con el dedo. */
+  .nutri-comida-ver {
+    width: 40px;
+    height: 40px;
+  }
+  /* Solo el padding y la separación horizontal: el `row-gap` lo fija la
+     rejilla de dos líneas de ≤640 y un `gap` a secas lo pisaría. */
+  .nutri-comida-label {
+    padding: 10px 6px;
+    column-gap: 8px;
+  }
+
+  .nutri-lock-preview {
+    padding: 32px 20px;
+  }
+  .nutri-lock-anillos {
+    gap: 16px;
+  }
+  .nutri-lock-overlay {
+    padding: 28px 18px;
+  }
+  .nutri-lock-cta {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .nutri-bloque-titulo {
+    font-size: 1.05rem;
+  }
+  .nutri-stat {
+    padding: 16px 10px;
+  }
+  .nutri-stat-valor {
+    font-size: 1.4rem;
+  }
+  .nutri-comida-nombre {
+    font-size: 0.79rem;
+  }
+  .nutri-tabla-valor {
+    text-align: right;
+  }
+  .nutri-lock-perks li {
+    font-size: 0.7rem;
+  }
+
+  /* A dos columnas la celda queda en ~135 px: el anillo escala solo, pero las
+     cifras de dentro necesitan bajar o se tocan entre ellas. */
+  .nutri-anillo {
+    padding: 12px 4px 10px;
+  }
+  .nutri-anillo-valor {
+    font-size: 1rem;
+  }
+  .nutri-anillo-meta {
+    max-width: 80px;
+    font-size: 0.58rem;
+  }
+  .nutri-anillo-label {
+    font-size: 0.74rem;
+  }
+  .nutri-promedio {
+    padding: 12px 8px;
+  }
+  .nutri-promedio-valor {
+    font-size: 0.95rem;
+  }
+  .nutri-micros-grid {
+    padding: 12px;
   }
 }

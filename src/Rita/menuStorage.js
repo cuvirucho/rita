@@ -2,6 +2,12 @@
 // Centraliza la clave y el acceso (envuelto en try/catch) para no duplicarla
 // entre RitaChat y MisSemanales. Sigue la convención del proyecto: clave en
 // snake_case con prefijo "rita_" (como "rita_ia_trials").
+
+// Las comidas marcadas como consumidas en la sección de Nutrición. Su módulo no
+// importa Firebase precisamente para poder limpiarlas desde aquí sin arrastrar
+// el SDK al grafo de este archivo.
+import { clearConsumoLocal } from "../Nutricion/consumoStorage";
+
 const MENU_KEY = "rita_menu";
 
 // Comidas del menú actual que el usuario ya pidió (Rita/ModalOrdenar.jsx).
@@ -52,8 +58,10 @@ export const saveMenu = (data) => {
   }
   // Menú nuevo, pedidos a cero: las claves son "diaN:comida" y en el menú
   // nuevo el "día 1" ya es otra comida, así que arrastrarlas marcaría platos
-  // que nadie pidió.
+  // que nadie pidió. Las marcas de "consumida" de Nutrición se borran por
+  // exactamente el mismo motivo.
   clearPedidos();
+  clearConsumoLocal();
 };
 
 /**
@@ -93,6 +101,7 @@ export const clearMenu = () => {
     /* ignore */
   }
   clearPedidos();
+  clearConsumoLocal();
 };
 
 // Mira el contenido y no solo la presencia de la clave: un `{"menu":null}`

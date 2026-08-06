@@ -2,6 +2,9 @@ import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import menuDiario from "../MenuDiario/menuDiario";
 import Footer from "../HOME/Footer";
+import { useAuth } from "../Auth/AuthContext";
+import { abrirWhatsApp, urlWhatsApp } from "../lib/whatsapp";
+import { WHATSAPP_RITA } from "../UsuarioHome/secciones/deliveryUtils";
 
 const OBJETIVO_LABEL = {
   ganar_musculo: "Ganar masa muscular 💪",
@@ -11,6 +14,7 @@ const OBJETIVO_LABEL = {
 function OrdenDiaria() {
   const navigate = useNavigate();
   const { state } = useLocation();
+  const { user, perfil } = useAuth();
   const objetivo = state?.objetivo || "ganar_musculo";
   const tipoInicial = state?.tipo;
 
@@ -23,13 +27,15 @@ function OrdenDiaria() {
     if (idx !== -1) set.add(idx);
     return set;
   });
-  const [modalOpen, setModalOpen] = useState(false);
+  // Se muestra tras abrir WhatsApp; se limpia si el pedido vuelve a cambiar.
+  const [enviado, setEnviado] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
   const togglePlato = (i) => {
+    setEnviado(false);
     setSeleccionados((prev) => {
       const next = new Set(prev);
       if (next.has(i)) {
@@ -41,10 +47,42 @@ function OrdenDiaria() {
     });
   };
 
-  const seleccionadosArr = platos.filter((_, i) => seleccionados.has(i));
+  const seleccionadosArr = useMemo(
+    () => platos.filter((_, i) => seleccionados.has(i)),
+    [platos, seleccionados],
+  );
   const subtotal = seleccionadosArr.reduce((sum, p) => sum + (p.Precio || 0), 0);
   const total = subtotal;
   const cantidad = seleccionadosArr.length;
+
+  const nombre = perfil?.nombre || user?.displayName || "";
+
+  // Texto que le llega a Rita. Se memoriza para reutilizarlo tal cual en el
+  // enlace de respaldo, y así el chat siempre lleva el mismo pedido.
+  const mensaje = useMemo(() => {
+    const lineas = seleccionadosArr.map(
+      (p) => `${p.icono} ${p.nombre} — $${p.Precio || 0}`,
+    );
+    return [
+      "Hola Rita 👋 Quiero hacer este pedido:",
+      "",
+      `Menú: ${OBJETIVO_LABEL[objetivo] || "Menú diario"}`,
+      "",
+      ...lineas,
+      "",
+      `Total: $${total}`,
+      "",
+      nombre
+        ? `Soy ${nombre}. ¿Me confirmas disponibilidad?`
+        : "¿Me confirmas disponibilidad?",
+    ].join("\n");
+  }, [seleccionadosArr, objetivo, total, nombre]);
+
+  const enviarPedido = () => {
+    if (cantidad === 0) return;
+    abrirWhatsApp(WHATSAPP_RITA, mensaje);
+    setEnviado(true);
+  };
 
   return (
     <div className="orden-page">
@@ -137,47 +175,27 @@ function OrdenDiaria() {
             <button
               type="button"
               className="orden-continuar"
-              onClick={() => setModalOpen(true)}
+              onClick={enviarPedido}
               disabled={cantidad === 0}
             >
-              Continuar
+              📲 Enviar pedido por WhatsApp
             </button>
+
+            {enviado && (
+              <p className="orden-enviado">
+                Te abrimos WhatsApp para confirmar tu pedido.{" "}
+                <a
+                  href={urlWhatsApp(WHATSAPP_RITA, mensaje)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  ¿No se abrió? Toca aquí
+                </a>
+              </p>
+            )}
           </aside>
         </div>
       </div>
-
-      {/* Modal método de pago */}
-      {modalOpen && (
-        <div
-          className="orden-modal-overlay"
-          onClick={() => setModalOpen(false)}
-        >
-          <div className="orden-modal" onClick={(e) => e.stopPropagation()}>
-            <button
-              className="orden-modal-close"
-              onClick={() => setModalOpen(false)}
-              aria-label="Cerrar"
-            >
-              ✕
-            </button>
-            <h2 className="orden-modal-title">Elige tu método de pago</h2>
-            <div className="orden-pay-grid">
-              <button type="button" className="orden-pay-btn">
-                <span className="orden-pay-icon" aria-hidden="true">
-                  💵
-                </span>
-                Transferencia
-              </button>
-              <button type="button" className="orden-pay-btn">
-                <span className="orden-pay-icon" aria-hidden="true">
-                  💳
-                </span>
-                Tarjeta
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       <Footer />
     </div>

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../Auth/AuthContext";
 import MenuDiario from "../MenuDiario/MenuDiario.jsx";
 import MisSemanales from "./secciones/MisSemanales";
-import MisConsumos from "./secciones/MisConsumos";
+import Nutricion from "./secciones/Nutricion";
 import Entrenador from "./secciones/Entrenador";
 import Perfil from "./secciones/Perfil";
 import Delivery from "./secciones/Delivery.jsx";
@@ -11,7 +11,9 @@ const SECCIONES = [
   { id: "semanales", label: "Plan de Comidas", icono: "📅" },
   { id: "menu", label: "Rita menú", icono: "🍽️" },
   { id: "delivery", label: "Delivery", icono: "🛵" },
-  { id: "consumos", label: "Mis Consumos", icono: "📊" },
+  // El id sigue siendo "consumos" aunque la etiqueta ya no: renombrarlo no
+  // aportaría nada y es la clave que decide qué sección se pinta.
+  { id: "consumos", label: "Nutrición", icono: "🥗" },
   { id: "entrenador", label: "Entrenador", icono: "💪" },
   { id: "perfil", label: "Perfil", icono: "👤" },
 ];
@@ -76,7 +78,7 @@ const UsuarioHome = () => {
       case "consumos":
         return (
           <div className="container">
-            <MisConsumos />
+            <Nutricion />
           </div>
         );
       case "entrenador":
@@ -160,8 +162,12 @@ const UsuarioHome = () => {
         <div className="usuario-seccion-wrap" key={seccionActiva}>
           {renderSeccion()}
         </div>
-        {/* Banner de upsell: invita a mejorar el plan (solo usuarios free) */}
-        {perfil?.plan === "free" && seccionActiva !== "perfil" && (
+        {/* Banner de upsell: invita a mejorar el plan (solo usuarios free).
+            Se omite en las secciones que ya traen su propia pantalla de
+            bloqueo con planes, para no apilar dos ofertas seguidas. */}
+        {perfil?.plan === "free" &&
+          seccionActiva !== "perfil" &&
+          seccionActiva !== "consumos" && (
           <aside className="usuario-upsell">
             <span className="usuario-upsell-glow" aria-hidden="true" />
             <div className="usuario-upsell-text">
